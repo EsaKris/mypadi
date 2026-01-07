@@ -23,6 +23,7 @@ ALLOWED_HOSTS = [
     'myhousepadi.com',
     'www.myhousepadi.com',
     'myhousepadi.name.ng',
+    'https://myhousepadii.onrender.com'
     '127.0.0.1',
     'localhost',
 ]
@@ -182,6 +183,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://myhousepadi.com',
     'https://www.myhousepadi.com',
     'https://myhousepadi.name.ng',
+    'https://myhousepadii.onrender.com'
 ]
 
 # Custom error handlers
