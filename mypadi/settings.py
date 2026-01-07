@@ -194,7 +194,7 @@ ENCRYPTION_KEY = os.environ['ENCRYPTION_KEY']
 
 LIVE_DOMAINS = {
     'primary': 'https://myhousepadi.com',
-    'secondary': 'https://myhousepadi.name.ng',
+    'secondary': 'https://myhousepadii.onrender.com',
 }
 
 # Production site URL (used for emails / links)

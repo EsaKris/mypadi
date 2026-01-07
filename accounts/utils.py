@@ -14,14 +14,14 @@ def get_site_url(request=None):
     """
     if request:
         host = request.get_host().lower()
-        if 'myhousepadi.name.ng' in host:
+        if 'https://myhousepadii.onrender.com' in host:
             return settings.LIVE_DOMAINS['secondary']
         elif 'myhousepadi.com' in host:
             return settings.LIVE_DOMAINS['primary']
     # Fallback to primary domain
     return settings.LIVE_DOMAINS['primary']
 
-    
+
 def generate_device_id(request):
     user_agent = request.META.get('HTTP_USER_AGENT', '')
     ip = request.META.get('REMOTE_ADDR', '')
