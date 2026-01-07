@@ -23,7 +23,7 @@ ALLOWED_HOSTS = [
     'myhousepadi.com',
     'www.myhousepadi.com',
     'myhousepadi.name.ng',
-    'https://myhousepadii.onrender.com',
+    'myhousepadii.onrender.com',
     '127.0.0.1',
     '127.0.0.1:8000',
     'localhost',
