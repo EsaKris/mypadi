@@ -1,0 +1,96 @@
+{% extends 'landlords/admin/base.html' %}
+{% load static %}
+
+{% block admin_content %}
+<div class="px-4 sm:px-6 lg:px-8">
+    <!-- Header section -->
+    <div class="sm:flex sm:items-center sm:justify-between mb-8">
+        <div class="mb-4 sm:mb-0">
+            <h1 class="text-2xl font-bold text-gray-900">Admin Details</h1>
+            <p class="mt-1 text-sm text-gray-500">View and manage administrator account</p>
+        </div>
+        <div class="flex space-x-3">
+            {% if request.user.is_superuser and not user.is_superuser %}
+            <form method="post" action="{% url 'landlords_admin:promote_to_superadmin' user.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-yellow-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-500" style="background-color: #eab308;">
+                    <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                    </svg>
+                    Promote to Super Admin
+                </button>
+            </form>
+            {% endif %}
+            <a href="{% url 'landlords_admin:admin_list' %}" class="inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                <svg class="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
+                </svg>
+                Back to List
+            </a>
+        </div>
+    </div>
+
+    <!-- Admin details card -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+            <div class="flex flex-col md:flex-row gap-8">
+                <!-- Profile section -->
+                <div class="w-full md:w-1/3">
+                    <div class="text-center p-6 border border-gray-200 rounded-lg">
+                        <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}" 
+                             class="w-32 h-32 rounded-full mx-auto mb-4 object-cover" alt="Profile">
+                        <h3 class="text-lg font-medium text-gray-900">{{ user.get_full_name }}</h3>
+                        <p class="text-sm text-gray-500 mb-2">{{ user.email }}</p>
+                        <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium {% if user.is_superuser %}bg-yellow-100 text-yellow-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                            {% if user.is_superuser %}Super Admin{% else %}Admin{% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Account info section -->
+                <div class="w-full md:w-2/3">
+                    <div class="border border-gray-200 rounded-lg overflow-hidden">
+                        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                            <h3 class="text-lg font-medium leading-6 text-gray-900">Account Information</h3>
+                        </div>
+                        <div class="px-4 py-5 sm:p-6">
+                            <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+                                <div class="sm:col-span-1">
+                                    <dt class="text-sm font-medium text-gray-500">Username</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">{{ user.username }}</dd>
+                                </div>
+                                <div class="sm:col-span-1">
+                                    <dt class="text-sm font-medium text-gray-500">Email</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">{{ user.email }}</dd>
+                                </div>
+                                <div class="sm:col-span-1">
+                                    <dt class="text-sm font-medium text-gray-500">Status</dt>
+                                    <dd class="mt-1">
+                                        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {% if user.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                            {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                                        </span>
+                                    </dd>
+                                </div>
+                                <div class="sm:col-span-1">
+                                    <dt class="text-sm font-medium text-gray-500">Joined Date</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">{{ user.date_joined|date:"M d, Y" }}</dd>
+                                </div>
+                                <div class="sm:col-span-1">
+                                    <dt class="text-sm font-medium text-gray-500">Last Login</dt>
+                                    <dd class="mt-1 text-sm text-gray-900">{{ user.last_login|date:"M d, Y H:i"|default:"Never" }}</dd>
+                                </div>
+                                {% if request.user.is_superuser %}
+                                <div class="sm:col-span-1">
+                                    <dt class="text-sm font-medium text-gray-500">Default Password</dt>
+                                    <dd class="mt-1 text-sm font-mono text-gray-900">{{ default_password }}</dd>
+                                </div>
+                                {% endif %}
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

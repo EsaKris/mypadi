@@ -1,0 +1,80 @@
+{% extends "seekers/settings/settings_base.html" %}
+
+{% block settings_content %}
+<div class="container mx-auto px-4 py-6">
+        <!-- Settings Content -->
+            <div class="md:w-2/3">
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="p-4 border-b border-gray-light">
+                        <h2 class="text-lg font-medium">Notification Preferences</h2>
+                    </div>
+                    
+                    <div class="p-6">
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            <div class="mb-6">
+                                <h3 class="text-sm font-medium text-gray-700 mb-3">Email Notifications</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <label for="email_job_alerts" class="block text-sm text-gray-700 mb-1">Job Alerts</label>
+                                            <p class="text-xs text-gray-500">Receive notifications about new job postings</p>
+                                        </div>
+                                        <input type="checkbox" id="email_job_alerts" name="email_job_alerts" 
+                                               class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded" checked>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <label for="email_application_updates" class="block text-sm text-gray-700 mb-1">Application Updates</label>
+                                            <p class="text-xs text-gray-500">Get notified about your application status</p>
+                                        </div>
+                                        <input type="checkbox" id="email_application_updates" name="email_application_updates" 
+                                               class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded" checked>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <label for="email_newsletters" class="block text-sm text-gray-700 mb-1">Newsletters</label>
+                                            <p class="text-xs text-gray-500">Receive our monthly newsletter with career tips</p>
+                                        </div>
+                                        <input type="checkbox" id="email_newsletters" name="email_newsletters" 
+                                               class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <h3 class="text-sm font-medium text-gray-700 mb-3">Push Notifications</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <label for="push_important" class="block text-sm text-gray-700 mb-1">Important Updates</label>
+                                            <p class="text-xs text-gray-500">Receive time-sensitive notifications</p>
+                                        </div>
+                                        <input type="checkbox" id="push_important" name="push_important" 
+                                               class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded" checked>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <label for="push_messages" class="block text-sm text-gray-700 mb-1">Messages</label>
+                                            <p class="text-xs text-gray-500">Get notified about new messages</p>
+                                        </div>
+                                        <input type="checkbox" id="push_messages" name="push_messages" 
+                                               class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded" checked>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-end">
+                                <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition">
+                                    Save Preferences
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

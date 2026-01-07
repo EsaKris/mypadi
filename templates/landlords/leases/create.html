@@ -1,0 +1,150 @@
+{% extends "landlords/landlords_base.html" %}
+
+{% block title %}Create Lease Agreement{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Create Lease Agreement</h1>
+                <p class="text-gray-600">For tenant: {{ tenant.full_name }}</p>
+            </div>
+            <div>
+                <a href="{% url 'landlords:tenants' %}" 
+                   class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    <i class="fas fa-arrow-left mr-2"></i> Back
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <form method="post">
+            {% csrf_token %}
+            <div class="px-4 py-5 sm:p-6">
+                <div class="space-y-6">
+                    <!-- Basic Info -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="tenant" class="block text-sm font-medium text-gray-700">Tenant</label>
+                            <div class="mt-1">
+                                <input type="text" id="tenant" value="{{ tenant.full_name }}" readonly
+                                       class="block w-full bg-gray-100 shadow-sm sm:text-sm border-gray-300 rounded-md">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="property" class="block text-sm font-medium text-gray-700">Property</label>
+                            <div class="mt-1">
+                                <input type="text" id="property" value="{{ tenant.property.name }}" readonly
+                                       class="block w-full bg-gray-100 shadow-sm sm:text-sm border-gray-300 rounded-md">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lease Dates -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
+                            <div class="mt-1">
+                                <input type="date" name="start_date" id="start_date" required
+                                       class="block w-full shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm border-gray-300 rounded-md">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
+                            <div class="mt-1">
+                                <input type="date" name="end_date" id="end_date" required
+                                       class="block w-full shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm border-gray-300 rounded-md">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Financial Terms -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="monthly_rent" class="block text-sm font-medium text-gray-700">Monthly Rent</label>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">₦</span>
+                                </div>
+                                <input type="number" name="monthly_rent" id="monthly_rent" step="0.01" min="0" required
+                                       value="{{ tenant.rent_amount|floatformat:2 }}"
+                                       class="block w-full pl-7 pr-12 py-2 border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="security_deposit" class="block text-sm font-medium text-gray-700">Security Deposit</label>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">₦</span>
+                                </div>
+                                <input type="number" name="security_deposit" id="security_deposit" step="0.01" min="0" required
+                                       value="{{ tenant.security_deposit|floatformat:2 }}"
+                                       class="block w-full pl-7 pr-12 py-2 border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500 sm:text-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lease Terms -->
+                    <div>
+                        <label for="terms" class="block text-sm font-medium text-gray-700">Lease Terms</label>
+                        <div class="mt-1">
+                            <textarea id="terms" name="terms" rows="10"
+                                      class="block w-full shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm border-gray-300 rounded-md">This Lease Agreement ("Lease") is made and effective this [DATE], by and between [LANDLORD NAME] ("Landlord") and [TENANT NAME] ("Tenant").
+
+1. PROPERTY: Landlord rents to Tenant the property located at [PROPERTY ADDRESS] ("Premises").
+
+2. TERM: The lease term will begin on [START DATE] and will terminate on [END DATE].
+
+3. RENT PAYMENTS: Tenant agrees to pay [RENT AMOUNT] per month, due on the [DAY] of each calendar month.
+
+4. SECURITY DEPOSIT: Upon execution of this Lease, Tenant will deposit with Landlord the sum of [DEPOSIT AMOUNT] as security for any damage caused to the Premises during the term hereof.
+
+5. UTILITIES: Tenant will be responsible for all utilities and services.
+
+6. MAINTENANCE AND REPAIR: Tenant will keep the Premises in clean, sanitary, and good condition.
+
+7. OCCUPANTS: The Premises will be occupied only by Tenant and the following individuals: [LIST OCCUPANTS].
+
+8. PETS: No pets will be allowed on the Premises without the prior written consent of Landlord.
+
+9. GOVERNING LAW: This Lease will be governed by and construed in accordance with the laws of the State of [STATE].
+
+IN WITNESS WHEREOF, the parties have executed this Lease as of the date first written above.
+
+LANDLORD: ____________________________
+TENANT: ______________________________</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Signatures -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="landlord_signature" class="block text-sm font-medium text-gray-700">Landlord Signature Date</label>
+                            <div class="mt-1">
+                                <input type="date" name="landlord_signature" id="landlord_signature"
+                                       class="block w-full shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm border-gray-300 rounded-md">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="tenant_signature" class="block text-sm font-medium text-gray-700">Tenant Signature Date</label>
+                            <div class="mt-1">
+                                <input type="date" name="tenant_signature" id="tenant_signature"
+                                       class="block w-full shadow-sm focus:ring-primary-500 focus:border-primary-500 sm:text-sm border-gray-300 rounded-md">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+                <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    Create Lease Agreement
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends 'landlords/admin/base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Notifications</h1>
+        <div>
+            <a href="{% url 'landlords_admin:mark_all_notifications_read' %}" class="btn btn-sm btn-secondary">
+                <i class="fas fa-check-circle"></i> Mark All as Read
+            </a>
+            <a href="{% url 'landlords_admin:create_notification' %}" class="btn btn-sm btn-primary">
+                <i class="fas fa-plus"></i> Create Notification
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">All Notifications</h6>
+            <span class="badge badge-primary">{{ unread_count }} unread</span>
+        </div>
+        <div class="card-body">
+            <div class="list-group">
+                {% for notification in notifications %}
+                <a href="{% if notification.related_url %}{{ notification.related_url }}{% else %}#{% endif %}" 
+                   class="list-group-item list-group-item-action {% if not notification.is_read %}list-group-item-primary{% endif %}">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">
+                            {% if not notification.is_read %}<span class="badge badge-primary">New</span>{% endif %}
+                            {{ notification.title }}
+                        </h5>
+                        <small>{{ notification.created_at|timesince }} ago</small>
+                    </div>
+                    <p class="mb-1">{{ notification.message }}</p>
+                    <small class="text-muted">Type: {{ notification.get_notification_type_display }}</small>
+                    {% if notification.related_url %}
+                    <div class="mt-2">
+                        <a href="{% url 'landlords_admin:mark_notification_read' notification.pk %}" 
+                           class="btn btn-sm btn-outline-secondary">
+                            Mark as Read
+                        </a>
+                    </div>
+                    {% endif %}
+                </a>
+                {% empty %}
+                <div class="list-group-item">
+                    <p class="mb-0 text-muted">No notifications found.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    {% if is_paginated %}
+    <div class="pagination justify-content-center">
+        <span class="step-links">
+            {% if page_obj.has_previous %}
+                <a href="?page=1" class="btn btn-sm btn-outline-primary">&laquo; first</a>
+                <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-sm btn-outline-primary">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+            </span>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="btn btn-sm btn-outline-primary">next</a>
+                <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-sm btn-outline-primary">last &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,186 @@
+{% extends "seekers/seekers_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <div class="max-w-4xl mx-auto">
+        <!-- Back Button -->
+        <a href="{% url 'seekers:community' %}" class="inline-flex items-center text-primary-600 hover:text-primary-800 mb-4">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Back to Community
+        </a>
+        
+        <!-- Discussion Card -->
+        <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+            <!-- Discussion Header -->
+            <div class="p-6 border-b border-gray-light">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800 mb-2">
+                            {{ post.get_category_display }}
+                        </span>
+                        <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ post.title }}</h1>
+                    </div>
+                    
+                    {% if post.author == request.user %}
+                    <div class="relative inline-block text-left">
+                        <button type="button" class="flex items-center text-gray-500 hover:text-gray-700 focus:outline-none" id="discussion-menu-button">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        
+                        <div class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden" id="discussion-menu">
+                            <div class="py-1">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900">Edit Post</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 hover:text-red-900">Delete Post</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Author Info -->
+                <div class="flex items-center mt-4">
+                    <img src="{% if post.author.seeker_profile.profile_picture %}{{ post.author.seeker_profile.profile_picture.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}" 
+                         alt="{{ post.author.get_full_name }}" 
+                         class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm">
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-900">{{ post.author.get_full_name }}</p>
+                        <p class="text-xs text-gray-500">{{ post.created_at|timesince }} ago</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Discussion Content -->
+            <div class="p-6 border-b border-gray-light">
+                <div class="prose max-w-none text-gray-700">
+                    {{ post.content|linebreaks }}
+                </div>
+            </div>
+            
+            <!-- Discussion Stats -->
+            <div class="px-6 py-3 bg-gray-50 flex items-center text-sm text-gray-500">
+                <span class="flex items-center mr-4">
+                    <i class="far fa-comment mr-1"></i>
+                    {{ post.replies.count }} replies
+                </span>
+                <span class="flex items-center">
+                    <i class="far fa-eye mr-1"></i>
+                    {{ post.views }} views
+                </span>
+            </div>
+        </div>
+        
+        <!-- Replies Section -->
+        <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+            <div class="p-4 border-b border-gray-light bg-gray-50">
+                <h2 class="text-lg font-medium text-gray-900">Replies</h2>
+            </div>
+            
+            {% if post.replies.all %}
+                <div class="divide-y divide-gray-light">
+                    {% for reply in post.replies.all %}
+                    <div class="p-6">
+                        <div class="flex items-start">
+                            <img src="{% if reply.author.seeker_profile.profile_picture %}{{ reply.author.seeker_profile.profile_picture.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}" 
+                                 alt="{{ reply.author.get_full_name }}" 
+                                 class="w-8 h-8 rounded-full object-cover border-2 border-white shadow-sm flex-shrink-0">
+                            <div class="ml-3 flex-1">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">{{ reply.author.get_full_name }}</p>
+                                        <p class="text-xs text-gray-500">{{ reply.created_at|timesince }} ago</p>
+                                    </div>
+                                    {% if reply.author == request.user %}
+                                    <div class="relative inline-block text-left">
+                                        <button type="button" class="flex items-center text-gray-400 hover:text-gray-600 focus:outline-none" id="reply-menu-{{ reply.id }}">
+                                            <i class="fas fa-ellipsis-h"></i>
+                                        </button>
+                                        
+                                        <div class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden" id="reply-menu-dropdown-{{ reply.id }}">
+                                            <div class="py-1">
+                                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900">Edit Reply</a>
+                                                <a href="#" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 hover:text-red-900">Delete Reply</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="mt-2 text-sm text-gray-700">
+                                    {{ reply.content|linebreaks }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="p-6 text-center text-gray-500">
+                    <i class="far fa-comment-dots text-2xl mb-2"></i>
+                    <p>No replies yet. Be the first to reply!</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Reply Form -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="p-4 border-b border-gray-light bg-gray-50">
+                <h2 class="text-lg font-medium text-gray-900">Post a Reply</h2>
+            </div>
+            <div class="p-6">
+                <form method="post">
+                    {% csrf_token %}
+                    {% if form.errors %}
+                        <div class="mb-4 p-3 bg-red-50 text-red-700 rounded-lg">
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                    <p class="text-sm">{{ error }}</p>
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    {{ form.content }}
+                    <div class="flex justify-end mt-4">
+                        <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition flex items-center">
+                            <i class="fas fa-paper-plane mr-2"></i>
+                            Post Reply
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Discussion dropdown menu
+    const discussionMenuButton = document.getElementById('discussion-menu-button');
+    const discussionMenu = document.getElementById('discussion-menu');
+    
+    if (discussionMenuButton && discussionMenu) {
+        discussionMenuButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            discussionMenu.classList.toggle('hidden');
+        });
+    }
+    
+    // Reply dropdown menus
+    document.querySelectorAll('[id^="reply-menu-"]').forEach(button => {
+        const replyId = button.id.split('-')[2];
+        const menu = document.getElementById(`reply-menu-dropdown-${replyId}`);
+        
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+            menu.classList.toggle('hidden');
+        });
+    });
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', () => {
+        if (discussionMenu) discussionMenu.classList.add('hidden');
+        document.querySelectorAll('[id^="reply-menu-dropdown-"]').forEach(menu => {
+            menu.classList.add('hidden');
+        });
+    });
+</script>
+{% endblock %}

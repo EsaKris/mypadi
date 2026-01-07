@@ -1,0 +1,422 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My House Padi - Seeker Dashboard{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <meta name="google-site-verification" content="QZ6tNBeQWZ2UXwDCV8YnXG0D7HAUk568dU5lwiy4Q1c" />
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        montserrat: ['Montserrat', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary-800': '#376B24',
+                        'primary-600': '#569340',
+                        'primary-400': '#98CF84',
+                        'white': '#FFFFFF',
+                        'cream': '#FBF5F1',
+                        'gray-light': '#F4F2F0',
+                        'black': '#000000',
+                    },
+                    backdropBlur: {
+                        'xs': '2px',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .glass-nav {
+            background: rgba(251, 245, 241, 0.9);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .extra-black {
+            font-weight: 900;
+        }
+        .filter-btn.active {
+            box-shadow: 0 4px 6px -1px rgba(55, 107, 36, 0.2);
+        }
+        .property-card:hover {
+            transform: translateY(-5px);
+        }
+        .save-btn.active {
+            color: #EF4444;
+        }
+        .quick-view-btn {
+            transition: all 0.3s ease;
+        }
+        .quick-view-btn:hover {
+            background-color: #F3F4F6;
+        }
+        .amenity-chip i {
+            width: 14px;
+            text-align: center;
+        }
+        .search-modal {
+            transition: all 0.3s ease-out;
+        }
+        .search-icon-btn:hover {
+            transform: scale(1.1);
+        }
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background: transparent;
+        }
+        .sidebar-nav {
+            transition: all 0.3s ease;
+        }
+        .sidebar-nav-item:hover {
+            background-color: rgba(86, 147, 64, 0.1);
+        }
+        .sidebar-nav-item.active {
+            background-color: rgba(86, 147, 64, 0.2);
+            border-left: 4px solid #569340;
+        }
+        .notification-dot {
+            width: 8px;
+            height: 8px;
+            top: 12px;
+            right: 12px;
+        }
+        .user-dropdown {
+            transition: all 0.2s ease;
+            transform-origin: top right;
+        }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="font-montserrat bg-cream">
+    <div class="flex pb-20 md:pb-4">
+        <!-- Sidebar Navigation (Desktop) -->
+        <aside class="hidden md:flex md:flex-shrink-0 fixed top-0 h-screen">
+            <div class="flex flex-col w-64 border-r border-gray-light bg-white">
+                <!-- Logo -->
+                <div class="flex items-center justify-center h-16 px-4 border-b border-gray-light">
+                    <img src="{% static 'img/logo.png' %}" alt="My House Padi" class="h-10">
+                </div>
+                
+                <!-- User Profile Summary -->
+                <div class="flex items-center p-4 border-b border-gray-light">
+                    <div class="relative">
+                        <img src="{% if request.user.seeker_profile.profile_picture %}{{ request.user.seeker_profile.profile_picture.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}" 
+                            alt="Profile" class="w-10 h-10 rounded-full object-cover">
+                        <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-900">{{ request.user.get_full_name }}</p>
+                        <p class="text-xs text-gray-500">House Seeker</p>
+                    </div>
+                </div>
+                
+                <!-- Navigation -->
+                <nav class="flex-1 overflow-y-auto">
+                    <div class="space-y-1 px-2 py-4">
+                        <!-- Dashboard -->
+                        <a href="{% url 'seekers:dashboard' %}" 
+                           class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                            <i class="fas fa-tachometer-alt text-primary-600 mr-3"></i>
+                            Dashboard
+                        </a>
+                        
+                        <!-- Marketplace -->
+                        <a href="{% url 'seekers:marketplace' %}" 
+                           class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'marketplace' %}active{% endif %}">
+                            <i class="fas fa-store text-primary-600 mr-3"></i>
+                            Marketplace
+                            <span class="ml-auto bg-primary-100 text-primary-800 text-xs font-medium px-2 py-0.5 rounded-full">12 new</span>
+                        </a>
+                        
+                        <!-- Saved Properties -->
+                        <a href="{% url 'seekers:saved_properties' %}" 
+                           class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'saved_properties' %}active{% endif %}">
+                            <i class="fas fa-heart text-primary-600 mr-3"></i>
+                            Saved Properties
+                        </a>
+                        
+                        <!-- Messages -->
+                        <a href="{% url 'seekers:messages' %}" 
+                           class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'messages' %}active{% endif %}">
+                            <i class="fas fa-comments text-primary-600 mr-3"></i>
+                            Messages
+                            <span class="ml-auto relative">
+                                <i class="fas fa-bell text-gray-400"></i>
+                                <span class="notification-dot absolute bg-red-500 rounded-full"></span>
+                            </span>
+                        </a>
+                        
+                        <!-- Community -->
+                        <a href="{% url 'seekers:community' %}" 
+                           class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'community' %}active{% endif %}">
+                            <i class="fas fa-users text-primary-600 mr-3"></i>
+                            Community
+                        </a>
+                        
+                        <!-- My Profile -->
+                        <a href="{% url 'seekers:profile' %}" 
+                           class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                            <i class="fas fa-user text-primary-600 mr-3"></i>
+                            My Profile
+                        </a>
+                        
+                        <!-- Settings -->
+                        <a href="{% url 'seekers:settings' %}" 
+                           class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
+                            <i class="fas fa-cog text-primary-600 mr-3"></i>
+                            Settings
+                        </a>
+                    </div>
+                    
+                    <!-- Help & Support -->
+                    <div class="border-t border-gray-light px-2 py-4">
+                        <a href="#" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
+                            <i class="fas fa-question-circle text-primary-600 mr-3"></i>
+                            Help & Support
+                        </a>
+                        <!-- Logout Link -->
+                        <a href="{% url 'accounts:logout' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md text-red-600">
+                            <i class="fas fa-sign-out-alt text-red-600 mr-3"></i>
+                            Logout
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+        
+        <!-- Mobile Sidebar (Hidden by default) -->
+        <div class="mobile-menu hidden md:hidden fixed inset-0 z-50">
+            <div class="fixed inset-0 bg-black bg-opacity-50" aria-hidden="true"></div>
+            <div class="relative flex flex-col w-80 max-w-xs h-full bg-white">
+                <!-- Close button -->
+                <button class="mobile-menu-close absolute top-3 right-3 p-2 text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+                
+                <!-- Mobile Menu Content -->
+                <div class="flex items-center justify-center h-16 px-4 border-b border-gray-light">
+                    <img src="{% static 'img/logo.png' %}" alt="My House Padi" class="h-10">
+                </div>
+                
+                <!-- User Profile -->
+                <div class="flex items-center p-4 border-b border-gray-light">
+                    <div class="relative">
+                        <img src="{% if request.user.seeker_profile.profile_picture %}{{ request.user.seeker_profile.profile_picture.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}" 
+                            alt="Profile" class="w-10 h-10 rounded-full object-cover">
+                        <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-900">{{ request.user.get_full_name }}</p>
+                        <p class="text-xs text-gray-500">House Seeker</p>
+                    </div>
+                </div>
+                
+                <!-- Mobile Navigation -->
+                <nav class="flex-1 overflow-y-auto px-2 py-4">
+                    <div class="space-y-1">
+                        <a href="{% url 'seekers:dashboard' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
+                            <i class="fas fa-tachometer-alt text-primary-600 mr-3"></i>
+                            Dashboard
+                        </a>
+                        <a href="{% url 'seekers:marketplace' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
+                            <i class="fas fa-store text-primary-600 mr-3"></i>
+                            Marketplace
+                        </a>
+                        <a href="{% url 'seekers:saved_properties' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
+                            <i class="fas fa-heart text-primary-600 mr-3"></i>
+                            Saved Properties
+                        </a>
+                        <a href="{% url 'seekers:messages' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
+                            <i class="fas fa-comments text-primary-600 mr-3"></i>
+                            Messages
+                        </a>
+                        <a href="{% url 'seekers:community' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
+                            <i class="fas fa-users text-primary-600 mr-3"></i>
+                            Community
+                        </a>
+                        <a href="{% url 'seekers:profile' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
+                            <i class="fas fa-user text-primary-600 mr-3"></i>
+                            My Profile
+                        </a>
+                        <a href="{% url 'seekers:settings' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
+                            <i class="fas fa-cog text-primary-600 mr-3"></i>
+                            Settings
+                        </a>
+                    </div>
+                    <div class="border-t border-gray-light mt-4 pt-4">
+                        <a href="{% url 'accounts:logout' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md text-red-600">
+                            <i class="fas fa-sign-out-alt text-red-600 mr-3"></i>
+                            Logout
+                        </a>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        
+            
+         <!-- Mobile Navigation (Hidden on desktop) -->
+        <div class="md:hidden fixed bottom-0 w-full bg-white border-t border-gray-light z-40">
+            <div class="flex justify-around">
+                <a href="{% url 'seekers:dashboard' %}" class="p-3 text-center text-primary-600">
+                    <i class="fas fa-tachometer-alt block mx-auto mb-1"></i>
+                    <span class="text-xs">Home</span>
+                </a>
+                <a href="{% url 'seekers:marketplace' %}" class="p-3 text-center text-gray-500">
+                    <i class="fas fa-store block mx-auto mb-1"></i>
+                    <span class="text-xs">Market</span>
+                </a>
+                <a href="{% url 'seekers:messages' %}" class="p-3 text-center text-gray-500 relative">
+                    <i class="fas fa-comments block mx-auto mb-1"></i>
+                    <span class="text-xs">Messages</span>
+                    <span class="notification-dot absolute top-1 right-6 bg-red-500 rounded-full"></span>
+                </a>
+                <a href="{% url 'seekers:profile' %}" class="p-3 text-center text-gray-500">
+                    <i class="fas fa-user block mx-auto mb-1"></i>
+                    <span class="text-xs">Profile</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="flex-1 overflow-auto md:ml-60">
+            <!-- Top Navigation -->
+            <header class="glass-nav sticky top-0 z-40 border-b border-gray-light">
+                <div class="flex items-center justify-between px-4 py-3">
+                    <!-- Mobile menu button -->
+                    <button class="mobile-menu-button md:hidden text-primary-800 focus:outline-none">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    
+                    <!-- Search Bar -->
+                    <div class="flex-1 max-w-md mx-4">
+                        <div class="relative">
+                            <input type="text" placeholder="Search properties, locations..." 
+                                   class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-primary-400 focus:border-primary-400">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- User Menu -->
+                    <div class="flex items-center">
+                        <button class="p-2 text-gray-500 hover:text-primary-600 focus:outline-none relative">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span class="notification-dot absolute top-1 right-1 bg-red-500 rounded-full"></span>
+                        </button>
+                        <div class="ml-3 relative">
+                            <button id="user-menu-button" class="flex items-center focus:outline-none">
+                                <img src="{% if request.user.seeker_profile.profile_picture %}{{ request.user.seeker_profile.profile_picture.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}" 
+                                    alt="Profile" class="w-8 h-8 rounded-full object-cover">
+                                <span class="ml-2 text-sm font-medium text-gray-700 hidden md:inline">{{ request.user.first_name }}</span>
+                                <i class="fas fa-chevron-down ml-1 text-gray-400 hidden md:inline"></i>
+                            </button>
+                            
+                            <!-- Dropdown menu -->
+                            <div id="user-menu-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-light">
+                                <a href="{% url 'seekers:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-light">
+                                    <i class="fas fa-user mr-2 text-primary-600"></i> My Profile
+                                </a>
+                                <a href="{% url 'seekers:settings' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-light">
+                                    <i class="fas fa-cog mr-2 text-primary-600"></i> Settings
+                                </a>
+                                <div class="border-t border-gray-light"></div>
+                                <a href="{% url 'accounts:logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-light">
+                                    <i class="fas fa-sign-out-alt mr-2 text-red-600"></i> Logout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Main Content -->
+            <main class="flex-1 overflow-y-auto p-4 md:p-6">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>  
+    
+    <!-- Scripts -->
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.querySelector('.mobile-menu-button');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            const mobileMenuClose = document.querySelector('.mobile-menu-close');
+            
+            if (mobileMenuButton) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.remove('hidden');
+                });
+            }
+            
+            if (mobileMenuClose) {
+                mobileMenuClose.addEventListener('click', function() {
+                    mobileMenu.classList.add('hidden');
+                });
+            }
+            
+            // Close menu when clicking outside
+            mobileMenu?.addEventListener('click', function(e) {
+                if (e.target === mobileMenu) {
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+            
+            // User dropdown toggle
+            const userMenuButton = document.getElementById('user-menu-button');
+            const userMenuDropdown = document.getElementById('user-menu-dropdown');
+
+            if (userMenuButton) {
+                userMenuButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    userMenuDropdown.classList.toggle('hidden');
+                });
+            }
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function() {
+                if (userMenuDropdown && !userMenuDropdown.classList.contains('hidden')) {
+                    userMenuDropdown.classList.add('hidden');
+                }
+            });
+
+            // Prevent dropdown from closing when clicking inside it
+            if (userMenuDropdown) {
+                userMenuDropdown.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            }
+            
+            // Toggle password visibility
+            function togglePassword(fieldId) {
+                const field = document.getElementById(fieldId);
+                const eyeIcon = document.getElementById(`${fieldId}-eye`);
+                if (field.type === 'password') {
+                    field.type = 'text';
+                    eyeIcon.classList.remove('fa-eye');
+                    eyeIcon.classList.add('fa-eye-slash');
+                } else {
+                    field.type = 'password';
+                    eyeIcon.classList.remove('fa-eye-slash');
+                    eyeIcon.classList.add('fa-eye');
+                }
+            }
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

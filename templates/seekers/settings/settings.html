@@ -1,0 +1,76 @@
+{% extends "seekers/settings/settings_base.html" %}
+
+{% block settings_content %}
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="p-4 border-b border-gray-light">
+        <h2 class="text-lg font-medium">Account Information</h2>
+    </div>
+    
+    <div class="p-6">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="mb-6">
+                <h3 class="text-sm font-medium text-gray-700 mb-3">Basic Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="first_name" class="block text-sm text-gray-500 mb-1">First Name</label>
+                        <p class="text-gray-900 font-medium">{{ request.user.first_name|default:"Not provided" }}</p>
+                    </div>
+                    <div>
+                        <label for="last_name" class="block text-sm text-gray-500 mb-1">Last Name</label>
+                        <p class="text-gray-900 font-medium">{{ request.user.last_name|default:"Not provided" }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <h3 class="text-sm font-medium text-gray-700 mb-3">Contact Information</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label for="email" class="block text-sm text-gray-500 mb-1">Email Address</label>
+                        <div class="flex items-center">
+                            <p class="text-gray-900 font-medium">{{ request.user.email }}</p>
+                            {% if not request.user.email_verified %}
+                            <span class="ml-2 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">Not verified</span>
+                            {% else %}
+                            <span class="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Verified</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div>
+                        <label for="phone" class="block text-sm text-gray-500 mb-1">Phone Number</label>
+                        <div class="flex items-center">
+                            <p class="text-gray-900 font-medium">
+                                {% if request.user.phone_number %}
+                                    {{ request.user.phone_number }}
+                                {% else %}
+                                    Not provided
+                                {% endif %}
+                            </p>
+                            {% if request.user.phone_number %}
+                                {% if not request.user.phone_verified %}
+                                <span class="ml-2 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">Not verified</span>
+                                {% else %}
+                                <span class="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Verified</span>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                {% if not request.user.email_verified %}
+                <a href="#" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
+                    Verify Email
+                </a>
+                {% endif %}
+                <a href="{% url 'seekers:profile_edit' %}" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition">
+                    Edit Profile
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

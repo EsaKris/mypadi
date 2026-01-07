@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="py-12 md:py-16 bg-gray-50">
+    <div class="container mx-auto px-4 md:px-8 lg:px-16 pt-18">
+        <!-- Page Header with Search and Filters -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
+            <div>
+                <h1 class="text-3xl md:text-4xl extra-black text-primary-800 mb-2 mt-12">
+                    <i class="fas fa-building text-primary-600 mr-2"></i>Available Properties
+                </h1>
+                <p class="text-lg text-gray-600">
+                    Showing {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ page_obj.paginator.count }} properties
+                </p>
+            </div>
+            
+            <!-- Search and Filter Controls -->
+            <div class="w-full md:w-auto">
+                <form method="get" action="{% url 'landing:property_list' %}" class="flex flex-col md:flex-row gap-4">
+                    <div class="relative w-full md:w-64">
+                        <select name="type" class="appearance-none w-full bg-white border border-gray-300 rounded-lg px-4 py-3 pr-8 focus:outline-none focus:ring-2 focus:ring-primary-600 focus:border-transparent">
+                            <option value="">All Types</option>
+                            {% for value, label in property_types.items %}
+                            <option value="{{ value }}" {% if request.GET.type == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="bg-primary-800 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition flex items-center justify-center">
+                        <i class="fas fa-filter mr-2"></i> Filter
+                    </button>
+                    {% if request.GET.type %}
+                    <a href="{% url 'landing:property_list' %}" class="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-300 transition flex items-center justify-center">
+                        <i class="fas fa-times mr-2"></i> Clear
+                    </a>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+        
+        <!-- Property Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for property in page_obj %}
+            <div class="property-card bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100" data-property-id="{{ property.id }}">
+                <div class="relative">
+                    {% if property.images.all %}
+                    <img src="{{ property.images.first.image.url }}" 
+                        alt="{{ property.name }}" 
+                        class="w-full h-72 object-cover transition-transform duration-500 hover:scale-105">
+                    {% else %}
+                    <div class="w-full h-72 bg-gray-200 flex items-center justify-center">
+                        <i class="fas fa-home text-gray-400 text-4xl"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- View Count - Top right corner -->
+                    <div class="absolute top-4 right-4 bg-white/90 text-primary-800 px-3 py-1 rounded-full text-xs flex items-center shadow-sm">
+                        <i class="fas fa-eye mr-1"></i> {{ property.views }} views
+                    </div>
+                    
+                    <!-- Price - Bottom left corner -->
+                    <div class="absolute bottom-3 left-3 text-primary-800 drop-shadow-md">
+                        <div class="text-lg md:text-xl font-bold">{{ property.display_price }}</div>
+                    </div>
+                    
+                    <!-- Verification Badges -->
+                    <div class="absolute top-4 left-4 flex flex-col gap-2">
+                        {% if property.is_verified %}
+                        <span class="verified-badge bg-primary-600 text-white px-3 py-1 rounded-full text-xs flex items-center">
+                            <i class="fas fa-check-circle mr-1"></i> Verified
+                        </span>
+                        {% endif %}
+                        {% if property.is_featured %}
+                        <span class="featured-badge bg-white text-primary-800 px-3 py-1 rounded-full text-xs flex items-center shadow-sm">
+                            <i class="fas fa-star mr-1 text-yellow-400"></i> Featured
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Quick View Button -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                        <a href="{% url 'landing:property_detail' property.slug %}" class="quick-view-btn bg-white text-primary-800 px-4 py-2 rounded-full flex items-center ml-auto">
+                            <i class="fas fa-expand mr-2"></i> Quick View
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="p-6">
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="text-xl font-bold text-primary-800">
+                            <i class="fas fa-home text-primary-600 mr-2"></i>{{ property.name }}
+                        </h3>
+                        <!-- Save Button -->
+                        <button class="save-btn text-gray-400 hover:text-primary-600 transition"
+                                data-property-id="{{ property.id }}"
+                                aria-label="Save property">
+                            <i class="far fa-heart text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="flex items-center text-gray-600 mb-4">
+                        <i class="fas fa-map-marker-alt text-primary-400 mr-2"></i>
+                        <span>{{ property.city }}, {{ property.state }}</span>
+                    </div>
+                    
+                    <p class="text-gray-600 mb-4 line-clamp-2">{{ property.description|truncatewords:20 }}</p>
+                    
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        {% for amenity in property.amenities.all|slice:":4" %}
+                        <span class="amenity-chip bg-primary-50 text-primary-800 px-3 py-1 rounded-full text-xs">
+                            <i class="fas {{ amenity.icon }} mr-1"></i>{{ amenity.name }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="flex justify-between items-center border-t border-gray-100 pt-4">
+                        <div class="text-sm text-gray-500">
+                            <i class="fas fa-clock mr-1"></i> Listed {{ property.created_at|date:"M d, Y" }}
+                        </div>
+                        <a href="{% url 'landing:property_detail' property.slug %}" class="cta-btn bg-primary-800 text-white px-4 py-2 rounded-full hover:bg-primary-700 transition">
+                            <i class="fas fa-external-link-alt mr-1"></i> Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-3 text-center py-12">
+                <i class="fas fa-home text-4xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-medium text-gray-600">No properties found matching your criteria</h3>
+                <p class="text-gray-500 mt-2">Try adjusting your search filters</p>
+                <a href="{% url 'landing:property_list' %}" class="mt-4 inline-block bg-primary-800 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition">
+                    Clear Filters
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if page_obj.paginator.num_pages > 1 %}
+        <div class="mt-12 flex justify-center">
+            <nav class="flex items-center gap-2">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}" 
+                   class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <span class="px-4 py-2 bg-primary-800 text-white rounded-lg">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}" 
+                       class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}" 
+                   class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                {% endif %}
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- JavaScript for Save Functionality -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Save Property Functionality
+    const saveButtons = document.querySelectorAll('.save-btn');
+    
+    saveButtons.forEach(button => {
+        // Check if property is already saved (from localStorage)
+        const propertyId = button.getAttribute('data-property-id');
+        const isSaved = localStorage.getItem(`saved_property_${propertyId}`) === 'true';
+        
+        // Set initial state
+        if (isSaved) {
+            button.innerHTML = '<i class="fas fa-heart text-red-500 text-xl"></i>';
+            button.classList.add('saved');
+        }
+        
+        // Add click handler
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const propertyId = this.getAttribute('data-property-id');
+            const isCurrentlySaved = this.classList.contains('saved');
+            
+            if (isCurrentlySaved) {
+                // Unsaving
+                this.innerHTML = '<i class="far fa-heart text-xl"></i>';
+                this.classList.remove('saved');
+                localStorage.removeItem(`saved_property_${propertyId}`);
+            } else {
+                // Saving
+                this.innerHTML = '<i class="fas fa-heart text-red-500 text-xl"></i>';
+                this.classList.add('saved');
+                localStorage.setItem(`saved_property_${propertyId}`, 'true');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

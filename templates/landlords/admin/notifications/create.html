@@ -1,0 +1,51 @@
+{% extends 'landlords/admin/base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Create Notification</h1>
+        <a href="{% url 'landlords_admin:notifications' %}" class="btn btn-sm btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Notifications
+        </a>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Notification Details</h6>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_recipient">Recipient</label>
+                    {{ form.recipient }}
+                    {{ form.recipient.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="id_title">Title</label>
+                    {{ form.title }}
+                    {{ form.title.errors }}
+                </div>
+                <div class="form-group">
+                    <label for="id_message">Message</label>
+                    {{ form.message }}
+                    {{ form.message.errors }}
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="id_notification_type">Notification Type</label>
+                        {{ form.notification_type }}
+                        {{ form.notification_type.errors }}
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="id_related_url">Related URL (optional)</label>
+                        {{ form.related_url }}
+                        {{ form.related_url.errors }}
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Send Notification</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

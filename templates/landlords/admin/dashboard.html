@@ -1,0 +1,276 @@
+{% extends "landlords/admin/base.html" %}
+
+{% block admin_heading %}Admin Dashboard{% endblock %}
+{% block admin_subheading %}Overview and quick actions{% endblock %}
+
+{% block admin_content %}
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <!-- Pending Properties -->
+    <div class="admin-card p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pending Properties</p>
+                <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ pending_properties|default:"0" }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{% if pending_properties %}Require review{% else %}All caught up{% endif %}</p>
+            </div>
+            <div class="bg-primary-100 dark:bg-primary-900 p-3 rounded-full">
+                <i class="fas fa-home text-primary-600 dark:text-primary-400 text-xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pending Landlords -->
+    <div class="admin-card p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pending Landlords</p>
+                <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ pending_landlords|default:"0" }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{% if pending_landlords %}Need verification{% else %}All verified{% endif %}</p>
+            </div>
+            <div class="bg-primary-100 dark:bg-primary-900 p-3 rounded-full">
+                <i class="fas fa-user-shield text-primary-600 dark:text-primary-400 text-xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pending Documents -->
+    <div class="admin-card p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pending Documents</p>
+                <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ pending_documents|default:"0" }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{% if pending_documents %}Need verification{% else %}All reviewed{% endif %}</p>
+            </div>
+            <div class="bg-primary-100 dark:bg-primary-900 p-3 rounded-full">
+                <i class="fas fa-file-alt text-primary-600 dark:text-primary-400 text-xl"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Total Properties -->
+    <div class="admin-card p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Properties</p>
+                <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ total_properties|default:"0" }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">+12% from last month</p>
+            </div>
+            <div class="bg-primary-100 dark:bg-primary-900 p-3 rounded-full">
+                <i class="fas fa-chart-line text-primary-600 dark:text-primary-400 text-xl"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity and Quick Actions -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+    <!-- Recent Activity -->
+    <div class="admin-card p-6 lg:col-span-2">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Recent Activity</h2>
+            <a href="#" class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-500">View All</a>
+        </div>
+        
+        <div class="space-y-4">
+            {% for activity in recent_activities %}
+            <div class="flex items-start">
+                <div class="avatar w-10 h-10 flex-shrink-0 bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-400 rounded-full flex items-center justify-center mr-3">
+                    <i class="{{ activity.icon }} text-lg"></i>
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm font-medium text-gray-800 dark:text-gray-200">{{ activity.title }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ activity.description }}</p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ activity.timestamp|timesince }} ago</p>
+                </div>
+                <span class="bg-{{ activity.status_color }}-100 dark:bg-{{ activity.status_color }}-900 text-{{ activity.status_color }}-800 dark:text-{{ activity.status_color }}-200 px-2 py-1 rounded-full text-xs font-medium ml-2">{{ activity.status }}</span>
+            </div>
+            {% empty %}
+            <div class="text-center py-4 text-gray-500 dark:text-gray-400">
+                No recent activities
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="admin-card p-6">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Quick Actions</h2>
+        
+        <div class="space-y-3">
+            <a href="{% url 'landlords_admin:property_approvals' %}" class="flex items-center p-3 border border-gray-200 dark:border-slate-700 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
+                <div class="bg-primary-100 dark:bg-primary-900 p-2 rounded-md mr-3">
+                    <i class="fas fa-check-circle text-primary-600 dark:text-primary-400"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-800 dark:text-gray-200">Review Properties</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ pending_properties|default:"0" }} pending approval</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'landlords_admin:landlord_verifications' %}" class="flex items-center p-3 border border-gray-200 dark:border-slate-700 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
+                <div class="bg-primary-100 dark:bg-primary-900 p-2 rounded-md mr-3">
+                    <i class="fas fa-user-check text-primary-600 dark:text-primary-400"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-800 dark:text-gray-200">Verify Landlords</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ pending_landlords|default:"0" }} pending verification</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'landlords_admin:document_verifications' %}" class="flex items-center p-3 border border-gray-200 dark:border-slate-700 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
+                <div class="bg-primary-100 dark:bg-primary-900 p-2 rounded-md mr-3">
+                    <i class="fas fa-file-signature text-primary-600 dark:text-primary-400"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-800 dark:text-gray-200">Review Documents</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ pending_documents|default:"0" }} pending review</p>
+                </div>
+            </a>
+            
+            {% if request.user.is_superuser %}
+            <a href="{% url 'landlords_admin:create_admin' %}" class="flex items-center p-3 border border-gray-200 dark:border-slate-700 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
+                <div class="bg-purple-100 dark:bg-purple-900 p-2 rounded-md mr-3">
+                    <i class="fas fa-user-plus text-purple-600 dark:text-purple-400"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-800 dark:text-gray-200">Add New Admin</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Create new admin account</p>
+                </div>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Recent Properties -->
+<div class="admin-card p-6 mb-6">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Recent Properties</h2>
+        <a href="{% url 'landlords_admin:property_approvals' %}" class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-500">View All</a>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700 admin-table">
+            <thead class="bg-gray-50 dark:bg-slate-800">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Property</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Landlord</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
+                {% for property in recent_properties %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                {% if property.images.first %}
+                                <img class="h-10 w-10 rounded-md object-cover" src="{{ property.images.first.image.url }}" alt="{{ property.title }}" loading="lazy">
+                                {% else %}
+                                <div class="h-10 w-10 rounded-md bg-gray-100 dark:bg-slate-700 flex items-center justify-center">
+                                    <i class="fas fa-home text-gray-400 dark:text-gray-300"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ property.title|truncatechars:20 }}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ property.property_type }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900 dark:text-white">{{ property.landlord.get_full_name }}</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ property.landlord.email }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if property.is_verified %}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">Verified</span>
+                        {% else %}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        {{ property.created_at|date:"M d, Y" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <a href="{% url 'landlords_admin:property_approval_detail' property.id %}" class="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-500">Review</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">No recent properties</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Recent Landlords -->
+<div class="admin-card p-6">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Recent Landlords</h2>
+        <a href="{% url 'landlords_admin:landlord_verifications' %}" class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-500">View All</a>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-700 admin-table">
+            <thead class="bg-gray-50 dark:bg-slate-800">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Landlord</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Company</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-700">
+                {% for landlord in recent_landlords %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                {% if landlord.user.profile_picture %}
+                                <img class="h-10 w-10 rounded-full object-cover" src="{{ landlord.user.profile_picture.url }}" alt="{{ landlord.user.get_full_name }}" loading="lazy">
+                                {% else %}
+                                <div class="h-10 w-10 rounded-full bg-gray-100 dark:bg-slate-700 flex items-center justify-center">
+                                    <i class="fas fa-user text-gray-400 dark:text-gray-300"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ landlord.user.get_full_name }}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ landlord.user.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                        {{ landlord.company_name|default:"-" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if landlord.is_verified %}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">Verified</span>
+                        {% else %}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        {{ landlord.created_at|date:"M d, Y" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <a href="{% url 'landlords_admin:landlord_verification_detail' landlord.id %}" class="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-500">Review</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">No recent landlords</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

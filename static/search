@@ -1,0 +1,105 @@
+{% extends "seekers/seekers_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-primary-800">Your Messages</h1>
+        <a href="{% url 'seekers:marketplace' %}" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition">
+            <i class="fas fa-envelope mr-2"></i> New Message
+        </a>
+    </div>
+
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <!-- Search/Filter Bar -->
+        <div class="p-4 border-b border-gray-light">
+            <div class="relative">
+                <input type="text" placeholder="Search messages..." 
+                       class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-400 focus:border-primary-400">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages List -->
+        <div class="divide-y divide-gray-light">
+            {% for thread in threads %}
+                {% if thread.user and thread.user.id %}
+                <a href="{% url 'seekers:message_thread' user_id=thread.user.id %}" class="block hover:bg-gray-50 transition">
+                    <div class="p-4">
+                        <div class="flex items-start">
+                            <!-- User Avatar -->
+                            <img src="{% if thread.user.seeker_profile.profile_picture %}{{ thread.user.seeker_profile.profile_picture.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}" 
+                                 alt="{{ thread.user.get_full_name }}" 
+                                 class="w-12 h-12 rounded-full object-cover border-2 {% if thread.unread_count > 0 %}border-primary-500{% else %}border-gray-200{% endif %}">
+
+                            <!-- Message Content -->
+                            <div class="ml-4 flex-1 min-w-0">
+                                <div class="flex justify-between items-baseline">
+                                    <h3 class="text-lg font-medium text-gray-900 truncate">
+                                        {{ thread.user.get_full_name|default:thread.user.username }}
+                                    </h3>
+                                    <span class="text-sm text-gray-500 whitespace-nowrap ml-2">
+                                        {{ thread.last_message.created_at|timesince }} ago
+                                    </span>
+                                </div>
+
+                                <p class="text-gray-600 mt-1 truncate">
+                                    {% if thread.last_message.sender == request.user %}
+                                        You: {{ thread.last_message.content|truncatewords:8 }}
+                                    {% else %}
+                                        {{ thread.last_message.content|truncatewords:8 }}
+                                    {% endif %}
+                                </p>
+
+                                {% if thread.unread_count > 0 %}
+                                <span class="inline-block mt-2 px-2 py-1 bg-primary-100 text-primary-800 text-xs font-medium rounded-full">
+                                    {{ thread.unread_count }} new message{{ thread.unread_count|pluralize }}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                {% endif %}
+            {% empty %}
+                <div class="p-8 text-center">
+                    <i class="fas fa-comments text-4xl text-gray-300 mb-3"></i>
+                    <p class="text-gray-500">No messages yet. Start a conversation!</p>
+                    <a href="{% url 'seekers:property_message' %}" class="mt-4 inline-block bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition">
+                        Send your first message
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="p-4 border-t border-gray-light flex justify-center">
+            <nav class="flex items-center space-x-2">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 rounded-lg border border-gray-300 text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <span class="px-3 py-1 rounded-lg bg-primary-600 text-white">{{ num }}</span>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <a href="?page={{ num }}" class="px-3 py-1 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 rounded-lg border border-gray-300 text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                {% endif %}
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

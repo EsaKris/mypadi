@@ -1,0 +1,263 @@
+{% extends "seekers/seekers_base.html" %}
+{% load static %}
+{% block content %}
+<div class="container mx-auto px-4">
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="h-screen flex flex-col">
+            <!-- Thread Header -->
+            <div class="p-4 border-b border-gray-light flex items-center bg-primary-50">
+                <a href="{% url 'seekers:messages' %}" class="mr-3 text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                
+                {% if property.images.exists %}
+                <img src="{{ property.images.first.image.url }}" 
+                     alt="{{ property.title }}" class="w-12 h-12 rounded-lg object-cover">
+                {% endif %}
+                
+                <div class="ml-3 flex-1">
+                    <h3 class="font-medium">{{ property.title }}</h3>
+                    <p class="text-xs text-gray-500">{{ recipient.get_full_name }} • Landlord</p>
+                </div>
+                
+                <div class="flex space-x-3 text-gray-500">
+                    <button class="hover:text-primary-600">
+                        <i class="fas fa-phone"></i>
+                    </button>
+                    <button class="hover:text-primary-600">
+                        <i class="fas fa-video"></i>
+                    </button>
+                    <button class="hover:text-primary-600">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Reply Preview Bar (Hidden by default) -->
+            <div id="reply-preview" class="hidden bg-gray-100 border-b border-gray-300 px-4 py-2">
+                <div class="flex justify-between items-center">
+                    <div class="flex-1">
+                        <div class="flex items-center">
+                            <i class="fas fa-reply text-primary-600 mr-2"></i>
+                            <span class="text-sm font-medium text-primary-600">Replying to</span>
+                        </div>
+                        <p id="reply-preview-content" class="text-xs text-gray-600 truncate"></p>
+                    </div>
+                    <button id="cancel-reply" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Messages -->
+            <div class="flex-1 overflow-y-auto p-4 bg-gray-50" id="messages-container">
+                {% for message in messages %}
+                <div class="message-item mb-3 {% if message.sender == request.user %}text-right{% endif %}" 
+                     data-message-id="{{ message.id }}">
+                    
+                    <!-- Reply Indicator -->
+                    {% if message.reply_to %}
+                    <div class="reply-indicator mb-1 {% if message.sender == request.user %}text-right{% else %}text-left{% endif %}">
+                        <div class="inline-block bg-white rounded-lg border-l-4 border-primary-500 px-3 py-1 max-w-xs">
+                            <p class="text-xs text-gray-500 font-medium">
+                                <i class="fas fa-reply mr-1"></i>
+                                {{ message.reply_to.sender.get_full_name }}
+                            </p>
+                            <p class="text-xs text-gray-600 truncate">
+                                {{ message.reply_to.get_decrypted_content|truncatewords:8 }}
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="flex {% if message.sender == request.user %}justify-end{% else %}justify-start{% endif %}">
+                        <div class="max-w-xs md:max-w-md lg:max-w-lg rounded-lg p-3 relative
+                                  {% if message.sender == request.user %}bg-primary-600 text-white{% else %}bg-white text-gray-800 shadow{% endif %}">
+                            
+                            <!-- Property Image if exists -->
+                            {% if message.property_image %}
+                            <div class="mb-2 rounded-lg overflow-hidden">
+                                <img src="{{ message.property_image.url }}" 
+                                     alt="Property image" 
+                                     class="w-full h-32 object-cover cursor-pointer"
+                                     onclick="openImageModal('{{ message.property_image.url }}')">
+                            </div>
+                            {% endif %}
+                            
+                            <p class="text-sm">{{ message.decrypted_content }}</p>
+                            <p class="text-xs mt-1 {% if message.sender == request.user %}text-primary-200{% else %}text-gray-500{% endif %}">
+                                {{ message.created_at|time }}
+                                {% if message.read and message.sender == request.user %}
+                                <i class="fas fa-check-double ml-1"></i>
+                                {% elif message.sender == request.user %}
+                                <i class="fas fa-check ml-1"></i>
+                                {% endif %}
+                            </p>
+                            
+                            <!-- Reply Button -->
+                            <button class="reply-btn absolute -bottom-2 right-2 bg-white text-gray-400 rounded-full p-1 shadow-md hover:text-primary-600 opacity-0 transition-opacity"
+                                    data-message-id="{{ message.id }}"
+                                    data-message-content="{{ message.decrypted_content }}"
+                                    data-sender-name="{{ message.sender.get_full_name }}">
+                                <i class="fas fa-reply text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-comments text-3xl mb-2"></i>
+                    <p>No messages yet. Start the conversation!</p>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Message Input -->
+            <div class="p-4 border-t border-gray-light bg-white">
+                {% if property and property.id %}
+                <form method="post" action="{% url 'seekers:property_message' property.id %}" id="message-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="reply_to" id="reply-to-input">
+                    <div class="flex items-center">
+                        <button type="button" class="p-2 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <input type="text" name="content" placeholder="Type your message..." 
+                               class="flex-1 mx-2 px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
+                               required id="message-input">
+                        <button type="submit" class="bg-primary-600 text-white p-3 rounded-full hover:bg-primary-700 transition">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </form>
+                {% else %}
+                <div class="text-center text-gray-500 py-4">
+                    <p>Cannot send message: Property information missing</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Modal -->
+<div id="image-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center">
+    <div class="max-w-4xl max-h-full">
+        <img id="modal-image" src="" alt="Property image" class="max-w-full max-h-full">
+        <button id="close-modal" class="absolute top-4 right-4 text-white text-2xl">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
+
+<style>
+    .message-item:hover .reply-btn {
+        opacity: 1;
+    }
+    
+    .reply-indicator {
+        max-width: 70%;
+    }
+</style>
+
+<script>
+    // Auto scroll to bottom of messages
+    const messagesContainer = document.getElementById('messages-container');
+    if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+    
+    // Reply functionality
+    let replyingTo = null;
+    
+    // Show reply preview when reply button is clicked
+    document.querySelectorAll('.reply-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const messageId = this.dataset.messageId;
+            const messageContent = this.dataset.messageContent;
+            const senderName = this.dataset.senderName;
+            
+            replyingTo = messageId;
+            document.getElementById('reply-to-input').value = messageId;
+            
+            // Show reply preview
+            const replyPreview = document.getElementById('reply-preview');
+            const replyContent = document.getElementById('reply-preview-content');
+            replyContent.textContent = messageContent;
+            replyPreview.classList.remove('hidden');
+            
+            // Focus message input
+            document.getElementById('message-input').focus();
+            
+            // Scroll to input
+            document.getElementById('message-input').scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+    
+    // Cancel reply
+    document.getElementById('cancel-reply')?.addEventListener('click', function() {
+        replyingTo = null;
+        document.getElementById('reply-to-input').value = '';
+        document.getElementById('reply-preview').classList.add('hidden');
+    });
+    
+    // Swipe to reply functionality for mobile
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    document.querySelectorAll('.message-item').forEach(item => {
+        item.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+        
+        item.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe(this);
+        });
+    });
+    
+    function handleSwipe(element) {
+        const swipeDistance = touchEndX - touchStartX;
+        
+        // Left swipe (negative distance) to reply
+        if (swipeDistance < -50) { // Minimum swipe distance
+            const replyBtn = element.querySelector('.reply-btn');
+            if (replyBtn) {
+                replyBtn.click();
+            }
+        }
+    }
+    
+    // Image modal functionality
+    function openImageModal(imageUrl) {
+        document.getElementById('modal-image').src = imageUrl;
+        document.getElementById('image-modal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    
+    document.getElementById('close-modal')?.addEventListener('click', function() {
+        document.getElementById('image-modal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    });
+    
+    // Close modal when clicking outside image
+    document.getElementById('image-modal')?.addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+    });
+    
+    // Handle form submission
+    document.getElementById('message-form')?.addEventListener('submit', function(e) {
+        if (replyingTo) {
+            // Reset reply state after submission
+            setTimeout(() => {
+                replyingTo = null;
+                document.getElementById('reply-to-input').value = '';
+                document.getElementById('reply-preview').classList.add('hidden');
+            }, 100);
+        }
+    });
+</script>
+{% endblock %}

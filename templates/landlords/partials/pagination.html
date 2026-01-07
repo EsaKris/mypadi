@@ -1,0 +1,45 @@
+{% if page_obj.paginator.num_pages > 1 %}
+<div class="flex justify-center mt-6">
+    <nav class="flex items-center space-x-2">
+        {% if page_obj.has_previous %}
+            <a href="?page=1" class="px-3 py-1 rounded-lg border border-gray-300 text-gray-500 hover:bg-gray-50 transition">
+                <i class="fas fa-angle-double-left"></i>
+            </a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 rounded-lg border border-gray-300 text-gray-500 hover:bg-gray-50 transition">
+                <i class="fas fa-angle-left"></i>
+            </a>
+        {% else %}
+            <span class="px-3 py-1 rounded-lg border border-gray-300 text-gray-300 cursor-not-allowed">
+                <i class="fas fa-angle-double-left"></i>
+            </span>
+            <span class="px-3 py-1 rounded-lg border border-gray-300 text-gray-300 cursor-not-allowed">
+                <i class="fas fa-angle-left"></i>
+            </span>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+                <span class="px-3 py-1 rounded-lg bg-primary-600 text-white">{{ num }}</span>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}" class="px-3 py-1 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 rounded-lg border border-gray-300 text-gray-500 hover:bg-gray-50 transition">
+                <i class="fas fa-angle-right"></i>
+            </a>
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="px-3 py-1 rounded-lg border border-gray-300 text-gray-500 hover:bg-gray-50 transition">
+                <i class="fas fa-angle-double-right"></i>
+            </a>
+        {% else %}
+            <span class="px-3 py-1 rounded-lg border border-gray-300 text-gray-300 cursor-not-allowed">
+                <i class="fas fa-angle-right"></i>
+            </span>
+            <span class="px-3 py-1 rounded-lg border border-gray-300 text-gray-300 cursor-not-allowed">
+                <i class="fas fa-angle-double-right"></i>
+            </span>
+        {% endif %}
+    </nav>
+</div>
+{% endif %}

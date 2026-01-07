@@ -1,0 +1,145 @@
+{% extends "landlords/landlord_base.html" %}
+
+{% block title %}Financial Overview{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Financial Overview</h1>
+        <p class="text-gray-600">Track your income and expenses</p>
+    </div>
+
+    <!-- Month Selector -->
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center space-x-4">
+            <button class="p-2 rounded-full bg-white shadow text-gray-500 hover:text-primary-600">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <h3 class="text-lg font-medium text-gray-900">{{ current_month|date:"F Y" }}</h3>
+            <button class="p-2 rounded-full bg-white shadow text-gray-500 hover:text-primary-600">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        <button class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+            <i class="fas fa-download mr-2"></i> Export Report
+        </button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Total Income -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Total Income</p>
+                    <p class="text-2xl font-bold text-green-600">₦{{ total_payments|floatformat:2 }}</p>
+                </div>
+                <div class="p-3 rounded-full bg-green-100 text-green-600">
+                    <i class="fas fa-money-bill-wave text-lg"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Expenses -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Total Expenses</p>
+                    <p class="text-2xl font-bold text-red-600">₦{{ total_expenses|floatformat:2 }}</p>
+                </div>
+                <div class="p-3 rounded-full bg-red-100 text-red-600">
+                    <i class="fas fa-receipt text-lg"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Net Profit -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Net Profit</p>
+                    <p class="text-2xl font-bold {% if net_profit >= 0 %}text-primary-600{% else %}text-red-600{% endif %}">
+                        ₦{{ net_profit|floatformat:2 }}
+                    </p>
+                </div>
+                <div class="p-3 rounded-full {% if net_profit >= 0 %}bg-primary-100 text-primary-600{% else %}bg-red-100 text-red-600{% endif %}">
+                    <i class="fas fa-chart-line text-lg"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Income Chart -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Income Breakdown</h3>
+            <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
+                <p class="text-gray-500">Income chart will be displayed here</p>
+            </div>
+        </div>
+
+        <!-- Expenses Chart -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Expenses by Category</h3>
+            <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
+                <p class="text-gray-500">Expenses chart will be displayed here</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Recent Transactions
+            </h3>
+        </div>
+        <div class="divide-y divide-gray-200">
+            {% for payment in payments %}
+            <div class="px-4 py-4 sm:px-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="p-2 rounded-full bg-green-100 text-green-600 mr-4">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">Rent Payment</p>
+                            <p class="text-sm text-gray-500">{{ payment.tenant.full_name }} - {{ payment.property.name }}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-medium text-green-600">+₦{{ payment.amount|floatformat:2 }}</p>
+                        <p class="text-xs text-gray-500">{{ payment.payment_date|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            {% for expense in expenses %}
+            <div class="px-4 py-4 sm:px-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="p-2 rounded-full bg-red-100 text-red-600 mr-4">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">{{ expense.get_category_display }}</p>
+                            <p class="text-sm text-gray-500">{{ expense.property.name }}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-medium text-red-600">-₦{{ expense.amount|floatformat:2 }}</p>
+                        <p class="text-xs text-gray-500">{{ expense.date|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+            <a href="#" class="text-sm font-medium text-primary-600 hover:text-primary-800">View all transactions</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

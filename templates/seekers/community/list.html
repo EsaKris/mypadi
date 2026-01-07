@@ -1,0 +1,113 @@
+{% extends "seekers/seekers_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <div class="max-w-4xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">Community Discussions</h1>
+            <a href="{% url 'seekers:create_post' %}" class="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition">
+                <i class="fas fa-plus mr-2"></i> New Discussion
+            </a>
+        </div>
+        
+        <!-- Filter/Search Bar -->
+        <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+            <div class="p-4 border-b border-gray-light">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1">
+                        <div class="relative">
+                            <input type="text" placeholder="Search discussions..." 
+                                   class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-400 focus:border-primary-400">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <select class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-primary-400">
+                        <option>All Topics</option>
+                        <option>Renting Tips</option>
+                        <option>Neighborhoods</option>
+                        <option>Legal Questions</option>
+                        <option>Roommate Search</option>
+                    </select>
+                    <select class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-primary-400">
+                        <option>Newest First</option>
+                        <option>Most Active</option>
+                        <option>Most Replies</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Discussions List -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            {% if discussions %}
+                <div class="divide-y divide-gray-light">
+                    {% for discussion in discussions %}
+                    <a href="{% url 'seekers:community_detail' discussion.id %}" class="block hover:bg-gray-50 transition">
+                        <div class="p-6">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800 mb-2">
+                                        {{ discussion.get_category_display }}
+                                    </span>
+                                    <h3 class="text-lg font-medium text-gray-900 mb-2">{{ discussion.title }}</h3>
+                                    <p class="text-gray-600 mb-4">{{ discussion.content|truncatewords:30 }}</p>
+                                    
+                                    <div class="flex items-center">
+                                        <img src="{% if discussion.author.seeker_profile.profile_picture %}{{ discussion.author.seeker_profile.profile_picture.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}" 
+                                             alt="{{ discussion.author.get_full_name }}" 
+                                             class="w-8 h-8 rounded-full object-cover border-2 border-white shadow-sm">
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-900">{{ discussion.author.get_full_name }}</p>
+                                            <div class="flex items-center text-xs text-gray-500">
+                                                <span class="mr-3">{{ discussion.created_at|timesince }} ago</span>
+                                                <span class="flex items-center mr-3">
+                                                    <i class="far fa-comment mr-1"></i>
+                                                    {{ discussion.replies.count }} replies
+                                                </span>
+                                                <span class="flex items-center">
+                                                    <i class="far fa-eye mr-1"></i>
+                                                    {{ discussion.views }} views
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="ml-4 flex-shrink-0">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="p-8 text-center text-gray-500">
+                    <i class="fas fa-comments text-4xl mb-2"></i>
+                    <p class="text-lg">No discussions yet.</p>
+                    <p class="mt-2">Be the first to start one!</p>
+                </div>
+            {% endif %}
+            
+            <!-- Pagination -->
+            <div class="p-4 border-t border-gray-light flex justify-center">
+                <nav class="flex items-center space-x-2">
+                    <a href="#" class="px-3 py-1 rounded-lg border border-gray-300 text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    <a href="#" class="px-3 py-1 rounded-lg bg-primary-600 text-white">1</a>
+                    <a href="#" class="px-3 py-1 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">2</a>
+                    <a href="#" class="px-3 py-1 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">3</a>
+                    <span class="px-3 py-1 text-gray-500">...</span>
+                    <a href="#" class="px-3 py-1 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50">8</a>
+                    <a href="#" class="px-3 py-1 rounded-lg border border-gray-300 text-gray-500 hover:bg-gray-50">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

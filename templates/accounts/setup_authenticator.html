@@ -1,0 +1,290 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+{% block content %}
+<section class="min-h-screen bg-cream flex items-center justify-center p-4">
+  <div class="w-full max-w-2xl">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <img src="{% static 'img/logo.png' %}" alt="My House Padi" class="h-12 mx-auto mb-4">
+      <h1 class="text-3xl font-bold text-primary-800">Set Up Authenticator</h1>
+      <p class="text-gray-600">Secure your account with Google Authenticator</p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8">
+      <!-- Progress Steps -->
+      <div class="flex items-center justify-center mb-8">
+        <div class="flex items-center">
+          <div class="w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+            1
+          </div>
+          <div class="w-16 h-1 bg-primary-600 mx-2"></div>
+          <div class="w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+            2
+          </div>
+          <div class="w-16 h-1 bg-gray-300 mx-2"></div>
+          <div class="w-8 h-8 bg-gray-300 text-gray-600 rounded-full flex items-center justify-center text-sm font-medium">
+            3
+          </div>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8 items-start">
+        <!-- Left Column - QR Code -->
+        <div class="space-y-6">
+          <!-- QR Code Container -->
+          <div class="bg-white p-6 border-2 border-dashed border-gray-300 rounded-xl text-center">
+            <h3 class="font-medium text-gray-900 mb-4 flex items-center justify-center">
+              <i class="fas fa-qrcode mr-2 text-primary-600"></i>
+              Scan QR Code
+            </h3>
+            
+            <div class="bg-white p-4 inline-block rounded-lg shadow-sm">
+              <img src="data:image/png;base64,{{ qr_code_base64 }}" 
+                   alt="QR Code for Google Authenticator" 
+                   class="w-48 h-48 mx-auto">
+            </div>
+            
+            <p class="text-sm text-gray-600 mt-4">
+              Scan this QR code with your authenticator app
+            </p>
+          </div>
+
+          <!-- Manual Entry -->
+          <div class="bg-gray-50 rounded-lg p-4">
+            <h4 class="font-medium text-gray-900 text-sm mb-2 flex items-center">
+              <i class="fas fa-keyboard mr-2 text-gray-500"></i>
+              Prefer manual entry?
+            </h4>
+            <div class="space-y-2">
+              <div>
+                <label class="text-xs text-gray-600 block mb-1">Secret Key:</label>
+                <div class="flex items-center space-x-2">
+                  <code class="flex-1 bg-white border border-gray-300 rounded px-3 py-2 text-sm font-mono select-all">
+                    {{ totp_secret }}
+                  </code>
+                  <button type="button" 
+                          onclick="copySecretKey()" 
+                          class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2 rounded text-sm transition">
+                    <i class="fas fa-copy"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column - Instructions -->
+        <div class="space-y-6">
+          <!-- Step 1: Download App -->
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                  <span class="text-white text-xs font-bold">1</span>
+                </div>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-900">Install Authenticator App</h3>
+                <p class="text-sm text-blue-800 mt-1">
+                  Download Google Authenticator from your app store
+                </p>
+                <div class="flex space-x-3 mt-2">
+                  <a href="https://apps.apple.com/app/google-authenticator/id388497605" 
+                     target="_blank"
+                     class="flex items-center space-x-1 text-xs text-blue-700 hover:text-blue-900">
+                    <i class="fab fa-apple"></i>
+                    <span>App Store</span>
+                  </a>
+                  <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2" 
+                     target="_blank"
+                     class="flex items-center space-x-1 text-xs text-blue-700 hover:text-blue-900">
+                    <i class="fab fa-google-play"></i>
+                    <span>Play Store</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Scan QR Code -->
+          <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <div class="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center">
+                  <span class="text-white text-xs font-bold">2</span>
+                </div>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-green-900">Scan QR Code</h3>
+                <p class="text-sm text-green-800 mt-1">
+                  Open Google Authenticator and tap the "+" button to scan the QR code
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Enter Code -->
+          <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+            <div class="flex items-start">
+              <div class="flex-shrink-0">
+                <div class="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center">
+                  <span class="text-white text-xs font-bold">3</span>
+                </div>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-purple-900">Verify Setup</h3>
+                <p class="text-sm text-purple-800 mt-1">
+                  Enter the 6-digit code from the app to complete setup
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Verification Form -->
+          <div class="bg-white border border-gray-200 rounded-lg p-4">
+            <form method="post" action="{% url 'accounts:mfa_verify' %}">
+              {% csrf_token %}
+              <input type="hidden" name="from_setup" value="true">
+              
+              <label for="otp" class="block text-sm font-medium text-gray-700 mb-2">
+                Enter 6-digit code from authenticator:
+              </label>
+              <div class="space-y-3">
+                <input type="text" 
+                       name="otp" 
+                       id="otp"
+                       maxlength="6"
+                       pattern="[0-9]{6}"
+                       inputmode="numeric"
+                       placeholder="000000"
+                       class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-400 focus:border-primary-400 transition text-center text-lg font-mono tracking-widest"
+                       required>
+                
+                <button type="submit" 
+                        class="w-full bg-primary-800 hover:bg-primary-700 text-white py-3 px-4 rounded-lg font-medium transition flex items-center justify-center">
+                  <i class="fas fa-shield-check mr-2"></i> Verify & Complete Setup
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Help Section -->
+      <div class="mt-8 pt-6 border-t border-gray-200">
+        <div class="grid md:grid-cols-2 gap-6">
+          <!-- Troubleshooting -->
+          <div class="space-y-3">
+            <h4 class="font-medium text-gray-900 flex items-center">
+              <i class="fas fa-life-ring mr-2 text-gray-500"></i>
+              Need help?
+            </h4>
+            <ul class="text-sm text-gray-600 space-y-2">
+              <li class="flex items-start">
+                <i class="fas fa-check text-green-500 mr-2 mt-0.5 text-xs"></i>
+                Make sure your phone's time is synchronized
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check text-green-500 mr-2 mt-0.5 text-xs"></i>
+                QR code not working? Use the manual entry code
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check text-green-500 mr-2 mt-0.5 text-xs"></i>
+                Codes refresh every 30 seconds
+              </li>
+            </ul>
+          </div>
+
+          <!-- Security Tips -->
+          <div class="space-y-3">
+            <h4 class="font-medium text-gray-900 flex items-center">
+              <i class="fas fa-shield-alt mr-2 text-green-500"></i>
+              Security Benefits
+            </h4>
+            <ul class="text-sm text-gray-600 space-y-2">
+              <li class="flex items-start">
+                <i class="fas fa-lock text-green-500 mr-2 mt-0.5 text-xs"></i>
+                Protects against password theft
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-user-shield text-green-500 mr-2 mt-0.5 text-xs"></i>
+                Required for sensitive actions
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-mobile text-green-500 mr-2 mt-0.5 text-xs"></i>
+                Works offline once set up
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-200">
+        <a href="{% url 'accounts:select_mfa_method' %}" 
+           class="text-gray-600 hover:text-gray-800 font-medium flex items-center">
+          <i class="fas fa-arrow-left mr-2"></i> Back to Methods
+        </a>
+        
+        <a href="{% url 'accounts:login' %}" 
+           class="text-primary-600 hover:text-primary-800 font-medium flex items-center">
+          Skip for now <i class="fas fa-arrow-right ml-2"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Success Modal -->
+<div id="copySuccess" class="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg hidden z-50">
+  <div class="flex items-center">
+    <i class="fas fa-check-circle mr-2"></i>
+    <span>Secret key copied to clipboard!</span>
+  </div>
+</div>
+
+<script>
+function copySecretKey() {
+  const secretKey = "{{ totp_secret }}";
+  navigator.clipboard.writeText(secretKey).then(function() {
+    // Show success message
+    const successMsg = document.getElementById('copySuccess');
+    successMsg.classList.remove('hidden');
+    setTimeout(() => {
+      successMsg.classList.add('hidden');
+    }, 3000);
+  }).catch(function(err) {
+    console.error('Failed to copy: ', err);
+    // Fallback for older browsers
+    const textArea = document.createElement('textarea');
+    textArea.value = secretKey;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    
+    const successMsg = document.getElementById('copySuccess');
+    successMsg.classList.remove('hidden');
+    setTimeout(() => {
+      successMsg.classList.add('hidden');
+    }, 3000);
+  });
+}
+
+// Auto-focus OTP field
+document.addEventListener('DOMContentLoaded', function() {
+  const otpField = document.getElementById('otp');
+  if (otpField) {
+    otpField.focus();
+  }
+  
+  // Format OTP input
+  otpField.addEventListener('input', function(e) {
+    this.value = this.value.replace(/[^0-9]/g, '');
+    if (this.value.length === 6) {
+      this.form.submit();
+    }
+  });
+});
+</script>
+{% endblock %}

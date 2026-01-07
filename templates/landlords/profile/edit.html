@@ -1,0 +1,247 @@
+{% extends "landlords/landlord_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 bg-cream">
+    <div class="max-w-6xl mx-auto">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Profile Sidebar -->
+            <div class="lg:w-1/4">
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="p-6 text-center bg-gradient-to-r from-primary-400 to-primary-600">
+                        <div class="relative mx-auto w-40 h-40 mb-4">
+                            <div class="profile-picture rounded-full overflow-hidden border-4 border-white shadow-lg">
+                                <img id="profile-preview" 
+                                     src="{% if form.instance.profile_picture %}{{ form.instance.profile_picture.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}" 
+                                     alt="Profile" 
+                                     class="w-full h-full object-cover">
+                            </div>
+                            {% if user.is_premium %}
+                            <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
+                                <span class="badge-premium text-white text-xs px-3 py-1 rounded-full inline-block">PREMIUM</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <h2 class="text-2xl font-bold text-white">Edit Profile</h2>
+                        <p class="text-white font-medium">Property Owner</p>
+                    </div>
+                    
+                    <div class="p-6 border-t border-gray-light">
+                        <div class="mt-4">
+                            <label for="id_profile_picture" class="cursor-pointer w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                                <i class="fas fa-camera mr-2"></i> Change Photo
+                            </label>
+                            <input type="file" name="profile_picture" id="id_profile_picture" accept="image/*" class="hidden">
+                            {% if form.instance.profile_picture %}
+                            <button type="button" id="remove-photo" class="w-full mt-2 text-sm text-gray-500 hover:text-gray-700">
+                                <i class="fas fa-trash-alt mr-1"></i> Remove Photo
+                            </button>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Social Links -->
+                        <div class="mt-6">
+                            <h3 class="text-sm font-medium text-gray-700 mb-2">Social Links</h3>
+                            <div class="space-y-3">
+                                <div>
+                                    <label for="id_social_facebook" class="block text-xs text-gray-500 mb-1">Facebook</label>
+                                    <input type="url" name="social_facebook" id="id_social_facebook" 
+                                           value="{{ form.social_facebook.value|default:'' }}"
+                                           class="w-full px-3 py-1 text-sm border border-gray-300 rounded-lg">
+                                </div>
+                                <div>
+                                    <label for="id_social_twitter" class="block text-xs text-gray-500 mb-1">Twitter</label>
+                                    <input type="url" name="social_twitter" id="id_social_twitter" 
+                                           value="{{ form.social_twitter.value|default:'' }}"
+                                           class="w-full px-3 py-1 text-sm border border-gray-300 rounded-lg">
+                                </div>
+                                <div>
+                                    <label for="id_social_linkedin" class="block text-xs text-gray-500 mb-1">LinkedIn</label>
+                                    <input type="url" name="social_linkedin" id="id_social_linkedin" 
+                                           value="{{ form.social_linkedin.value|default:'' }}"
+                                           class="w-full px-3 py-1 text-sm border border-gray-300 rounded-lg">
+                                </div>
+                                <div>
+                                    <label for="id_social_instagram" class="block text-xs text-gray-500 mb-1">Instagram</label>
+                                    <input type="url" name="social_instagram" id="id_social_instagram" 
+                                           value="{{ form.social_instagram.value|default:'' }}"
+                                           class="w-full px-3 py-1 text-sm border border-gray-300 rounded-lg">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Edit Form -->
+            <div class="lg:w-3/4">
+                <form method="post" enctype="multipart/form-data" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <!-- Personal Information Card -->
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                        <div class="p-6 border-b border-gray-light">
+                            <h2 class="text-xl font-bold text-gray-800">Personal Information</h2>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="id_first_name" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                                    <input type="text" name="first_name" id="id_first_name" 
+                                           value="{{ form.first_name.value|default:user.first_name|default:'' }}"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
+                                    {% if form.first_name.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.first_name.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                                
+                                <div>
+                                    <label for="id_last_name" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                                    <input type="text" name="last_name" id="id_last_name" 
+                                           value="{{ form.last_name.value|default:user.last_name|default:'' }}"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
+                                    {% if form.last_name.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.last_name.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                                
+                                <div>
+                                    <label for="id_email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                    <input type="email" name="email" id="id_email" 
+                                           value="{{ form.email.value|default:user.email|default:'' }}"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
+                                    {% if form.email.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                                
+                                <div>
+                                    <label for="id_phone_number" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                                    <input type="tel" name="phone_number" id="id_phone_number" 
+                                           value="{{ form.phone_number.value|default:'' }}"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
+                                    {% if form.phone_number.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.phone_number.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6">
+                                <label for="id_bio" class="block text-sm font-medium text-gray-700 mb-1">About Me</label>
+                                <textarea name="bio" id="id_bio" rows="3"
+                                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">{{ form.bio.value|default:'' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Business Information Card -->
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                        <div class="p-6 border-b border-gray-light">
+                            <h2 class="text-xl font-bold text-gray-800">Business Information</h2>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="id_company_name" class="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+                                    <input type="text" name="company_name" id="id_company_name" 
+                                           value="{{ form.company_name.value|default:'' }}"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Properties Listed</label>
+                                    <div class="px-4 py-2 bg-gray-50 rounded-lg text-gray-800">{{ properties_count|default:"0" }}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6">
+                                <label for="id_business_address" class="block text-sm font-medium text-gray-700 mb-1">Business Address</label>
+                                <textarea name="business_address" id="id_business_address" rows="3"
+                                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500">{{ form.business_address.value|default:'' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Verification Documents Card -->
+                    {% if not user.is_verified %}
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                        <div class="p-6 border-b border-gray-light">
+                            <h2 class="text-xl font-bold text-gray-800">Verification Documents</h2>
+                        </div>
+                        
+                        <div class="p-6">
+                            <div class="rounded-md bg-blue-50 p-4">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-info-circle text-blue-500"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h3 class="text-sm font-medium text-blue-800">Account verification required</h3>
+                                        <div class="mt-2 text-sm text-blue-700">
+                                            <p>Upload documents to verify your identity and property ownership.</p>
+                                        </div>
+                                        <div class="mt-4">
+                                            {% if form.instance.verification_documents %}
+                                            <div class="mb-2">
+                                                <span class="text-sm font-medium">Current documents:</span>
+                                                <a href="{{ form.instance.verification_documents.url }}" target="_blank" class="text-primary-600 hover:underline ml-2">
+                                                    View Uploaded
+                                                </a>
+                                            </div>
+                                            {% endif %}
+                                            <label for="id_verification_documents" class="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                                                <i class="fas fa-upload mr-2"></i> 
+                                                {% if form.instance.verification_documents %}Replace Documents{% else %}Upload Documents{% endif %}
+                                            </label>
+                                            <input type="file" name="verification_documents" id="id_verification_documents" class="hidden">
+                                            <p class="mt-1 text-xs text-gray-500">Government ID and proof of ownership</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Form Actions -->
+                    <div class="flex justify-end space-x-3">
+                        <a href="{% url 'landlords:profile' %}" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                            Cancel
+                        </a>
+                        <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Profile picture preview
+    document.getElementById('id_profile_picture').addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('profile-preview').src = e.target.result;
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+
+    // Remove profile picture
+    document.getElementById('remove-photo')?.addEventListener('click', function() {
+        document.getElementById('profile-preview').src = "{% static 'img/default-profile.png' %}";
+        document.getElementById('id_profile_picture').value = '';
+        // Add hidden field to indicate removal
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'profile_picture-clear';
+        input.value = '1';
+        document.querySelector('form').appendChild(input);
+    });
+</script>
+{% endblock %}

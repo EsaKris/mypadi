@@ -1,0 +1,112 @@
+{% extends "landlords/landlord_base.html" %}
+{% load static %}
+{% block title %}Message with {{ other_participant.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <!-- Back Button and Header -->
+    <div class="mb-6 flex items-center">
+        <a href="{% url 'landlords:messages' %}" 
+           class="mr-4 text-primary-600 hover:text-primary-800">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Message Thread</h1>
+            <p class="text-gray-600">Conversation with {{ other_participant.get_full_name }}</p>
+        </div>
+    </div>
+
+    <!-- Message Thread -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <!-- Participant Info -->
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <img class="h-10 w-10 rounded-full" 
+                         src="{% if other_participant.seeker_profile.profile_picture %}
+                                  {{ other_participant.seeker_profile.profile_picture.url }}
+                              {% else %}
+                                  {% static 'img/default-avatar.png' %}
+                              {% endif %}" 
+                         alt="{{ other_participant.get_full_name }}">
+                    <div class="ml-4">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">
+                            {{ other_participant.get_full_name }}
+                        </h3>
+                        <p class="text-sm text-gray-500">
+                            {{ property.name }}
+                        </p>
+                    </div>
+                </div>
+                <div class="flex space-x-2">
+                    <button class="text-gray-400 hover:text-gray-500">
+                        <i class="fas fa-phone"></i>
+                    </button>
+                    <button class="text-gray-400 hover:text-gray-500">
+                        <i class="fas fa-video"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Messages -->
+        <div class="px-4 py-4 h-[500px] overflow-y-auto bg-gray-50">
+            {% for message in messages %}
+            <div class="mb-4 {% if message.sender == request.user %}text-right{% endif %}">
+                <div class="inline-block max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-lg 
+                            {% if message.sender == request.user %}bg-primary-600 text-white
+                            {% else %}bg-white text-gray-800 shadow{% endif %}">
+                    <p>{{ message.content }}</p>
+                    <p class="text-xs mt-1 {% if message.sender == request.user %}text-primary-200{% else %}text-gray-500{% endif %}">
+                        {{ message.created_at|time }}
+                        {% if message.read %}
+                        <i class="fas fa-check-double ml-1 {% if message.sender == request.user %}text-primary-200{% else %}text-gray-500{% endif %}"></i>
+                        {% elif message.sender == request.user %}
+                        <i class="fas fa-check ml-1 text-primary-200"></i>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Message Input -->
+        <div class="px-4 py-3 border-t border-gray-200">
+            <form method="post" action="{% url 'landlords:send_message' %}">
+                {% csrf_token %}
+                <input type="hidden" name="conversation_id" value="{{ conversation.id }}">
+                <input type="hidden" name="recipient_id" value="{{ other_participant.id }}">
+                <div class="flex items-center">
+                    <button type="button" class="p-2 text-gray-400 hover:text-gray-500">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                    <input type="text" name="content" placeholder="Type your message..." 
+                           class="flex-1 mx-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                           required>
+                    <button type="submit" class="p-2 text-primary-600 hover:text-primary-800">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Auto-scroll to bottom of messages
+    document.addEventListener('DOMContentLoaded', function() {
+        const messagesContainer = document.querySelector('.overflow-y-auto');
+        if (messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        fetch("{% url 'landlords:mark_as_read' conversation.id %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            },
+        });
+    });
+</script>
+{% endblock %}

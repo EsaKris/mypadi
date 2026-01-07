@@ -1,0 +1,300 @@
+{% extends 'landlords/admin/base.html' %}
+{% load static %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <!-- Profile Card -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+        <div class="px-6 py-5 border-b border-gray-100 bg-gray-50 flex flex-col md:flex-row md:items-center md:justify-between">
+            <div>
+                <h3 class="text-2xl font-bold text-gray-900">Seeker Profile</h3>
+                <p class="mt-1 text-sm text-gray-500">Manage seeker account and details</p>
+            </div>
+            <div class="mt-4 md:mt-0">
+                <a href="{% url 'landlords_admin:toggle_seeker_status' pk=seeker.pk %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white {% if seeker.is_active %}bg-red-600 hover:bg-red-700{% else %}bg-green-600 hover:bg-green-700{% endif %} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    {% if seeker.is_active %}
+                    <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clip-rule="evenodd" />
+                    </svg>
+                    Deactivate Account
+                    {% else %}
+                    <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    Activate Account
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+        
+        <div class="p-6">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+                    <!-- Profile Picture -->
+                    <div class="col-span-1 flex flex-col items-center space-y-4">
+                        <div class="relative group">
+                            <div class="w-36 h-36 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden shadow-inner border-2 border-white ring-2 ring-gray-200">
+                                {% if form.instance.profile_picture %}
+                                    <img id="profile-preview" src="{{ form.instance.profile_picture.url }}" 
+                                         class="w-full h-full object-cover" 
+                                         alt="Profile picture">
+                                {% else %}
+                                    <img id="profile-preview" src="{% static 'images/default-profile.png' %}" 
+                                         class="w-full h-full object-cover" 
+                                         alt="Default profile picture">
+                                {% endif %}
+                            </div>
+                            <label for="id_profile_picture" class="absolute bottom-2 right-2 bg-white p-2 rounded-full shadow-lg cursor-pointer transition-all duration-200 hover:bg-indigo-50 hover:text-indigo-600 group-hover:opacity-100">
+                                <span class="sr-only">Change photo</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                                </svg>
+                                <input type="file" name="profile_picture" accept="image/*" 
+                                       id="id_profile_picture" class="hidden">
+                            </label>
+                        </div>
+                        <p class="text-sm text-gray-500">JPG, PNG or GIF (Max. 2MB)</p>
+                        {% if form.instance.profile_picture %}
+                        <button type="button" id="remove-photo" class="text-sm text-rose-600 hover:text-rose-800 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                            </svg>
+                            Remove photo
+                        </button>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Personal Information -->
+                    <div class="col-span-1 md:col-span-2 space-y-6">
+                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                            <div>
+                                <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700">First Name</label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                    <p class="mt-1 text-sm text-rose-600">{{ form.first_name.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700">Last Name</label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                    <p class="mt-1 text-sm text-rose-600">{{ form.last_name.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700">Email</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <p class="mt-1 text-sm text-rose-600">{{ form.email.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <label for="{{ form.phone_number.id_for_label }}" class="block text-sm font-medium text-gray-700">Phone</label>
+                                {{ form.phone_number }}
+                                {% if form.phone_number.errors %}
+                                    <p class="mt-1 text-sm text-rose-600">{{ form.phone_number.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 gap-6">
+                            <div>
+                                <label for="{{ form.about.id_for_label }}" class="block text-sm font-medium text-gray-700">About</label>
+                                {{ form.about }}
+                                {% if form.about.errors %}
+                                    <p class="mt-1 text-sm text-rose-600">{{ form.about.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="flex items-center">
+                                {{ form.verified }}
+                                <label for="{{ form.verified.id_for_label }}" class="ml-2 block text-sm text-gray-700">Verified Seeker</label>
+                                {% if form.verified.errors %}
+                                    <p class="mt-1 text-sm text-rose-600">{{ form.verified.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end mt-8">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Saved Properties Card -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+        <div class="px-6 py-5 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">Saved Properties</h3>
+            <a href="#" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">View all ({{ saved_count }})</a>
+        </div>
+        <div class="p-6">
+            {% if saved_properties %}
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {% for property in saved_properties %}
+                <div class="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
+                    <div class="h-40 bg-gray-200 relative">
+                        {% if property.property.images.first %}
+                        <img src="{{ property.property.images.first.image.url }}" alt="" class="w-full h-full object-cover">
+                        {% else %}
+                        <div class="w-full h-full flex items-center justify-center text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="p-4">
+                        <h4 class="text-lg font-medium text-gray-900 truncate">{{ property.property.title }}</h4>
+                        <p class="mt-1 text-sm text-gray-500">{{ property.property.address }}</p>
+                        <div class="mt-2 flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-900">${{ property.property.price }}/mo</span>
+                            <span class="px-2 py-1 text-xs rounded-full {% if property.property.status == 'available' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ property.property.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-8">
+                <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No saved properties</h3>
+                <p class="mt-1 text-sm text-gray-500">This seeker hasn't saved any properties yet.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Applications Card -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
+        <div class="px-6 py-5 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+            <h3 class="text-lg font-medium text-gray-900">Rental Applications</h3>
+            <a href="#" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">View all ({{ applications_count }})</a>
+        </div>
+        <div class="p-6">
+            {% if applications %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Property</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for application in applications %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        {% if application.property.images.first %}
+                                        <img class="h-10 w-10 rounded-md object-cover" src="{{ application.property.images.first.image.url }}" alt="">
+                                        {% else %}
+                                        <div class="h-10 w-10 rounded-md bg-gray-200 flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">{{ application.property.title }}</div>
+                                        <div class="text-sm text-gray-500">${{ application.property.price }}/mo</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    {% if application.status == 'approved' %}bg-green-100 text-green-800
+                                    {% elif application.status == 'rejected' %}bg-red-100 text-red-800
+                                    {% elif application.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ application.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ application.application_date|date:"M d, Y" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <a href="#" class="text-indigo-600 hover:text-indigo-900">View</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-8">
+                <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No rental applications</h3>
+                <p class="mt-1 text-sm text-gray-500">This seeker hasn't applied to any properties yet.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Profile picture preview
+    const profilePictureInput = document.getElementById('id_profile_picture');
+    const profilePreview = document.getElementById('profile-preview');
+    const removePhotoBtn = document.getElementById('remove-photo');
+    const defaultImage = "{% static 'images/default-profile.png' %}";
+    
+    if (profilePictureInput) {
+        profilePictureInput.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    profilePreview.src = event.target.result;
+                };
+                reader.readAsDataURL(e.target.files[0]);
+                
+                // Show remove button when new image is selected
+                if (removePhotoBtn) removePhotoBtn.classList.remove('hidden');
+            }
+        });
+    }
+    
+    // Remove photo functionality
+    if (removePhotoBtn) {
+        removePhotoBtn.addEventListener('click', function() {
+            // Create a hidden input to indicate photo removal
+            const removeInput = document.createElement('input');
+            removeInput.type = 'hidden';
+            removeInput.name = 'remove_profile_picture';
+            removeInput.value = 'true';
+            document.querySelector('form').appendChild(removeInput);
+            
+            // Reset preview to default
+            profilePreview.src = defaultImage;
+            
+            // Hide the remove button
+            this.classList.add('hidden');
+            
+            // Reset file input
+            if (profilePictureInput) profilePictureInput.value = '';
+        });
+    }
+});
+</script>
+{% endblock %}

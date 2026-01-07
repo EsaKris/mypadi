@@ -1,0 +1,460 @@
+{% extends "landlords/landlord_base.html" %}
+{% load static humanize %}
+
+{% block title %}{{ property.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Property Header -->
+    <div class="mb-8">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-3">
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-900">{{ property.name }}</h1>
+                    {% if property.is_featured %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        <i class="fas fa-star mr-1"></i> Featured
+                    </span>
+                    {% endif %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if property.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {% if property.is_active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                </div>
+                <div class="flex items-center mt-2 text-sm text-gray-600">
+                    <i class="fas fa-map-marker-alt mr-2 text-primary-500"></i>
+                    <span>{{ property.address }}, {{ property.city }}, {{ property.state }}</span>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <a href="{% url 'landlords:property_edit' property.pk %}" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all">
+                    <i class="fas fa-edit mr-2"></i> Edit Property
+                </a>
+                <div class="relative">
+                    <button type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all" id="more-actions-menu">
+                        <i class="fas fa-ellipsis-h mr-2"></i> More
+                    </button>
+                    <!-- Dropdown menu -->
+                    <div class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-10" role="menu">
+                        <div class="py-1" role="none">
+                            <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">
+                                <i class="fas fa-file-invoice mr-2"></i> Generate Report
+                            </a>
+                            <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">
+                                <i class="fas fa-share-alt mr-2"></i> Share Property
+                            </a>
+                            <a href="#" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">
+                                <i class="fas fa-archive mr-2"></i> Archive Property
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Property Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <!-- Current Tenant -->
+        <div class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-primary-100 text-primary-600 mr-4">
+                    <i class="fas fa-user-friends text-lg"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Occupancy</p>
+                    <p class="text-xl font-bold">
+                        {% if current_tenant %}
+                        {{ occupied_units }} of {{ property.num_units }} unit{{ property.num_units|pluralize }}
+                        {% else %}
+                        Vacant
+                        {% endif %}
+                    </p>
+                    <p class="text-sm text-gray-500">
+                        {% if current_tenant %}
+                        {{ occupancy_rate }}% occupied
+                        {% else %}
+                        0% occupied
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Rent -->
+        <div class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
+                    <i class="fas fa-money-bill-wave text-lg"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Monthly Rent</p>
+                    <p class="text-xl font-bold">₦{{ property.monthly_rent|default:"0"|intcomma }}</p>
+                    {% if current_tenant %}
+                    <p class="text-sm text-gray-500">Due on {{ current_tenant.rent_due_day }}th each month</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Property Type -->
+        <div class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+                    <i class="fas fa-home text-lg"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Property Type</p>
+                    <p class="text-xl font-bold">{{ property.get_property_type_display }}</p>
+                    <p class="text-sm text-gray-500">{{ property.num_units }} unit{{ property.num_units|pluralize }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Annual Revenue -->
+        <div class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-purple-100 text-purple-600 mr-4">
+                    <i class="fas fa-chart-line text-lg"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-500">Annual Revenue</p>
+                    <p class="text-xl font-bold">₦{{ annual_revenue|default:"0"|intcomma }}</p>
+                    <p class="text-sm text-gray-500">
+                        {% if revenue_change > 0 %}
+                        <span class="text-green-600"><i class="fas fa-arrow-up"></i> {{ revenue_change }}%</span> from last year
+                        {% elif revenue_change < 0 %}
+                        <span class="text-red-600"><i class="fas fa-arrow-down"></i> {{ revenue_change }}%</span> from last year
+                        {% else %}
+                        No change from last year
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="border-b border-gray-200 mb-6">
+        <nav class="-mb-px flex space-x-8 overflow-x-auto">
+            <a href="#" class="border-primary-500 text-primary-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center">
+                <i class="fas fa-chart-pie mr-2"></i> Overview
+            </a>
+            <a href="#" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center">
+                <i class="fas fa-users mr-2"></i> Tenants
+            </a>
+            <a href="#" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center">
+                <i class="fas fa-money-bill-wave mr-2"></i> Payments
+            </a>
+            <a href="#" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center">
+                <i class="fas fa-tools mr-2"></i> Maintenance
+            </a>
+            <a href="#" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center">
+                <i class="fas fa-file-alt mr-2"></i> Documents
+            </a>
+            <a href="#" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center">
+                <i class="fas fa-chart-bar mr-2"></i> Reports
+            </a>
+        </nav>
+    </div>
+
+    <!-- Property Details -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Property Gallery -->
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="relative">
+                    <div class="aspect-w-16 aspect-h-9 bg-gray-100">
+                        {% if property.primary_image %}
+                        <img src="{{ property.primary_image.image.url }}" alt="{{ property.name }}" class="object-cover w-full h-64">
+                        {% else %}
+                        <div class="w-full h-64 flex items-center justify-center bg-gray-100 text-gray-400">
+                            <i class="fas fa-camera text-4xl"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4">
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <h3 class="text-lg font-medium text-white">Property Gallery</h3>
+                                <p class="text-sm text-white/80">{{ property.images.count }} photo{{ property.images.count|pluralize }}</p>
+                            </div>
+                            <a href="#" class="text-sm font-medium text-white hover:text-primary-200 flex items-center">
+                                View all <i class="fas fa-chevron-right ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-0.5 p-0.5">
+                    {% for image in property.images.all|slice:":6" %}
+                    <div class="aspect-w-1 aspect-h-1 bg-gray-100">
+                        <img src="{{ image.image.url }}" alt="" class="object-cover w-full h-full">
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Property Information -->
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200 flex justify-between items-center">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                        <i class="fas fa-info-circle text-primary-500 mr-2"></i> Property Details
+                    </h3>
+                    <button class="text-sm text-primary-600 hover:text-primary-800">
+                        <i class="fas fa-pencil-alt mr-1"></i> Edit
+                    </button>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-500 flex items-center">
+                                <i class="fas fa-map-marked-alt text-gray-400 mr-2"></i> Full Address
+                            </h4>
+                            <p class="mt-1 text-sm text-gray-900">{{ property.address }}</p>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-500 flex items-center">
+                                <i class="fas fa-city text-gray-400 mr-2"></i> City
+                            </h4>
+                            <p class="mt-1 text-sm text-gray-900">{{ property.city }}</p>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-500 flex items-center">
+                                <i class="fas fa-flag text-gray-400 mr-2"></i> State
+                            </h4>
+                            <p class="mt-1 text-sm text-gray-900">{{ property.state }}</p>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-500 flex items-center">
+                                <i class="fas fa-mail-bulk text-gray-400 mr-2"></i> Postal Code
+                            </h4>
+                            <p class="mt-1 text-sm text-gray-900">{{ property.zip_code|default:"Not specified" }}</p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <h4 class="text-sm font-medium text-gray-500 flex items-center">
+                                <i class="fas fa-align-left text-gray-400 mr-2"></i> Description
+                            </h4>
+                            <p class="mt-1 text-sm text-gray-900">{{ property.description|default:"No description provided" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Amenities Section -->
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 flex items-center">
+                        <i class="fas fa-star text-yellow-500 mr-2"></i> Amenities
+                    </h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    {% if property.amenities.all %}
+                    <div class="flex flex-wrap gap-3">
+                        {% for amenity in property.amenities.all %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-sm">
+                            <i class="{{ amenity.icon }} mr-1 text-primary-500"></i> {{ amenity.name }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-star text-gray-300 text-4xl mb-2"></i>
+                        <p class="text-gray-500">No amenities added yet</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Quick Actions -->
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 flex items-center">
+                        <i class="fas fa-bolt text-yellow-500 mr-2"></i> Quick Actions
+                    </h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="grid grid-cols-1 gap-3">
+                        <a href="{% url 'landlords:tenant_create' property.pk %}" 
+                           class="inline-flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all">
+                            <i class="fas fa-user-plus mr-2"></i> Add New Tenant
+                        </a>
+                        <a href="{% url 'landlords:lease_create' property.pk %}" 
+                           class="inline-flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all">
+                            <i class="fas fa-file-contract mr-2"></i> Create Lease Agreement
+                        </a>
+                        <a href="{% url 'landlords:payment_create' property.pk %}" 
+                           class="inline-flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all">
+                            <i class="fas fa-money-bill-wave mr-2"></i> Record Payment
+                        </a>
+                        <a href="{% url 'landlords:expense_create' property.pk %}" 
+                           class="inline-flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all">
+                            <i class="fas fa-receipt mr-2"></i> Record Expense
+                        </a>
+                        <a href="#" 
+                           class="inline-flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all">
+                            <i class="fas fa-tools mr-2"></i> Request Maintenance
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Leases -->
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200 flex justify-between items-center">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 flex items-center">
+                        <i class="fas fa-file-contract text-blue-500 mr-2"></i> Active Leases
+                    </h3>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        {{ active_leases.count }} active
+                    </span>
+                </div>
+                <div class="divide-y divide-gray-200">
+                    {% for lease in active_leases %}
+                    <div class="px-4 py-4 sm:px-6 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 mr-3">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-primary-600">{{ lease.tenant.full_name }}</p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ lease.start_date|date:"M d, Y" }} - {{ lease.end_date|date:"M d, Y" }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-medium text-gray-900">₦{{ lease.monthly_rent|intcomma }}</p>
+                                <span class="mt-1 px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
+                                    Active
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="px-4 py-12 text-center">
+                        <i class="fas fa-file-contract text-4xl text-gray-400 mb-4"></i>
+                        <h3 class="text-lg font-medium text-gray-900">No active leases</h3>
+                        <p class="mt-1 text-sm text-gray-500">This property currently has no active lease agreements.</p>
+                        <a href="{% url 'landlords:lease_create' property.pk %}" class="mt-4 inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                            <i class="fas fa-plus mr-1"></i> Create Lease
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 flex items-center">
+                        <i class="fas fa-history text-gray-500 mr-2"></i> Recent Activity
+                    </h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="flow-root">
+                        <ul class="-mb-8">
+                            {% for activity in recent_activity %}
+                            <li>
+                                <div class="relative pb-8">
+                                    {% if not forloop.last %}
+                                    <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                                    {% endif %}
+                                    <div class="relative flex space-x-3">
+                                        <div>
+                                            <span class="h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white {% cycle 'bg-blue-500' 'bg-green-500' 'bg-yellow-500' 'bg-purple-500' %}">
+                                                <i class="fas {% cycle 'fa-file-contract' 'fa-money-bill-wave' 'fa-tools' 'fa-user' %} text-white text-sm"></i>
+                                            </span>
+                                        </div>
+                                        <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                                            <div>
+                                                <p class="text-sm text-gray-800">
+                                                    {{ activity.description }}
+                                                    <span class="font-medium text-gray-900">{{ activity.related_object }}</span>
+                                                </p>
+                                            </div>
+                                            <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                                                <time datetime="{{ activity.timestamp|date:'c' }}">{{ activity.timestamp|naturaltime }}</time>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            {% empty %}
+                            <li class="text-center py-4 text-gray-500">
+                                No recent activity
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="mt-6">
+                        <a href="#" class="w-full flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            View all activity
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // More actions dropdown toggle
+    const moreActionsButton = document.getElementById('more-actions-menu');
+    const moreActionsMenu = moreActionsButton.nextElementSibling;
+    
+    moreActionsButton.addEventListener('click', function() {
+        const isExpanded = moreActionsMenu.classList.contains('hidden');
+        if (isExpanded) {
+            moreActionsMenu.classList.remove('hidden');
+        } else {
+            moreActionsMenu.classList.add('hidden');
+        }
+    });
+    
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!moreActionsButton.contains(event.target) && !moreActionsMenu.contains(event.target)) {
+            moreActionsMenu.classList.add('hidden');
+        }
+    });
+    
+    // Tab functionality would go here
+    // You would need to implement the tab switching logic based on your needs
+});
+</script>
+
+<style>
+    /* Custom scrollbar for tabs */
+    nav::-webkit-scrollbar {
+        height: 6px;
+    }
+    nav::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    nav::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+    }
+    nav::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+    
+    /* Smooth transitions */
+    .transition-all {
+        transition-property: all;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 150ms;
+    }
+    
+    /* Card hover effects */
+    .hover\:shadow-md:hover {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends 'landlords/admin/base.html' %}
+{% load static %}
+
+{% block admin_content %}
+<div class="px-4 sm:px-6 lg:px-8">
+    <!-- Header section -->
+    <div class="sm:flex sm:items-center sm:justify-between mb-8">
+        <div class="mb-4 sm:mb-0">
+            <h1 class="text-2xl font-bold text-gray-900">Admin Users</h1>
+            <p class="mt-1 text-sm text-gray-500">Manage all administrator accounts</p>
+        </div>
+        {% if request.user.is_superuser %}
+        <div>
+            <a href="{% url 'landlords_admin:create_admin' %}" class="inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#008a17] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#257e0f]" style="background-color: #257e0f;">
+                <svg class="-ml-0.5 mr-1.5 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                </svg>
+                Create Admin
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Admin users table -->
+    <div class="mt-8 flow-root">
+        <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+                <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+                    <table class="min-w-full divide-y divide-gray-300">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Admin</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Role</th>
+                                <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold text-gray-900">Status</th>
+                                <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold text-gray-900">Joined</th>
+                                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6 text-right">
+                                    <span class="sr-only">Action</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 bg-white">
+                            {% for admin in admins %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="whitespace-nowrap py-4 pl-4 pr-3 sm:pl-6">
+                                    <div class="flex items-center">
+                                        <div class="h-10 w-10 flex-shrink-0">
+                                            <img class="h-10 w-10 rounded-full" src="{% if admin.profile_picture %}{{ admin.profile_picture.url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}" alt="">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="font-medium text-gray-900">{{ admin.get_full_name }}</div>
+                                            <div class="text-gray-500">{{ admin.email }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {% if admin.is_superuser %}bg-purple-100 text-purple-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                                        {% if admin.is_superuser %}Super Admin{% else %}Admin{% endif %}
+                                    </span>
+                                </td>
+                                <td class="whitespace-nowrap px-3 py-4 text-center text-sm">
+                                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {% if admin.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {% if admin.is_active %}Active{% else %}Inactive{% endif %}
+                                    </span>
+                                </td>
+                                <td class="whitespace-nowrap px-3 py-4 text-center text-sm text-gray-500">
+                                    {{ admin.date_joined|date:"M d, Y" }}
+                                </td>
+                                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                                    <a href="{% url 'landlords_admin:admin_detail' admin.pk %}" class="text-[#257e0f] hover:text-[#008a17]">
+                                        View<span class="sr-only">, {{ admin.get_full_name }}</span>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

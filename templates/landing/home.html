@@ -1,0 +1,1088 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Dream Home Finder{% endblock %}
+<meta name="google-site-verification" content="QZ6tNBeQWZ2UXwDCV8YnXG0D7HAUk568dU5lwiy4Q1c" />
+
+{% block content %}
+<!-- Hero Section -->
+<div class="container mx-auto flex flex-col md:flex-row items-center pt-24 md:pt-32 px-4 md:px-8 lg:px-[173px]">
+    <!-- Left Content -->
+    <div class="w-full md:w-1/2 order-2 md:order-1">
+        <div class="max-w-[514px] mx-auto md:mx-0 pb-4">
+            <h1 class="text-4xl md:text-5xl lg:text-[64px] extra-black text-primary-800 leading-tight md:leading-[80px]">
+                Find Your<br>Dream Home
+            </h1>
+            <p class="text-base md:text-[18px] text-black mt-4 md:mt-[32px]">
+                A Trusted Digital Market Place for Your Homes and Workspace. 
+                <span class="font-bold text-primary-800">Find it!</span> 
+                <span class="font-bold text-black">Love it!</span> 
+                <span class="font-bold text-primary-800">Move in</span> 
+                <span class="font-bold text-black">your Padi way.</span>
+            </p>
+            <button class="bg-primary-800 text-white px-6 py-2 md:px-8 md:py-3 rounded-md mt-6 md:mt-[72px] hover:bg-primary-600 transition">
+               <a href="{% url 'accounts:register' %}">Sign Up Now</a>
+            </button>
+        </div>
+    </div>
+    <!-- Right Image -->
+    <div class="w-full md:w-1/2 order-1 md:order-2 flex justify-center md:justify-end">
+        <img src="{% static 'img/house.png' %}" alt="Dream Home" class="h-auto max-h-[1000px] md:max-h-[800px] lg:max-h-[1000px] w-full md:w-auto">
+    </div>
+</div> 
+
+<!-- Interactive Property Listings Section -->
+<section class="py-16 md:py-24 bg-gray-50 relative">
+    <!-- Search Modal (hidden by default) -->
+    <div class="search-modal fixed inset-0 bg-black/50 backdrop-blur-sm z-40 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl mx-4 transform transition-all duration-300">
+            <!-- Close button -->
+            <button class="close-modal absolute top-4 right-4 text-gray-500 hover:text-primary-800 z-50">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+            
+            <!-- Search Box -->
+            <div class="w-full bg-primary-400 rounded-lg shadow-md flex flex-col md:flex-row items-stretch p-4 md:p-6">
+                <!-- Location -->
+                <div class="w-full md:w-[35%] h-[58px] bg-white rounded-md md:border-r border-gray-light flex items-center pr-4 mb-3 md:mb-0">
+                    <i class="fas fa-map-marker-alt text-primary-400 text-lg mx-3"></i>
+                    <input type="text" placeholder="Location" class="w-full outline-none placeholder-primary-400 text-primary-800 text-sm md:text-base">
+                </div>
+                
+                <!-- Type -->
+                <div class="w-full md:w-[30%] h-[58px] bg-white rounded-md md:border-r border-gray-light flex items-center px-3 mb-3 md:mb-0">
+                    <i class="fas fa-home text-primary-400 text-lg mx-3"></i>
+                    <select class="w-full outline-none text-primary-800 bg-transparent text-sm md:text-base">
+                        <option value="">Property Type</option>
+                        <option value="rent">For Rent</option>
+                        <option value="sale">For Sale</option>
+                        <option value="lease">For Lease</option>
+                    </select>
+                </div>
+                
+                <!-- Price Range -->
+                <div class="w-full md:w-[25%] h-[58px] bg-white rounded-md flex items-center px-3 mb-3 md:mb-0">
+                    <i class="fas fa-coins text-primary-400 text-lg mx-3"></i>
+                    <select class="w-full outline-none text-primary-800 bg-transparent text-sm md:text-base">
+                        <option value="">Price Range</option>
+                        <option value="0-500000">₦0 - ₦500,000</option>
+                        <option value="500000-2000000">₦500k - ₦2M</option>
+                        <option value="2000000-5000000">₦2M - ₦5M</option>
+                        <option value="5000000+">₦5M+</option>
+                    </select>
+                </div>
+                
+                <!-- Search Button -->
+                <button class="w-full md:w-[10%] min-w-[120px] bg-primary-800 text-white px-4 py-3 rounded-md hover:bg-primary-600 transition flex items-center justify-center">
+                    <i class="fas fa-search mr-2"></i>
+                    <span class="hidden md:inline">Search</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 md:px-8 lg:px-16">
+        <!-- Section Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 md:mb-12 gap-4">
+            <div class="mb-4 md:mb-0">
+                <h2 class="text-2xl md:text-4xl extra-black text-primary-800 mb-2">
+                    <i class="fas fa-search-location text-primary-600 mr-2"></i>Discover Your Next Space
+                </h2>
+                <p class="text-base md:text-lg text-gray-600">
+                    <i class="fas fa-shield-alt text-primary-400 mr-1"></i>Direct from verified owners in Nigeria
+                </p>
+            </div>
+            
+            <!-- Filter Tabs -->
+            <div class="w-full md:w-auto overflow-x-auto pb-2">
+                <div class="flex gap-2 items-center min-w-max">
+                    <a href="{% url 'landing:property_list' %}" class="filter-btn active px-3 py-1 md:px-4 md:py-2 rounded-full bg-primary-800 text-white whitespace-nowrap">
+                        <i class="fas fa-layer-group mr-1 md:mr-2"></i>All
+                    </a>
+                    <a href="{% url 'landing:property_list' %}?type=apartment" class="filter-btn px-3 py-1 md:px-4 md:py-2 rounded-full border border-primary-800 text-primary-800 hover:bg-primary-50 whitespace-nowrap">
+                        <i class="fas fa-building mr-1 md:mr-2"></i>Apartments
+                    </a>
+                    <a href="{% url 'landing:property_list' %}?type=house" class="filter-btn px-3 py-1 md:px-4 md:py-2 rounded-full border border-primary-800 text-primary-800 hover:bg-primary-50 whitespace-nowrap">
+                        <i class="fas fa-home mr-1 md:mr-2"></i>Houses
+                    </a>
+                    <a href="{% url 'landing:property_list' %}?type=commercial" class="filter-btn px-3 py-1 md:px-4 md:py-2 rounded-full border border-primary-800 text-primary-800 hover:bg-primary-50 whitespace-nowrap">
+                        <i class="fas fa-store mr-1 md:mr-2"></i>Commercial
+                    </a>
+                    <button class="search-icon-btn ml-2 p-2 text-primary-800 hover:text-primary-600 transition whitespace-nowrap">
+                        <i class="fas fa-search-plus md:text-xl"></i>
+                        <span class="md:hidden ml-1">Advanced</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Property Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {% for property in featured_properties %}
+            <div class="property-card bg-white rounded-xl md:rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100" data-property-id="{{ property.id }}">
+                <div class="relative">
+                    {% if property.primary_image %}
+                    <img src="{{ property.primary_image.image.url }}" 
+                        alt="{{ property.name }}" 
+                        class="w-full h-48 sm:h-56 md:h-64 lg:h-72 object-cover transition-transform duration-500 hover:scale-105">
+                    {% else %}
+                    <div class="w-full h-48 sm:h-56 md:h-64 lg:h-72 bg-gray-200 flex items-center justify-center">
+                        <i class="fas fa-home text-gray-400 text-4xl"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- View Count - Top right corner -->
+                    <div class="absolute top-3 right-3 bg-white/90 text-primary-800 px-3 py-1 rounded-full text-xs flex items-center shadow-sm">
+                        <i class="fas fa-eye mr-1"></i> {{ property.views }} views
+                    </div>
+                    
+                    <!-- Price - Bottom left corner -->
+                    <div class="absolute bottom-3 left-3 text-primary-800 drop-shadow-md">
+                        <div class="text-lg md:text-xl font-bold">{{ property.display_price }}</div>
+                    </div>
+                    
+                    <!-- Verification Badges -->
+                    <div class="absolute top-3 left-3 flex flex-col gap-1 md:gap-2">
+                        {% if property.is_verified %}
+                        <span class="verified-badge bg-primary-600 text-white px-2 py-0.5 md:px-3 md:py-1 rounded-full text-xs flex items-center">
+                            <i class="fas fa-check-circle mr-1 text-xs"></i> Verified
+                        </span>
+                        {% endif %}
+                        {% if property.is_featured %}
+                        <span class="featured-badge bg-white text-primary-800 px-2 py-0.5 md:px-3 md:py-1 rounded-full text-xs flex items-center shadow-sm">
+                            <i class="fas fa-star mr-1 text-yellow-400 text-xs"></i> Featured
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Card Content -->
+                <div class="p-3 md:p-4 lg:p-5">
+                    <div class="flex justify-between items-start mb-2 md:mb-3">
+                        <h3 class="text-lg md:text-xl font-bold text-primary-800 truncate">
+                            <i class="fas fa-home text-primary-600 mr-1 md:mr-2 text-sm"></i>{{ property.name|truncatechars:20 }}
+                        </h3>
+                        <!-- Save Button - Moved next to property name -->
+                        <button class="save-btn text-gray-400 hover:text-primary-600 transition"
+                                data-property-id="{{ property.id }}"
+                                aria-label="Save property">
+                            <i class="far fa-heart text-lg md:text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Location -->
+                    <div class="flex items-center text-gray-600 mb-2 md:mb-3 text-sm md:text-base">
+                        <i class="fas fa-map-marker-alt text-primary-400 mr-1 md:mr-2 text-sm"></i>
+                        <span class="truncate">{{ property.city }}, {{ property.state }}</span>
+                    </div>
+                    
+                    <!-- Amenities -->
+                    <div class="flex flex-wrap gap-1 md:gap-2 mb-3 md:mb-4">
+                        {% for amenity in property.amenities.all|slice:":3" %}
+                        <span class="amenity-chip bg-primary-50 text-primary-800 px-2 py-0.5 md:px-3 md:py-1 rounded-full text-xs">
+                            <i class="fas {{ amenity.icon }} mr-1 text-xs"></i>{{ amenity.name|truncatechars:10 }}
+                        </span>
+                        {% endfor %}
+                        {% if property.amenities.count > 3 %}
+                        <span class="amenity-chip bg-primary-50 text-primary-800 px-2 py-0.5 md:px-3 md:py-1 rounded-full text-xs">
+                            +{{ property.amenities.count|add:"-3" }} more
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Quick View and CTA -->
+                    <div class="flex justify-between items-center border-t border-gray-100 pt-3 md:pt-4">
+                        <div class="text-xs md:text-sm text-gray-500">
+                            <i class="fas fa-clock mr-1"></i>Listed {{ property.created_at|date:"M d, Y" }}
+                        </div>
+                        <div class="flex gap-2">
+                            <a href="{% url 'landing:property_detail' property.slug %}" class="cta-btn bg-primary-800 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-full hover:bg-primary-700 transition text-sm md:text-base flex items-center justify-center">
+                                <i class="fas fa-external-link-alt mr-1"></i>
+                                <span>View</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Load More Button -->
+        <div class="text-center mt-8 md:mt-12">
+            <a href="{% url 'landing:property_list' %}" class="load-more-btn bg-white border-2 border-primary-800 text-primary-800 hover:bg-primary-50 px-6 py-2 md:px-8 md:py-3 rounded-full transition inline-flex items-center group">
+                <span class="text-sm md:text-base">Show More Properties</span>
+                <i class="fas fa-chevron-down ml-1 md:ml-2 text-xs md:text-sm group-hover:animate-bounce"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- JavaScript for functionality -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Search modal toggle
+    const searchIcon = document.querySelector('.search-icon-btn');
+    const searchModal = document.querySelector('.search-modal');
+    const closeModal = document.querySelector('.close-modal');
+    
+    if (searchIcon) {
+        searchIcon.addEventListener('click', () => {
+            searchModal.classList.remove('hidden');
+            searchModal.classList.add('flex');
+        });
+    }
+    
+    if (closeModal) {
+        closeModal.addEventListener('click', () => {
+            searchModal.classList.add('hidden');
+            searchModal.classList.remove('flex');
+        });
+    }
+    
+    // Close modal when clicking outside
+    searchModal.addEventListener('click', (e) => {
+        if (e.target === searchModal) {
+            searchModal.classList.add('hidden');
+            searchModal.classList.remove('flex');
+        }
+    });
+
+    // Save Property Functionality
+    const saveButtons = document.querySelectorAll('.save-btn');
+    
+    saveButtons.forEach(button => {
+        // Check if property is already saved (from localStorage)
+        const propertyId = button.getAttribute('data-property-id');
+        const isSaved = localStorage.getItem(`saved_property_${propertyId}`) === 'true';
+        
+        // Set initial state
+        if (isSaved) {
+            button.innerHTML = '<i class="fas fa-heart text-red-500 text-lg md:text-xl"></i>';
+            button.classList.add('saved');
+        }
+        
+        // Add click handler
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const propertyId = this.getAttribute('data-property-id');
+            const isCurrentlySaved = this.classList.contains('saved');
+            
+            if (isCurrentlySaved) {
+                // Unsaving
+                this.innerHTML = '<i class="far fa-heart text-lg md:text-xl"></i>';
+                this.classList.remove('saved');
+                localStorage.removeItem(`saved_property_${propertyId}`);
+                
+                // Show toast notification
+                showToast('Property removed from saved');
+            } else {
+                // Saving
+                this.innerHTML = '<i class="fas fa-heart text-red-500 text-lg md:text-xl"></i>';
+                this.classList.add('saved');
+                localStorage.setItem(`saved_property_${propertyId}`, 'true');
+                
+                // Show toast notification
+                showToast('Property saved successfully');
+            }
+        });
+    });
+
+    // Helper function for toast notifications
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-4 right-4 bg-primary-800 text-white px-4 py-2 rounded-md shadow-lg transform translate-y-10 opacity-0 transition-all duration-300 z-50';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.remove('translate-y-10', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+        }, 10);
+        
+        setTimeout(() => {
+            toast.classList.remove('translate-y-0', 'opacity-100');
+            toast.classList.add('translate-y-10', 'opacity-0');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+});
+</script>
+
+<!-- 3-Step Process Section -->
+<section class="py-16 md:py-24 bg-white">
+    <div class="container mx-auto px-4 md:px-8 lg:px-16 text-center">
+        <h2 class="text-3xl md:text-4xl extra-black text-primary-800 mb-4">
+            <i class="fas fa-random text-primary-600 mr-2"></i>No Agents. No Stress.
+        </h2>
+        <p class="text-lg text-gray-600 max-w-3xl mx-auto mb-12">
+            My House Padi cuts out the middleman. Connect directly with verified owners or tenants.
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+            <!-- Step 1 -->
+            <div class="bg-cream p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+                <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-user-check text-primary-800 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-primary-800 mb-2">1. Verify</h3>
+                <p class="text-gray-600 mb-4">
+                    Owners complete KYC. Tenants verify employment. No fake listings.
+                </p>
+                <div class="text-primary-600 text-sm font-medium">
+                    <i class="fas fa-shield-alt mr-1"></i> Powered by Padi Secure
+                </div>
+            </div>
+            <!-- Step 2 -->
+            <div class="bg-cream p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+                <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-comments text-primary-800 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-primary-800 mb-2">2. Connect</h3>
+                <p class="text-gray-600 mb-4">
+                    Chat securely in-app. Schedule inspections. No phone numbers shared.
+                </p>
+                <div class="text-primary-600 text-sm font-medium">
+                    <i class="fas fa-lock mr-1"></i> End-to-end encrypted
+                </div>
+            </div>
+            <!-- Step 3 -->
+            <div class="bg-cream p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+                <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-file-signature text-primary-800 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-primary-800 mb-2">3. Move In</h3>
+                <p class="text-gray-600 mb-4">
+                    Sign digital agreements. Pay securely. Get keys directly.
+                </p>
+                <div class="text-primary-600 text-sm font-medium">
+                    <i class="fas fa-handshake mr-1"></i> Approved contracts
+                </div>
+            </div>
+        </div>
+        <div class="flex flex-col sm:flex-row justify-center gap-4 mt-16">
+            <a href="{% url 'seekers:marketplace' %}" class="bg-primary-800 hover:bg-primary-700 text-white px-8 py-3 rounded-full transition flex items-center justify-center">
+                <i class="fas fa-home mr-2"></i> Find Your Home
+            </a>
+            <a href="{% url 'landlords:property_create' %}" class="bg-white border-2 border-primary-800 text-primary-800 hover:bg-primary-50 px-8 py-3 rounded-full transition flex items-center justify-center">
+                <i class="fas fa-upload mr-2"></i> List Your Property
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials & Stats Section -->
+<section class="py-16 md:py-24 bg-gray-50">
+    <div class="container mx-auto px-4 md:px-8 lg:px-16">
+        <!-- Section Header -->
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl extra-black text-primary-800 mb-2">
+                <i class="fas fa-star text-yellow-400 mr-2"></i>Trusted by Nigerians
+            </h2>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                Join thousands who found their perfect space without agent stress
+            </p>
+        </div>
+        <!-- 3-Column Layout -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Video Testimonial -->
+            <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition border border-gray-100">
+                <div class="relative pb-[56.25%] mb-4 rounded-lg overflow-hidden bg-black">
+                    <iframe class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/EXAMPLE" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+                <h3 class="font-bold text-primary-800 mb-1">Adaeze found her 3-bed in Lekki</h3>
+                <p class="text-gray-600 text-sm mb-2">"No more fake listings! Verified the owner same day."</p>
+                <div class="flex text-yellow-400 text-sm">
+                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                    <span class="text-gray-600 ml-2">Lagos • 2 weeks ago</span>
+                </div>
+            </div>
+            <!-- Text Testimonial -->
+            <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition border border-gray-100 flex flex-col">
+                <div class="flex-grow">
+                    <i class="fas fa-quote-left text-primary-400 text-2xl mb-4"></i>
+                    <p class="text-gray-700 mb-6">"As a landlord, I rented my apartment in 3 days without paying 10% agent fees. Game-changer!"</p>
+                </div>
+                <div class="flex items-center">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Mr. Adebayo" class="w-10 h-10 rounded-full mr-3">
+                    <div>
+                        <h4 class="font-medium text-primary-800">Mr. Adebayo</h4>
+                        <p class="text-gray-500 text-sm">Property Owner, Abuja</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Trust Badges -->
+            <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition border border-gray-100">
+                <h3 class="font-bold text-primary-800 mb-4 flex items-center">
+                    <i class="fas fa-shield-alt text-primary-600 mr-2"></i>Our Verification Partners
+                </h3>
+                <div class="space-y-4">
+                    <div class="flex items-center">
+                        <img src="{% static 'img/KYC.png' %}" alt="Verification Partner" class="h-8 mr-3">
+                        <span class="text-sm text-gray-600">KYC Compliance</span>
+                    </div>
+                    <div class="flex items-center">
+                        <img src="{% static 'img/Encrypted.png' %}" alt="Security Partner" class="h-8 mr-3">
+                        <span class="text-sm text-gray-600">Encrypted Chats</span>
+                    </div>
+                    <div class="flex items-center">
+                        <img src="{% static 'img/Legal.png' %}" alt="Legal Partner" class="h-8 mr-3">
+                        <span class="text-sm text-gray-600">Legal Agreement Templates</span>
+                    </div>
+                </div>
+                <button class="mt-6 w-full bg-primary-50 text-primary-800 py-2 rounded-lg text-sm font-medium hover:bg-primary-100 transition flex items-center justify-center">
+                    <i class="fas fa-info-circle mr-2"></i> How We Verify
+                </button>
+            </div>
+        </div>
+        <!-- Stats Counter -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 text-center">
+            <div class="bg-white p-4 rounded-lg shadow-xs">
+                <p class="text-3xl font-bold text-primary-800">4,812+</p>
+                <p class="text-gray-600 text-sm">Properties Listed</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-xs">
+                <p class="text-3xl font-bold text-primary-800">98%</p>
+                <p class="text-gray-600 text-sm">Verified Listings</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-xs">
+                <p class="text-3xl font-bold text-primary-800">₦2.1B+</p>
+                <p class="text-gray-600 text-sm">Rent Processed</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow-xs">
+                <p class="text-3xl font-bold text-primary-800">72h</p>
+                <p class="text-gray-600 text-sm">Avg. Time to Rent</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mobile-Optimized Neighborhood Guide with Clickable Maps -->
+<section class="py-12 md:py-24 bg-white">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+        <div class="text-center mb-10 md:mb-12">
+            <h2 class="text-2xl md:text-4xl font-extrabold text-primary-800 mb-2 md:mb-3">
+                <i class="fas fa-map-marked-alt text-primary-600 mr-2 md:mr-3"></i>Know Your Neighborhood
+            </h2>
+            <p class="text-base md:text-lg text-gray-600 max-w-2xl mx-auto font-medium px-2">
+                Discover the best areas for your lifestyle and budget
+            </p>
+        </div>
+        
+        <!-- Tab Navigation -->
+        <div class="flex justify-center mb-8 md:mb-10 px-2">
+            <div class="inline-flex rounded-full bg-gray-100 p-1 shadow-sm overflow-x-auto w-full md:w-auto">
+                <div class="flex space-x-1 md:space-x-0">
+                    <button onclick="showNeighborhood('lagos')" class="neighborhood-tab active px-4 py-1.5 md:px-5 md:py-2 rounded-full bg-primary-800 text-white whitespace-nowrap transition-all duration-300 text-sm md:text-base">
+                        <i class="fas fa-city mr-1 md:mr-2"></i>Lagos
+                    </button>
+                    <button onclick="showNeighborhood('abuja')" class="neighborhood-tab px-4 py-1.5 md:px-5 md:py-2 rounded-full text-gray-700 hover:text-primary-800 whitespace-nowrap transition-all duration-300 text-sm md:text-base">
+                        <i class="fas fa-landmark mr-1 md:mr-2"></i>Abuja
+                    </button>
+                    <button onclick="showNeighborhood('port-harcourt')" class="neighborhood-tab px-4 py-1.5 md:px-5 md:py-2 rounded-full text-gray-700 hover:text-primary-800 whitespace-nowrap transition-all duration-300 text-sm md:text-base">
+                        <i class="fas fa-umbrella-beach mr-1 md:mr-2"></i>PH
+                    </button>
+                    <button onclick="showNeighborhood('kaduna')" class="neighborhood-tab px-4 py-1.5 md:px-5 md:py-2 rounded-full text-gray-700 hover:text-primary-800 whitespace-nowrap transition-all duration-300 text-sm md:text-base">
+                        <i class="fas fa-mountain mr-1 md:mr-2"></i>Kaduna
+                    </button>
+                    <button onclick="showNeighborhood('benue')" class="neighborhood-tab px-4 py-1.5 md:px-5 md:py-2 rounded-full text-gray-700 hover:text-primary-800 whitespace-nowrap transition-all duration-300 text-sm md:text-base">
+                        <i class="fas fa-tractor mr-1 md:mr-2"></i>Benue
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Neighborhood Cards -->
+        <div id="neighborhood-container" class="px-2 md:px-0">
+            <!-- Lagos Card -->
+            <div id="lagos-card" class="neighborhood-card bg-gradient-to-br from-gray-50 to-white rounded-xl md:rounded-2xl overflow-hidden shadow-md md:shadow-lg border border-gray-100">
+                <div class="flex flex-col lg:grid lg:grid-cols-2">
+                    <!-- Map Section with Clickable Overlay -->
+                    <div class="relative h-64 md:h-80 lg:h-full">
+                        <div class="absolute inset-0 z-10 cursor-pointer" onclick="window.open('https://www.google.com/maps/place/Lagos/@6.5483694,3.1191424,11z/data=!3m1!4b1!4m6!3m5!1s0x103b8b2ae68280c1:0xdc9e87a367c3d9cb!8m2!3d6.5243793!4d3.3792057!16zL20vMGY0d2c?entry=ttu', '_blank')"></div>
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d253682.46310731795!2d3.1191424086628565!3d6.548369371686147!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x103b8b2ae68280c1%3A0xdc9e87a367c3d9cb!2sLagos!5e0!3m2!1sen!2sng!4v1754486506378!5m2!1sen!2sng"
+                         class="w-full h-full pointer-events-none" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        <div class="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 text-white z-20">
+                            <h3 class="text-xl md:text-2xl font-bold drop-shadow-md">Lagos Hotspots</h3>
+                            <p class="text-xs md:text-sm font-medium drop-shadow-md">Avg. Rent: ₦1.2M - ₦4.5M/year</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Info Section -->
+                    <div class="p-5 md:p-6 lg:p-8">
+                        <div class="flex flex-wrap gap-2 mb-4 md:mb-6">
+                            <span class="px-3 py-1 bg-primary-100/80 text-primary-800 rounded-full text-xs md:text-sm font-medium">
+                                <i class="fas fa-briefcase mr-1"></i>Commercial
+                            </span>
+                            <span class="px-3 py-1 bg-primary-100/80 text-primary-800 rounded-full text-xs md:text-sm font-medium">
+                                <i class="fas fa-subway mr-1"></i>Transport
+                            </span>
+                            <span class="px-3 py-1 bg-primary-100/80 text-primary-800 rounded-full text-xs md:text-sm font-medium">
+                                <i class="fas fa-utensils mr-1"></i>Nightlife
+                            </span>
+                        </div>
+                        
+                        <div class="space-y-3 md:space-y-4">
+                            <div class="flex items-start">
+                                <div class="text-primary-700 mr-3 mt-0.5">
+                                    <i class="fas fa-school text-lg md:text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-primary-800 text-base md:text-lg mb-1">Top Schools</h4>
+                                    <p class="text-gray-600 text-sm md:text-base">Greensprings, Corona, British Int'l, Atlantic Hall</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="text-primary-700 mr-3 mt-0.5">
+                                    <i class="fas fa-utensils text-lg md:text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-primary-800 text-base md:text-lg mb-1">Local Favorites</h4>
+                                    <p class="text-gray-600 text-sm md:text-base">RSVP Lagos, Terra Kulture, The Place, Nok by Alara</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start">
+                                <div class="text-primary-700 mr-3 mt-0.5">
+                                    <i class="fas fa-exclamation-triangle text-lg md:text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-primary-800 text-base md:text-lg mb-1">Know Before You Go</h4>
+                                    <p class="text-gray-600 text-sm md:text-base">Heavy traffic | High security areas | Seasonal flooding</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Primary Green Button -->
+                        <button class="mt-6 w-full bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg transition-all duration-300 flex items-center justify-center font-medium text-base md:text-lg">
+                            <i class="fas fa-home mr-2 md:mr-3"></i> View 1,240 Listings
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Abuja Card -->
+            <div id="abuja-card" class="neighborhood-card hidden bg-gradient-to-br from-gray-50 to-white rounded-xl md:rounded-2xl overflow-hidden shadow-md md:shadow-lg border border-gray-100">
+                <div class="flex flex-col lg:grid lg:grid-cols-2">
+                    <!-- Map Section with Clickable Overlay -->
+                    <div class="relative h-64 md:h-80 lg:h-full">
+                        <div class="absolute inset-0 z-10 cursor-pointer" onclick="window.open('https://www.google.com/maps/place/Abuja/@8.9546932,7.4894324,11z/data=!3m1!4b1!4m6!3m5!1s0x104e0baf7da48d0d:0x99a8fe4168c50bc8!8m2!3d9.0764785!4d7.398574!16zL20vMDk0eDc?entry=ttu', '_blank')"></div>
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3941.310873838658!2d7.489432414786092!3d8.95469319358781!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x104e0baf7da48d0d%3A0x99a8fe4168c50bc8!2sAbuja!5e0!3m2!1sen!2sng!4v1754486760543!5m2!1sen!2sng"
+                         class="w-full h-full pointer-events-none" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        <div class="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 text-white z-20">
+                            <h3 class="text-xl md:text-2xl font-bold drop-shadow-md">Abuja Hotspots</h3>
+                            <p class="text-xs md:text-sm font-medium drop-shadow-md">Avg. Rent: ₦1.5M - ₦5M/year</p>
+                        </div>
+                    </div>
+                    <div class="p-5 md:p-6 lg:p-8">
+                        <div class="flex flex-wrap gap-2 mb-4 md:mb-6">
+                            <span class="px-3 py-1 bg-primary-100/80 text-primary-800 rounded-full text-xs md:text-sm font-medium">
+                                <i class="fas fa-landmark mr-1"></i>Government
+                            </span>
+                            <span class="px-3 py-1 bg-primary-100/80 text-primary-800 rounded-full text-xs md:text-sm font-medium">
+                                <i class="fas fa-tree mr-1"></i>Green
+                            </span>
+                            <span class="px-3 py-1 bg-primary-100/80 text-primary-800 rounded-full text-xs md:text-sm font-medium">
+                                <i class="fas fa-shield-alt mr-1"></i>Secure
+                            </span>
+                        </div>
+                        <div class="space-y-3 md:space-y-4">
+                            <div class="flex items-start">
+                                <div class="text-primary-700 mr-3 mt-0.5">
+                                    <i class="fas fa-school text-lg md:text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-primary-800 text-base md:text-lg mb-1">Top Schools</h4>
+                                    <p class="text-gray-600 text-sm md:text-base">American Int'l School, British School, Loyola Jesuit</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="text-primary-700 mr-3 mt-0.5">
+                                    <i class="fas fa-utensils text-lg md:text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-primary-800 text-base md:text-lg mb-1">Local Favorites</h4>
+                                    <p class="text-gray-600 text-sm md:text-base">Nkoyo, Salamander Cafe, Blu Cabana, Zuma Grill</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="text-primary-700 mr-3 mt-0.5">
+                                    <i class="fas fa-exclamation-triangle text-lg md:text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-primary-800 text-base md:text-lg mb-1">Know Before You Go</h4>
+                                    <p class="text-gray-600 text-sm md:text-base">Strict zoning | Higher cost of living | Relaxed pace</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="mt-6 w-full bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg transition-all duration-300 flex items-center justify-center font-medium text-base md:text-lg">
+                            <i class="fas fa-home mr-2 md:mr-3"></i> View 890 Listings
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Port Harcourt Card -->
+            <div id="port-harcourt-card" class="neighborhood-card hidden bg-gradient-to-br from-gray-50 to-white rounded-xl md:rounded-2xl overflow-hidden shadow-md md:shadow-lg border border-gray-100">
+                <div class="flex flex-col lg:grid lg:grid-cols-2">
+                    <!-- Map Section with Clickable Overlay -->
+                    <div class="relative h-64 md:h-80 lg:h-full">
+                        <div class="absolute inset-0 z-10 cursor-pointer" onclick="window.open('https://www.google.com/maps/place/Port+Harcourt/@4.8157414,6.9998148,11z/data=!3m1!4b1!4m6!3m5!1s0x1069ce4876781c9d:0x5200ef25d5dd5b0!8m2!3d4.815554!4d7.0498442!16zL20vMDJwY2s?entry=ttu', '_blank')"></div>
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3975.023050455324!2d6.999814814786405!3d4.815741396509609!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1069ce4876781c9d%3A0x5200ef25d5dd5b0!2sPort%20Harcourt!5e0!3m2!1sen!2sng!4v1754486837213!5m2!1sen!2sng"
+                         class="w-full h-full pointer-events-none" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        <div class="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 text-white z-20">
+                            <h3 class="text-xl md:text-2xl font-bold drop-shadow-md">Port Harcourt Hotspots</h3>
+                            <p class="text-xs md:text-sm font-medium drop-shadow-md">Avg. Rent: ₦800K - ₦3M/year</p>
+                        </div>
+                    </div>
+                    <div class="p-5 md:p-6 lg:p-8">
+                        <div class="flex flex-wrap gap-2 mb-4 md:mb-6">
+                            <span class="px-3 py-1 bg-primary-100/80 text-primary-800 rounded-full text-xs md:text-sm font-medium">
+                                <i class="fas fa-industry mr-1"></i>Oil & Gas
+                            </span>
+                            <span class="px-3 py-1 bg-primary-100/80 text-primary-800 rounded-full text-xs md:text-sm font-medium">
+                                <i class="fas fa-water mr-1"></i>Riverfront
+                            </span>
+                            <span class="px-3 py-1 bg-primary-100/80 text-primary-800 rounded-full text-xs md:text-sm font-medium">
+                                <i class="fas fa-users mr-1"></i>Expat
+                            </span>
+                        </div>
+                        <div class="space-y-3 md:space-y-4">
+                            <div class="flex items-start">
+                                <div class="text-primary-700 mr-3 mt-0.5">
+                                    <i class="fas fa-school text-lg md:text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-primary-800 text-base md:text-lg mb-1">Top Schools</h4>
+                                    <p class="text-gray-600 text-sm md:text-base">Archdeacon Brown, Bloombreed, Graceland Int'l</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="text-primary-700 mr-3 mt-0.5">
+                                    <i class="fas fa-utensils text-lg md:text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-primary-800 text-base md:text-lg mb-1">Local Favorites</h4>
+                                    <p class="text-gray-600 text-sm md:text-base">Casa Lucia, Barcelos, Genesis, The Bistro</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="text-primary-700 mr-3 mt-0.5">
+                                    <i class="fas fa-exclamation-triangle text-lg md:text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-primary-800 text-base md:text-lg mb-1">Know Before You Go</h4>
+                                    <p class="text-gray-600 text-sm md:text-base">High humidity | Expat community | Security concerns</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="mt-6 w-full bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg transition-all duration-300 flex items-center justify-center font-medium text-base md:text-lg">
+                            <i class="fas fa-home mr-2 md:mr-3"></i> View 540 Listings
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Kaduna Card -->
+            <div id="kaduna-card" class="neighborhood-card hidden bg-gradient-to-br from-gray-50 to-white rounded-xl md:rounded-2xl overflow-hidden shadow-md md:shadow-lg border border-gray-100">
+                <div class="flex flex-col lg:grid lg:grid-cols-2">
+                    <!-- Map Section with Clickable Overlay -->
+                    <div class="relative h-64 md:h-80 lg:h-full">
+                        <div class="absolute inset-0 z-10 cursor-pointer" onclick="window.open('https://www.google.com/maps/place/Kaduna/@9.0725573,7.4327423,11z/data=!3m1!4b1!4m6!3m5!1s0x104e0a3ebd008a49:0x1d3d05c9c9a7b1e8!8m2!3d10.5104642!4d7.4165053!16zL20vMDJjY2Q?entry=ttu', '_blank')"></div>
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3939.786715553882!2d7.432742314787046!3d9.0725572936237!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x104e0a3ebd008a49%3A0x1d3d05c9c9a7b1e8!2sKaduna!5e0!3m2!1sen!2sng!4v1754486937269!5m2!1sen!2sng"
+                         class="w-full h-full pointer-events-none" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        <div class="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 text-white z-20">
+                            <h3 class="text-xl md:text-2xl font-bold drop-shadow-md">Kaduna Hotspots</h3>
+                            <p class="text-xs md:text-sm font-medium drop-shadow-md">Avg. Rent: ₦500K - ₦2M/year</p>
+                        </div>
+                    </div>
+                    <div class="p-5 md:p-6 lg:p-8">
+                        <div class="flex flex-wrap gap-2 mb-4 md:mb-6">
+                            <span class="px-3 py-1 bg-primary-100/80 text-primary-800 rounded-full text-xs md:text-sm font-medium">
+                                <i class="fas fa-history mr-1"></i>Historical
+                            </span>
+                            <span class="px-3 py-1 bg-primary-100/80 text-primary-800 rounded-full text-xs md:text-sm font-medium">
+                                <i class="fas fa-industry mr-1"></i>Industrial
+                            </span>
+                            <span class="px-3 py-1 bg-primary-100/80 text-primary-800 rounded-full text-xs md:text-sm font-medium">
+                                <i class="fas fa-university mr-1"></i>Education
+                            </span>
+                        </div>
+                        <div class="space-y-3 md:space-y-4">
+                            <div class="flex items-start">
+                                <div class="text-primary-700 mr-3 mt-0.5">
+                                    <i class="fas fa-school text-lg md:text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-primary-800 text-base md:text-lg mb-1">Top Schools</h4>
+                                    <p class="text-gray-600 text-sm md:text-base">Premiere Academy, Turkish College, Essence Int'l</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="text-primary-700 mr-3 mt-0.5">
+                                    <i class="fas fa-utensils text-lg md:text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-primary-800 text-base md:text-lg mb-1">Local Favorites</h4>
+                                    <p class="text-gray-600 text-sm md:text-base">Barnawa Grill, Kada Chicken, Zaria Lounge</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="text-primary-700 mr-3 mt-0.5">
+                                    <i class="fas fa-exclamation-triangle text-lg md:text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-primary-800 text-base md:text-lg mb-1">Know Before You Go</h4>
+                                    <p class="text-gray-600 text-sm md:text-base">Cooler climate | Security concerns | Growing areas</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="mt-6 w-full bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg transition-all duration-300 flex items-center justify-center font-medium text-base md:text-lg">
+                            <i class="fas fa-home mr-2 md:mr-3"></i> View 380 Listings
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Benue Card -->
+            <div id="benue-card" class="neighborhood-card hidden bg-gradient-to-br from-gray-50 to-white rounded-xl md:rounded-2xl overflow-hidden shadow-md md:shadow-lg border border-gray-100">
+                <div class="flex flex-col lg:grid lg:grid-cols-2">
+                    <!-- Map Section with Clickable Overlay -->
+                    <div class="relative h-64 md:h-80 lg:h-full">
+                        <div class="absolute inset-0 z-10 cursor-pointer" onclick="window.open('https://www.google.com/maps/place/Benue/@7.19,8.4,9z/data=!3m1!4b1!4m6!3m5!1s0x1055a3e2a6e4e6e5:0x1e9e5a4e4e4e4e4e!8m2!3d7.3369024!4d8.7403687!16zL20vMDJmZ2o?entry=ttu', '_blank')"></div>
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d252628.1096807843!2d8.400000000000006!3d7.190000000000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1055a3e2a6e4e6e5%3A0x1e9e5a4e4e4e4e4e!2sBenue!5e0!3m2!1sen!2sng!4v1754487000000!5m2!1sen!2sng"
+                         class="w-full h-full pointer-events-none" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        <div class="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 text-white z-20">
+                            <h3 class="text-xl md:text-2xl font-bold drop-shadow-md">Benue Hotspots</h3>
+                            <p class="text-xs md:text-sm font-medium drop-shadow-md">Avg. Rent: ₦300K - ₦1.2M/year</p>
+                        </div>
+                    </div>
+                    <div class="p-5 md:p-6 lg:p-8">
+                        <div class="flex flex-wrap gap-2 mb-4 md:mb-6">
+                            <span class="px-3 py-1 bg-primary-100/80 text-primary-800 rounded-full text-xs md:text-sm font-medium">
+                                <i class="fas fa-tractor mr-1"></i>Agriculture
+                            </span>
+                            <span class="px-3 py-1 bg-primary-100/80 text-primary-800 rounded-full text-xs md:text-sm font-medium">
+                                <i class="fas fa-water mr-1"></i>River Benue
+                            </span>
+                            <span class="px-3 py-1 bg-primary-100/80 text-primary-800 rounded-full text-xs md:text-sm font-medium">
+                                <i class="fas fa-utensils mr-1"></i>Food Basket
+                            </span>
+                        </div>
+                        <div class="space-y-3 md:space-y-4">
+                            <div class="flex items-start">
+                                <div class="text-primary-700 mr-3 mt-0.5">
+                                    <i class="fas fa-school text-lg md:text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-primary-800 text-base md:text-lg mb-1">Top Schools</h4>
+                                    <p class="text-gray-600 text-sm md:text-base">Mount Saint Gabriel's, University of Mkar, BSU</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="text-primary-700 mr-3 mt-0.5">
+                                    <i class="fas fa-utensils text-lg md:text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-primary-800 text-base md:text-lg mb-1">Local Favorites</h4>
+                                    <p class="text-gray-600 text-sm md:text-base">Swange Square, Jevinik Makurdi, Jolly Kitchen</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="text-primary-700 mr-3 mt-0.5">
+                                    <i class="fas fa-exclamation-triangle text-lg md:text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-primary-800 text-base md:text-lg mb-1">Know Before You Go</h4>
+                                    <p class="text-gray-600 text-sm md:text-base">Peaceful rural | Low cost | Farmer-herder conflicts</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="mt-6 w-full bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg transition-all duration-300 flex items-center justify-center font-medium text-base md:text-lg">
+                            <i class="fas fa-home mr-2 md:mr-3"></i> View 210 Listings
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    function showNeighborhood(city) {
+        // Hide all neighborhood cards
+        document.querySelectorAll('.neighborhood-card').forEach(card => {
+            card.classList.add('hidden');
+        });
+        
+        // Show the selected card
+        document.getElementById(`${city}-card`).classList.remove('hidden');
+        
+        // Update tab styling
+        document.querySelectorAll('.neighborhood-tab').forEach(tab => {
+            tab.classList.remove('active', 'bg-primary-800', 'text-white');
+            tab.classList.add('text-gray-700', 'hover:text-primary-800');
+        });
+        
+        // Add active class to clicked tab
+        event.currentTarget.classList.add('active', 'bg-primary-800', 'text-white');
+        event.currentTarget.classList.remove('text-gray-700', 'hover:text-primary-800');
+    }
+</script>
+
+<style>
+    .neighborhood-tab {
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+    }
+    
+    .neighborhood-tab:hover {
+        transform: translateY(-1px);
+    }
+    
+    .neighborhood-card {
+        transition: all 0.3s ease;
+    }
+    
+    @media (min-width: 768px) {
+        .neighborhood-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+    }
+    
+    /* Primary green button styling */
+    .bg-primary-600 {
+        background-color: #16a34a; /* Primary green color */
+    }
+    
+    .hover\:bg-primary-700:hover {
+        background-color: #15803d; /* Darker green on hover */
+    }
+    
+    /* Ensure map overlay is clickable */
+    .pointer-events-none {
+        pointer-events: none;
+    }
+    
+    /* Make the click overlay work */
+    [onclick] {
+        cursor: pointer;
+    }
+</style>
+
+<!-- Padi Assist Section -->
+<section class="py-16 md:py-24 bg-primary-800 text-white">
+    <div class="container mx-auto px-4 md:px-8 lg:px-16 text-center">
+        <div class="max-w-3xl mx-auto">
+            <div class="w-20 h-20 bg-primary-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-user-shield text-3xl"></i>
+            </div>
+            <h2 class="text-3xl md:text-4xl extra-black mb-4">Skip the Stress with Padi Assist</h2>
+            <p class="text-lg text-primary-100 mb-8">
+                Our verified agents handle inspections, negotiations, and paperwork - with zero conflicts of interest.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 text-left">
+                <div class="bg-white/10 p-6 rounded-xl">
+                    <div class="text-primary-400 mb-3">
+                        <i class="fas fa-clipboard-check text-2xl"></i>
+                    </div>
+                    <h3 class="font-bold text-xl mb-2">Thorough Inspection</h3>
+                    <p class="text-primary-200">We verify property condition, amenities, and documentation</p>
+                </div>
+                <div class="bg-white/10 p-6 rounded-xl">
+                    <div class="text-primary-400 mb-3">
+                        <i class="fas fa-handshake text-2xl"></i>
+                    </div>
+                    <h3 class="font-bold text-xl mb-2">Fair Negotiation</h3>
+                    <p class="text-primary-200">Get expert help on pricing and lease terms</p>
+                </div>
+                <div class="bg-white/10 p-6 rounded-xl">
+                    <div class="text-primary-400 mb-3">
+                        <i class="fas fa-file-contract text-2xl"></i>
+                    </div>
+                    <h3 class="font-bold text-xl mb-2">Paperwork Done Right</h3>
+                    <p class="text-primary-200">Legally vetted agreements tailored to Nigerian law</p>
+                </div>
+            </div>
+            <button class="bg-white text-primary-800 hover:bg-gray-100 px-8 py-4 rounded-full text-lg font-bold transition flex items-center justify-center mx-auto">
+                <i class="fas fa-crown mr-2"></i> Upgrade to Padi Assist (₦15,000/service)
+            </button>
+            <p class="text-primary-300 mt-3 text-sm">Money-back guarantee if unsatisfied</p>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="py-16 md:py-24 bg-gray-50">
+    <div class="container mx-auto px-4 md:px-8 lg:px-16">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl extra-black text-primary-800 mb-2">
+                <i class="fas fa-question-circle text-primary-600 mr-2"></i>Your Questions Answered
+            </h2>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                Everything you need to know about renting or listing on My House Padi
+            </p>
+        </div>
+        <div class="max-w-3xl mx-auto">
+            <!-- FAQ Accordion -->
+            <div class="space-y-4 mb-12">
+                <!-- FAQ items go here. See original HTML for structure. -->
+                <!-- Example FAQ -->
+                <div class="faq-item bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-primary-400 transition">
+                    <button class="flex justify-between items-center w-full text-left group">
+                        <h3 class="font-bold text-primary-800 group-hover:text-primary-600">
+                            <i class="fas fa-shield-alt text-primary-400 mr-2"></i>How do I verify a property is genuine?
+                        </h3>
+                        <i class="fas fa-chevron-down text-primary-600 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-content mt-4 text-gray-600 hidden">
+                        <p>We use a 3-step verification process:</p>
+                        <ul class="list-disc pl-5 space-y-1 mt-2">
+                            <li><strong>Owner KYC:</strong> Government ID + utility bill verification</li>
+                            <li><strong>Property Proof:</strong> Title documents or C of O checks</li>
+                            <li><strong>Live Verification:</strong> Optional Padi Assist agent inspection</li>
+                        </ul>
+                        <p class="mt-3 text-sm text-primary-700">
+                            <i class="fas fa-info-circle mr-1"></i> Look for the <span class="font-bold">"Verified"</span> badge on listings
+                        </p>
+                    </div>
+                </div>
+                <!-- FAQ 2 -->
+                <div class="faq-item bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-primary-400 transition">
+                <button class="flex justify-between items-center w-full text-left group">
+                    <h3 class="font-bold text-primary-800 group-hover:text-primary-600">
+                    <i class="fas fa-money-bill-wave text-primary-400 mr-2"></i>What are the fees for tenants/landlords?
+                    </h3>
+                    <i class="fas fa-chevron-down text-primary-600 transition-transform duration-200"></i>
+                </button>
+                <div class="faq-content mt-4 text-gray-600 hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-primary-50 p-4 rounded-lg">
+                        <h4 class="font-bold text-primary-800 mb-2 flex items-center">
+                        <i class="fas fa-user-tie mr-2"></i>For Landlords
+                        </h4>
+                        <ul class="space-y-1">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-primary-600 mt-1 mr-2 text-xs"></i>
+                            <span>Free basic listing</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-primary-600 mt-1 mr-2 text-xs"></i>
+                            <span>5% success fee (vs. 10% agent fee)</span>
+                        </li>
+                        </ul>
+                    </div>
+                    <div class="bg-cream p-4 rounded-lg">
+                        <h4 class="font-bold text-primary-800 mb-2 flex items-center">
+                        <i class="fas fa-home mr-2"></i>For Tenants
+                        </h4>
+                        <ul class="space-y-1">
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-primary-600 mt-1 mr-2 text-xs"></i>
+                            <span>No browsing fees</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check text-primary-600 mt-1 mr-2 text-xs"></i>
+                            <span>Optional Padi Assist: ₦15,000</span>
+                        </li>
+                        </ul>
+                    </div>
+                    </div>
+                </div>
+                </div>
+                
+                <!-- FAQ 3 -->
+                <div class="faq-item bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-primary-400 transition">
+                <button class="flex justify-between items-center w-full text-left group">
+                    <h3 class="font-bold text-primary-800 group-hover:text-primary-600">
+                    <i class="fas fa-handshake text-primary-400 mr-2"></i>How are agreements handled?
+                    </h3>
+                    <i class="fas fa-chevron-down text-primary-600 transition-transform duration-200"></i>
+                </button>
+                <div class="faq-content mt-4 text-gray-600 hidden">
+                    <p>We provide Lagos State-approved templates for:</p>
+                    <ul class="list-disc pl-5 space-y-1 mt-2">
+                    <li>Standard 1-year tenancy agreements</li>
+                    <li>Short-term leases (3-6 months)</li>
+                    <li>Co-living space contracts</li>
+                    </ul>
+                    <div class="mt-4 p-3 bg-yellow-50 border-l-4 border-yellow-400 text-sm">
+                    <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                    <strong>Pro Tip:</strong> Use our <span class="font-bold">e-Sign</span> feature to avoid paperwork delays
+                    </div>
+                </div>
+                </div>
+                
+                <!-- FAQ 4 -->
+                <div class="faq-item bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-primary-400 transition">
+                <button class="flex justify-between items-center w-full text-left group">
+                    <h3 class="font-bold text-primary-800 group-hover:text-primary-600">
+                    <i class="fas fa-exclamation-triangle text-primary-400 mr-2"></i>What if there are issues after moving in?
+                    </h3>
+                    <i class="fas fa-chevron-down text-primary-600 transition-transform duration-200"></i>
+                </button>
+                <div class="faq-content mt-4 text-gray-600 hidden">
+                    <p>My House Padi offers dispute resolution:</p>
+                    <ol class="list-decimal pl-5 space-y-2 mt-2">
+                    <li><strong>In-App Support:</strong> Report issues within 72 hours</li>
+                    <li><strong>Mediation:</strong> Our team contacts both parties</li>
+                    <li><strong>Escalation:</strong> Lagos State Rent Tribunal referral</li>
+                    </ol>
+                    <p class="mt-3 text-sm text-primary-700">
+                    <i class="fas fa-clock mr-1"></i> Average resolution time: 3-7 working days
+                    </p>
+                </div>
+                </div>
+                
+                <!-- FAQ 5 -->
+                <div class="faq-item bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:border-primary-400 transition">
+                <button class="flex justify-between items-center w-full text-left group">
+                    <h3 class="font-bold text-primary-800 group-hover:text-primary-600">
+                    <i class="fas fa-mobile-alt text-primary-400 mr-2"></i>Is there a mobile app available?
+                    </h3>
+                    <i class="fas fa-chevron-down text-primary-600 transition-transform duration-200"></i>
+                </button>
+                <div class="faq-content mt-4 text-gray-600 hidden">
+                    <div class="flex flex-col md:flex-row items-center">
+                    <div class="mb-4 md:mb-0 md:mr-6">
+                        <img src="https://via.placeholder.com/150x50?text=Download+on+App+Store" alt="App Store" class="h-12 mb-2">
+                        <img src="https://via.placeholder.com/150x50?text=Get+on+Google+Play" alt="Play Store" class="h-12">
+                    </div>
+                    <div>
+                        <p>Our Android and iOS apps include:</p>
+                        <ul class="list-disc pl-5 space-y-1 mt-2">
+                        <li>Instant chat with owners</li>
+                        <li>Document scanning for verification</li>
+                        <li>Offline property browsing</li>
+                        </ul>
+                    </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        
+            <!-- Live Support CTA -->
+            <div class="bg-primary-100 border-l-4 border-primary-600 p-6 rounded-lg">
+                <div class="flex flex-col md:flex-row items-center">
+                    <div class="flex-shrink-0 mb-4 md:mb-0 md:mr-6">
+                        <div class="w-16 h-16 bg-primary-800 text-white rounded-full flex items-center justify-center">
+                            <i class="fas fa-headset text-2xl"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow text-center md:text-left">
+                        <h3 class="text-xl font-bold text-primary-800 mb-2">Still have questions?</h3>
+                        <p class="text-gray-600 mb-4">Our support team responds in under 15 minutes</p>
+                        <button class="bg-primary-800 text-white px-6 py-2 rounded-md hover:bg-primary-700 transition flex items-center justify-center md:justify-start mx-auto md:mx-0">
+                            <i class="fas fa-comment-dots mr-2"></i> Chat Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "seekers/settings/settings_base.html" %}
+
+{% block settings_content %}
+<div class="container mx-auto px-4 py-6">
+          <!-- Settings Content -->
+            <div class="md:w-2/3">
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="p-4 border-b border-gray-light">
+                        <h2 class="text-lg font-medium">Privacy Settings</h2>
+                    </div>
+                    
+                    <div class="p-6">
+                        <form method="post">
+                            {% csrf_token %}
+                            
+                            <div class="mb-6">
+                                <h3 class="text-sm font-medium text-gray-700 mb-3">Profile Visibility</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <label for="profile_public" class="block text-sm text-gray-700 mb-1">Public Profile</label>
+                                            <p class="text-xs text-gray-500">Make your profile visible to employers</p>
+                                        </div>
+                                        <input type="checkbox" id="profile_public" name="profile_public" 
+                                               class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded" checked>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <label for="show_contact_info" class="block text-sm text-gray-700 mb-1">Show Contact Information</label>
+                                            <p class="text-xs text-gray-500">Display your email and phone number to employers</p>
+                                        </div>
+                                        <input type="checkbox" id="show_contact_info" name="show_contact_info" 
+                                               class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <h3 class="text-sm font-medium text-gray-700 mb-3">Data Sharing</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <label for="share_analytics" class="block text-sm text-gray-700 mb-1">Share Usage Data</label>
+                                            <p class="text-xs text-gray-500">Help us improve by sharing anonymous usage data</p>
+                                        </div>
+                                        <input type="checkbox" id="share_analytics" name="share_analytics" 
+                                               class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded" checked>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <label for="allow_cookies" class="block text-sm text-gray-700 mb-1">Allow Cookies</label>
+                                            <p class="text-xs text-gray-500">Store cookies for a better browsing experience</p>
+                                        </div>
+                                        <input type="checkbox" id="allow_cookies" name="allow_cookies" 
+                                               class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded" checked>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <h3 class="text-sm font-medium text-gray-700 mb-3">Data Privacy</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <p class="text-sm text-gray-700 mb-2">You can download a copy of your data or request account deletion.</p>
+                                        <div class="flex space-x-3">
+                                            <a href="#" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition text-sm">
+                                                Download My Data
+                                            </a>
+                                            <a href="#" class="px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition text-sm">
+                                                Request Account Deletion
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-end">
+                                <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition">
+                                    Save Privacy Settings
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

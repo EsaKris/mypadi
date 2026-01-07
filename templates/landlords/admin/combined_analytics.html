@@ -1,0 +1,222 @@
+{% extends 'landlords/admin/base.html' %}
+
+{% block admin_content %}
+<div class="container mx-auto px-4 py-6">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">Combined Analytics Dashboard</h1>
+        <a href="{% url 'landlords_admin:export_combined_report' %}" class="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <i class="fas fa-download mr-2"></i> Export Report
+        </a>
+    </div>
+    
+    <!-- Summary Cards Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- Seekers Summary -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="bg-blue-600 px-4 py-3">
+                <h2 class="text-lg font-semibold text-white">Seekers Summary</h2>
+            </div>
+            <div class="p-4">
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="bg-blue-50 rounded-lg p-4 text-center">
+                        <p class="text-3xl font-bold text-blue-600">{{ total_seekers }}</p>
+                        <p class="text-sm text-gray-600">Total Seekers</p>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-4 text-center">
+                        <p class="text-3xl font-bold text-green-600">{{ verified_seekers }}</p>
+                        <p class="text-sm text-gray-600">Verified</p>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-4 text-center">
+                        <p class="text-3xl font-bold text-purple-600">{{ active_seekers }}</p>
+                        <p class="text-sm text-gray-600">Active</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Landlords Summary -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="bg-green-600 px-4 py-3">
+                <h2 class="text-lg font-semibold text-white">Landlords Summary</h2>
+            </div>
+            <div class="p-4">
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="bg-blue-50 rounded-lg p-4 text-center">
+                        <p class="text-3xl font-bold text-blue-600">{{ total_landlords }}</p>
+                        <p class="text-sm text-gray-600">Total Landlords</p>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-4 text-center">
+                        <p class="text-3xl font-bold text-green-600">{{ verified_landlords }}</p>
+                        <p class="text-sm text-gray-600">Verified</p>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-4 text-center">
+                        <p class="text-3xl font-bold text-purple-600">{{ active_landlords }}</p>
+                        <p class="text-sm text-gray-600">Active</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Properties and Applications Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- Properties Summary -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="bg-indigo-600 px-4 py-3">
+                <h2 class="text-lg font-semibold text-white">Properties Summary</h2>
+            </div>
+            <div class="p-4">
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="bg-blue-50 rounded-lg p-4 text-center">
+                        <p class="text-3xl font-bold text-blue-600">{{ total_properties }}</p>
+                        <p class="text-sm text-gray-600">Total</p>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-4 text-center">
+                        <p class="text-3xl font-bold text-green-600">{{ verified_properties }}</p>
+                        <p class="text-sm text-gray-600">Verified</p>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-4 text-center">
+                        <p class="text-3xl font-bold text-purple-600">{{ active_properties }}</p>
+                        <p class="text-sm text-gray-600">Active</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Applications Summary -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="bg-yellow-500 px-4 py-3">
+                <h2 class="text-lg font-semibold text-gray-800">Applications Summary</h2>
+            </div>
+            <div class="p-4">
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="bg-blue-50 rounded-lg p-4 text-center">
+                        <p class="text-3xl font-bold text-blue-600">{{ total_applications }}</p>
+                        <p class="text-sm text-gray-600">Total</p>
+                    </div>
+                    <div class="bg-orange-50 rounded-lg p-4 text-center">
+                        <p class="text-3xl font-bold text-orange-500">{{ pending_applications }}</p>
+                        <p class="text-sm text-gray-600">Pending</p>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-4 text-center">
+                        <p class="text-3xl font-bold text-green-600">{{ approved_applications }}</p>
+                        <p class="text-sm text-gray-600">Approved</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Seeker Registration Trend -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="border-b border-gray-200 px-4 py-3">
+                <h2 class="text-lg font-semibold text-gray-800">Seeker Registration Trend (Last 6 Months)</h2>
+            </div>
+            <div class="p-4">
+                <canvas id="seekerTrendChart" height="250"></canvas>
+            </div>
+        </div>
+        
+        <!-- Landlord Registration Trend -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="border-b border-gray-200 px-4 py-3">
+                <h2 class="text-lg font-semibold text-gray-800">Landlord Registration Trend (Last 6 Months)</h2>
+            </div>
+            <div class="p-4">
+                <canvas id="landlordTrendChart" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Seeker Trend Chart
+const seekerCtx = document.getElementById('seekerTrendChart').getContext('2d');
+const seekerChart = new Chart(seekerCtx, {
+    type: 'line',
+    data: {
+        labels: [
+            {% for item in seeker_registration_trend %}
+                "{{ item.month|date:'M Y' }}",
+            {% endfor %}
+        ],
+        datasets: [{
+            label: 'New Seekers',
+            data: [
+                {% for item in seeker_registration_trend %}
+                    {{ item.count }},
+                {% endfor %}
+            ],
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 2,
+            tension: 0.3,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    precision: 0
+                }
+            }
+        }
+    }
+});
+
+// Landlord Trend Chart
+const landlordCtx = document.getElementById('landlordTrendChart').getContext('2d');
+const landlordChart = new Chart(landlordCtx, {
+    type: 'line',
+    data: {
+        labels: [
+            {% for item in landlord_registration_trend %}
+                "{{ item.month|date:'M Y' }}",
+            {% endfor %}
+        ],
+        datasets: [{
+            label: 'New Landlords',
+            data: [
+                {% for item in landlord_registration_trend %}
+                    {{ item.count }},
+                {% endfor %}
+            ],
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 2,
+            tension: 0.3,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    precision: 0
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

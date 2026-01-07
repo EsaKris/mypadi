@@ -1,0 +1,52 @@
+{% extends "landlords/landlord_base.html" %}
+{% load static %}
+
+{% block title %}New Conversation{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-8">
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                Start New Conversation
+            </h3>
+        </div>
+        
+        <div class="px-4 py-5 sm:p-6">
+            <form method="post" action="{% url 'landlords:new_conversation' %}">
+                {% csrf_token %}
+                
+                <div class="mb-4">
+                    <label for="property" class="block text-sm font-medium text-gray-700 mb-1">
+                        Property
+                    </label>
+                    <select id="property" name="property" required
+                            class="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md">
+                        {% for property in properties %}
+                        <option value="{{ property.id }}">{{ property.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="participant" class="block text-sm font-medium text-gray-700 mb-1">
+                        Recipient
+                    </label>
+                    <select id="participant" name="participant" required
+                            class="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md">
+                        {% for participant in participants %}
+                        <option value="{{ participant.id }}">{{ participant.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="mt-6">
+                    <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        Start Conversation
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

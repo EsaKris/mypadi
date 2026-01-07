@@ -1,0 +1,170 @@
+{% extends "landlords/landlord_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <div class="max-w-4xl mx-auto">
+        <!-- Back Button -->
+        <a href="{% url 'landlords:community' %}" class="inline-flex items-center text-primary-600 hover:text-primary-800 mb-4">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Back to Community
+        </a>
+        
+        <!-- Discussion Card -->
+        <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+            <!-- Discussion Header -->
+            <div class="p-6 border-b border-gray-light">
+                <div class="flex items-start justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ post.title }}</h1>
+                        <div class="flex items-center text-sm text-gray-500">
+                            <span class="mr-3">
+                                Posted by {% if post.author == request.user %}you{% else %}{{ post.author.get_full_name }}{% endif %}
+                            </span>
+                            <span class="mr-3">{{ post.created_at|date:"M d, Y" }}</span>
+                            {% if post.location_tag %}
+                            <span class="mr-3">
+                                <i class="fas fa-map-marker-alt mr-1"></i>
+                                {{ post.location_tag }}
+                            </span>
+                            {% endif %}
+                            <span>
+                                <i class="fas fa-eye mr-1"></i>
+                                {{ post.views }} views
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Visibility Badge -->
+                    {% if post.visibility == 'landlords' %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        <i class="fas fa-lock mr-1"></i> Landlords Only
+                    </span>
+                    {% else %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <i class="fas fa-globe mr-1"></i> All Users
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Discussion Content -->
+            <div class="p-6 border-b border-gray-light">
+                <div class="prose max-w-none text-gray-700">
+                    {{ post.content|linebreaks }}
+                </div>
+                
+                <!-- Edit/Delete Buttons -->
+                {% if post.author == request.user %}
+                <div class="flex justify-end space-x-3 mt-4">
+                    <a href="{% url 'landlords:edit_post' pk=post.pk %}" 
+                       class="px-3 py-1 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition flex items-center">
+                        <i class="fas fa-edit mr-2"></i> Edit
+                    </a>
+                    <a href="{% url 'landlords:delete_post' pk=post.pk %}" 
+                       class="px-3 py-1 border border-gray-300 rounded-lg text-red-600 hover:bg-red-50 transition flex items-center">
+                        <i class="fas fa-trash mr-2"></i> Delete
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Replies Section -->
+        <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+            <div class="p-4 border-b border-gray-light bg-gray-50">
+                <h2 class="text-lg font-medium text-gray-900">Replies ({{ post.replies.count }})</h2>
+            </div>
+            
+            {% if post.replies.all %}
+                <div class="divide-y divide-gray-light">
+                    {% for reply in post.replies.all %}
+                    <div class="p-6">
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-800 font-medium mr-3">
+                                {{ reply.author.get_full_name|slice:":1" }}
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">
+                                            {% if reply.author == request.user %}You{% else %}{{ reply.author.get_full_name }}{% endif %}
+                                        </p>
+                                        <p class="text-xs text-gray-500">{{ reply.created_at|timesince }} ago</p>
+                                    </div>
+                                    {% if reply.author == request.user %}
+                                    <div class="flex space-x-2">
+                                        <a href="#" class="text-gray-400 hover:text-gray-600">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="#" class="text-red-400 hover:text-red-600">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="mt-2 text-sm text-gray-700">
+                                    {{ reply.content|linebreaks }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="p-6 text-center text-gray-500">
+                    <i class="far fa-comment-dots text-2xl mb-2"></i>
+                    <p>No replies yet. Be the first to reply!</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Reply Form -->
+        {% if can_reply %}
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="p-4 border-b border-gray-light bg-gray-50">
+                <h2 class="text-lg font-medium text-gray-900">Post a Reply</h2>
+            </div>
+            <div class="p-6">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    {% if reply_form.errors %}
+                        <div class="mb-4 p-3 bg-red-50 text-red-700 rounded-lg">
+                            {% for field, errors in reply_form.errors.items %}
+                                {% for error in errors %}
+                                    <p class="text-sm">{{ error }}</p>
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="mb-4">
+                        <label for="id_content" class="block text-sm font-medium text-gray-700 mb-1">Your Reply</label>
+                        <textarea id="id_content" name="content" rows="4" required
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
+                                  placeholder="Write your reply here...">{{ reply_form.content.value|default:'' }}</textarea>
+                    </div>
+                    
+                    <div class="flex justify-end">
+                        <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition flex items-center">
+                            <i class="fas fa-paper-plane mr-2"></i>
+                            Post Reply
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="p-4 border-b border-gray-light bg-yellow-50">
+                <div class="flex items-center text-yellow-700">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    <span>You don't have permission to reply to this discussion.</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

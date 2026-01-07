@@ -1,0 +1,128 @@
+{% extends "landlords/landlord_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header with New Post Button -->
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Landlord Community</h1>
+                <p class="text-gray-600 mt-1">Connect with other landlords and share insights</p>
+            </div>
+            <a href="{% url 'landlords:create_post' %}" class="inline-flex items-center sm:px-4 px-2 py-2 bg-primary-600 text-white text-sm sm:text-lg rounded-lg hover:bg-primary-700 transition">
+                <i class="fas fa-plus mr-2"></i> New Discussion
+            </a>
+        </div>
+        
+        <!-- Filter/Search Bar -->
+        <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+            <div class="p-4 border-b border-gray-light">
+                <form method="get" class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1">
+                        <div class="relative">
+                            <input type="text" name="q" placeholder="Search discussions..." 
+                                   class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
+                                   value="{{ request.GET.q }}">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <select name="visibility" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary-400 focus:border-primary-400">
+                        <option value="">All Visibility</option>
+                        <option value="landlords" {% if request.GET.visibility == 'landlords' %}selected{% endif %}>
+                            Landlords Only
+                        </option>
+                        <option value="all" {% if request.GET.visibility == 'all' %}selected{% endif %}>
+                            All Users
+                        </option>
+                    </select>
+                    <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition">
+                        <i class="fas fa-filter mr-2"></i> Filter
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Discussions List -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            {% if discussions %}
+                <div class="divide-y divide-gray-light">
+                    {% for post in discussions %}
+                    <a href="{% url 'landlords:community_detail' pk=post.pk %}" class="block hover:bg-gray-50 transition">
+                        <div class="p-6">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <!-- Visibility Badge -->
+                                    {% if post.visibility == 'landlords' %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mb-2">
+                                        <i class="fas fa-lock mr-1"></i> Landlords Only
+                                    </span>
+                                    {% else %}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mb-2">
+                                        <i class="fas fa-globe mr-1"></i> All Users
+                                    </span>
+                                    {% endif %}
+                                    
+                                    <h3 class="text-lg font-medium text-gray-900 mb-2">{{ post.title }}</h3>
+                                    <p class="text-gray-600 mb-4">{{ post.content|truncatewords:30 }}</p>
+                                    
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center">
+                                            <div class="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-800 font-medium">
+                                                {{ post.author.get_full_name|slice:":1" }}
+                                            </div>
+                                            <div class="ml-3">
+                                                <p class="text-sm font-medium text-gray-900">
+                                                    {% if post.author == request.user %}You{% else %}{{ post.author.get_full_name }}{% endif %}
+                                                </p>
+                                                <div class="flex items-center text-xs text-gray-500">
+                                                    <span class="mr-3">{{ post.created_at|timesince }} ago</span>
+                                                    {% if post.location_tag %}
+                                                    <span class="flex items-center mr-3">
+                                                        <i class="fas fa-map-marker-alt mr-1"></i>
+                                                        {{ post.location_tag }}
+                                                    </span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-4">
+                                            <span class="flex items-center text-sm text-gray-500">
+                                                <i class="far fa-comment mr-1"></i>
+                                                {{ post.landlords_reply_count }}
+                                            </span>
+                                            <span class="flex items-center text-sm text-gray-500">
+                                                <i class="far fa-eye mr-1"></i>
+                                                {{ post.views }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="ml-4 flex-shrink-0">
+                                    <i class="fas fa-chevron-right text-gray-400"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="p-8 text-center text-gray-500">
+                    <i class="fas fa-comments text-4xl mb-2"></i>
+                    <p class="text-lg">No discussions found</p>
+                    <p class="mt-2">Start the conversation by creating a new post!</p>
+                </div>
+            {% endif %}
+            
+            <!-- Pagination -->
+            {% if discussions %}
+            <div class="p-4 border-t border-gray-light">
+                {% include 'landlords/partials/pagination.html' with page_obj=discussions %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

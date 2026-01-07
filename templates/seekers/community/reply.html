@@ -1,0 +1,28 @@
+{% extends "seekers/seekers_base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="p-4 border-b border-gray-light">
+                <h2 class="text-lg font-medium">Reply to: {{ post.title }}</h2>
+                <a href="{% url 'seekers:community_detail' pk=post.pk %}" class="text-sm text-primary-600 hover:underline">
+                    ← Back to discussion
+                </a>
+            </div>
+            
+            <div class="p-6">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.content }}
+                    <div class="mt-4 flex justify-end">
+                        <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition">
+                            Post Reply
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

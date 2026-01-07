@@ -1,0 +1,85 @@
+{% extends "seekers/seekers_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-primary-800">Your Messages</h1>
+        <!-- FIX: Link to marketplace instead of property_message without property ID -->
+        <a href="{% url 'seekers:marketplace' %}" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition">
+            <i class="fas fa-envelope mr-2"></i> New Message
+        </a>
+    </div>
+
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <!-- Search/Filter Bar -->
+        <div class="p-4 border-b border-gray-light">
+            <div class="relative">
+                <input type="text" placeholder="Search messages..." 
+                       class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-400 focus:border-primary-400">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conversations List -->
+        <div class="divide-y divide-gray-light">
+            {% for conv_data in conversations %}
+                {% if conv_data.other_participant and conv_data.last_message %}
+                <a href="{% url 'seekers:conversation_detail' conv_data.conversation.id %}" class="block hover:bg-gray-50 transition">
+                    <div class="p-4">
+                        <div class="flex items-start">
+                            <!-- User Avatar -->
+                            <img src="{% if conv_data.other_participant.seeker_profile.profile_picture %}{{ conv_data.other_participant.seeker_profile.profile_picture.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}" 
+                                 alt="{{ conv_data.other_participant.get_full_name }}" 
+                                 class="w-12 h-12 rounded-full object-cover border-2 {% if conv_data.unread_count > 0 %}border-primary-500{% else %}border-gray-200{% endif %}">
+
+                            <!-- Message Content -->
+                            <div class="ml-4 flex-1 min-w-0">
+                                <div class="flex justify-between items-baseline">
+                                    <h3 class="text-lg font-medium text-gray-900 truncate">
+                                        {{ conv_data.other_participant.get_full_name|default:conv_data.other_participant.username }}
+                                    </h3>
+                                    <span class="text-sm text-gray-500 whitespace-nowrap ml-2">
+                                        {{ conv_data.last_message.created_at|timesince }} ago
+                                    </span>
+                                </div>
+
+                                <p class="text-gray-600 mt-1 truncate">
+                                    {% if conv_data.last_message.sender == request.user %}
+                                        You: {{ conv_data.last_message.decrypted_content|truncatewords:8 }}
+                                    {% else %}
+                                        {{ conv_data.last_message.decrypted_content|truncatewords:8 }}
+                                    {% endif %}
+                                </p>
+
+                                {% if conv_data.property %}
+                                <p class="text-xs text-gray-500 mt-1">
+                                    <i class="fas fa-home mr-1"></i>{{ conv_data.property.title }}
+                                </p>
+                                {% endif %}
+
+                                {% if conv_data.unread_count > 0 %}
+                                <span class="inline-block mt-2 px-2 py-1 bg-primary-100 text-primary-800 text-xs font-medium rounded-full">
+                                    {{ conv_data.unread_count }} new message{{ conv_data.unread_count|pluralize }}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                {% endif %}
+            {% empty %}
+                <div class="p-8 text-center">
+                    <i class="fas fa-comments text-4xl text-gray-300 mb-3"></i>
+                    <p class="text-gray-500">No messages yet. Start a conversation!</p>
+                    <a href="{% url 'seekers:marketplace' %}" class="mt-4 inline-block bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition">
+                        Browse Properties to Message
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

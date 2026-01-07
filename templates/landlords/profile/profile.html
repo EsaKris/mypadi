@@ -1,0 +1,332 @@
+{% extends "landlords/landlord_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 bg-cream">
+    <div class="max-w-6xl mx-auto">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Profile Sidebar -->
+            <div class="lg:w-1/4">
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="p-6 text-center bg-gradient-to-r from-primary-400 to-primary-600">
+                        <div class="relative mx-auto w-40 h-40 mb-4">
+                            <div class="profile-picture rounded-full overflow-hidden border-4 border-white shadow-lg">
+                                {% if profile.profile_picture %}
+                                    <img src="{{ profile.profile_picture.url }}" 
+                                        alt="{{ user.get_full_name|default:'User' }}"
+                                        class="w-full h-full object-cover"
+                                        id="profile-image">
+                                {% else %}
+                                    <img src="{% static 'img/default-profile.png' %}" 
+                                        alt="Default profile"
+                                        class="w-full h-full object-cover"
+                                        id="profile-image">
+                                {% endif %}
+                            </div>
+                            {% if user.is_premium %}
+                            <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
+                                <span class="badge-premium text-white text-xs px-3 py-1 rounded-full inline-block">PREMIUM</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <h2 class="text-2xl font-bold text-white">{{ user.get_full_name|default:"Anonymous User" }}</h2>
+                        <p class="text-white font-medium">Property Owner</p>
+                    </div>
+                    
+                    <div class="p-6 border-t border-gray-light">
+                        <div class="flex justify-center space-x-6">
+                             <!-- Facebook -->
+                            {% if profile.social_facebook %}
+                            <a href="{{ profile.social_facebook }}" target="_blank" rel="noopener noreferrer" 
+                            class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-[#1877F2] group transition-colors duration-300">
+                                <i class="fab fa-facebook-f text-gray-600 group-hover:text-white"></i>
+                            </a>
+                            {% else %}
+                            <span class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center opacity-50 cursor-not-allowed">
+                                <i class="fab fa-facebook-f text-gray-600"></i>
+                            </span>
+                            {% endif %}
+                            
+                            <!-- Twitter -->
+                            {% if profile.social_twitter %}
+                            <a href="{{ profile.social_twitter }}" target="_blank" rel="noopener noreferrer" 
+                            class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-[#1DA1F2] group transition-colors duration-300">
+                                <i class="fab fa-twitter text-gray-600 group-hover:text-white"></i>
+                            </a>
+                            {% else %}
+                            <span class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center opacity-50 cursor-not-allowed">
+                                <i class="fab fa-twitter text-gray-600"></i>
+                            </span>
+                            {% endif %}
+                            
+                            <!-- LinkedIn -->
+                            {% if profile.social_linkedin %}
+                            <a href="{{ profile.social_linkedin }}" target="_blank" rel="noopener noreferrer" 
+                            class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-[#0A66C2] group transition-colors duration-300">
+                                <i class="fab fa-linkedin-in text-gray-600 group-hover:text-white"></i>
+                            </a>
+                            {% else %}
+                            <span class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center opacity-50 cursor-not-allowed">
+                                <i class="fab fa-linkedin-in text-gray-600"></i>
+                            </span>
+                            {% endif %}
+                            
+                            <!-- Instagram -->
+                            {% if profile.social_instagram %}
+                            <a href="{{ profile.social_instagram }}" target="_blank" rel="noopener noreferrer" 
+                            class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gradient-to-r from-[#F58529] via-[#DD2A7B] to-[#8134AF] group transition-colors duration-300">
+                                <i class="fab fa-instagram text-gray-600 group-hover:text-white"></i>
+                            </a>
+                            {% else %}
+                            <span class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center opacity-50 cursor-not-allowed">
+                                <i class="fab fa-instagram text-gray-600"></i>
+                            </span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mt-6">
+                            <a href="{% url 'landlords:profile_edit' %}" 
+                               class="w-full flex items-center justify-center px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-800 transition">
+                                <i class="fas fa-edit mr-2"></i> Edit Profile
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t border-gray-light p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Contact Information</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <i class="fas fa-envelope text-primary-600 mt-1 mr-3"></i>
+                                <div>
+                                    <p class="text-sm text-gray-500">Email</p>
+                                    <p class="text-gray-800">{{ user.email|default:"Not provided" }}</p>
+                                </div>
+                            </li>
+                            {% if profile.phone_number %}
+                            <li class="flex items-start">
+                                <i class="fas fa-phone text-primary-600 mt-1 mr-3"></i>
+                                <div>
+                                    <p class="text-sm text-gray-500">Phone</p>
+                                    <p class="text-gray-800">{{ profile.phone_number }}</p>
+                                </div>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Main Profile Content -->
+            <div class="lg:w-3/4">
+                <!-- Personal Information -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+                    <div class="p-6 border-b border-gray-light">
+                        <h2 class="text-xl font-bold text-gray-800">Personal Information</h2>
+                    </div>
+                    
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-500 mb-1">First Name</h3>
+                                <p class="text-lg text-gray-800">{{ user.first_name|default:"Not provided" }}</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-500 mb-1">Last Name</h3>
+                                <p class="text-lg text-gray-800">{{ user.last_name|default:"Not provided" }}</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-500 mb-1">Date Joined</h3>
+                                <p class="text-lg text-gray-800">{{ user.date_joined|date:"F j, Y"|default:"Unknown" }}</p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-500 mb-1">Last Login</h3>
+                                <p class="text-lg text-gray-800">
+                                    {% if user.last_login %}
+                                        {{ user.last_login|date:"F j, Y" }}
+                                    {% else %}
+                                        Never logged in
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <h3 class="text-sm font-medium text-gray-500 mb-1">About Me</h3>
+                            <p class="text-gray-800">
+                                {% if profile.bio %}
+                                    {{ profile.bio|linebreaksbr }}
+                                {% else %}
+                                    No bio added yet.
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Business Information -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+                    <div class="p-6 border-b border-gray-light">
+                        <h2 class="text-xl font-bold text-gray-800">Business Information</h2>
+                    </div>
+                    
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-500 mb-1">Company Name</h3>
+                                <p class="text-lg text-gray-800">
+                                    {% if profile.company_name %}
+                                        {{ profile.company_name }}
+                                    {% else %}
+                                        Not specified
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-medium text-gray-500 mb-1">Properties Listed</h3>
+                                <p class="text-lg text-gray-800">{{ properties_count|default:"0" }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <h3 class="text-sm font-medium text-gray-500 mb-1">Business Address</h3>
+                            <p class="text-gray-800">
+                                {% if profile.business_address %}
+                                    {{ profile.business_address|linebreaksbr }}
+                                {% else %}
+                                    Not specified
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Verification Status -->
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="p-6 border-b border-gray-light">
+                        <h2 class="text-xl font-bold text-gray-800">Verification Status</h2>
+                    </div>
+                    
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <!-- Email Verification -->
+                            <div class="flex items-center justify-between p-4 rounded-lg {% if user.email_verified %}bg-green-50{% else %}bg-gray-light{% endif %}">
+                                <div class="flex items-center">
+                                    <div class="mr-4">
+                                        {% if user.email_verified %}
+                                            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                                                <i class="fas fa-check text-primary-600"></i>
+                                            </div>
+                                        {% else %}
+                                            <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                                <i class="fas fa-times text-gray-500"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">Email Address</h4>
+                                        <p class="text-sm text-gray-500">
+                                            {% if user.email_verified %}
+                                                Verified on {{ user.email_verified_date|date:"F j, Y" }}
+                                            {% else %}
+                                                Not verified
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                                {% if not user.email_verified %}
+                                <a href="{}" class="text-sm text-primary-600 hover:text-primary-800 font-medium">
+                                    Verify Now
+                                </a>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Phone Verification -->
+                            <div class="flex items-center justify-between p-4 rounded-lg {% if profile.phone_verified %}bg-green-50{% else %}bg-gray-light{% endif %}">
+                                <div class="flex items-center">
+                                    <div class="mr-4">
+                                        {% if profile.phone_verified %}
+                                            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                                                <i class="fas fa-check text-primary-600"></i>
+                                            </div>
+                                        {% else %}
+                                            <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                                <i class="fas fa-times text-gray-500"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">Phone Number</h4>
+                                        <p class="text-sm text-gray-500">
+                                            {% if profile.phone_verified %}
+                                                Verified on {{ profile.phone_verified_date|date:"F j, Y" }}
+                                            {% else %}
+                                                {% if profile.phone_number %}
+                                                    Not verified
+                                                {% else %}
+                                                    No phone number added
+                                                {% endif %}
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                                {% if not profile.phone_verified and profile.phone_number %}
+                                <a href="{}" class="text-sm text-primary-600 hover:text-primary-800 font-medium">
+                                    Verify Now
+                                </a>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Landlord Verification -->
+                            <div class="flex items-center justify-between p-4 rounded-lg {% if profile.is_verified %}bg-green-50{% else %}bg-gray-light{% endif %}">
+                                <div class="flex items-center">
+                                    <div class="mr-4">
+                                        {% if profile.is_verified %}
+                                            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                                                <i class="fas fa-check text-primary-600"></i>
+                                            </div>
+                                        {% else %}
+                                            <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                                <i class="fas fa-times text-gray-500"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium text-gray-800">Landlord Verification</h4>
+                                        <p class="text-sm text-gray-500">
+                                            {% if profile.is_verified %}
+                                                Verified on {{ profile.verified_date|date:"F j, Y" }}
+                                            {% else %}
+                                                Verification pending
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                                {% if not profile.is_verified %}
+                                <a href="{}" class="text-sm text-primary-600 hover:text-primary-800 font-medium">
+                                    Submit Documents
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for real-time updates -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Force refresh profile image after edit
+    const profileImage = document.getElementById('profile-image');
+    if (profileImage) {
+        // Add a timestamp parameter to bust cache
+        const src = profileImage.src;
+        const separator = src.includes('?') ? '&' : '?';
+        profileImage.src = src + separator + 't=' + new Date().getTime();
+    }
+});
+</script>
+
+{% endblock %}

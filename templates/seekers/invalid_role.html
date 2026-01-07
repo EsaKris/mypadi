@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Access Denied</title>
+     <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <div class="bg-gradient-to-br from-gray-100 to-gray-300 min-h-screen flex items-center justify-center">
+        
+        <div class="bg-white shadow-xl rounded-lg p-10 max-w-lg w-full transform transition-all duration-500 scale-95 hover:scale-100 hover:shadow-2xl">
+            
+            <div class="text-center">
+                <div class="mb-6 animate-bounce">
+                    <svg class="mx-auto h-16 w-16 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M12 9v2m0 4h.01M21 12A9 9 0 1 1 3 12a9 9 0 0 1 18 0z" />
+                    </svg>
+                </div>
+
+                <h1 class="text-2xl font-bold text-gray-800 mb-4 animate-fade-in-down">
+                    Invalid Role
+                </h1>
+                <p class="text-gray-600 mb-6 animate-fade-in-up">
+                    You need to be a <span class="font-semibold text-red-600">tenant</span> to access this page.
+                </p>
+
+                <a href="{% url 'landing' %}" 
+                class="inline-block px-6 py-3 bg-green-700 text-white font-semibold rounded-lg shadow hover:bg-green-600 transition duration-300 animate-fade-in-up">
+                    Return to Home
+                </a>
+            </div>
+
+        </div>
+
+        <style>
+            @keyframes fade-in-down {
+                from {
+                    opacity: 0;
+                    transform: translateY(-20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            @keyframes fade-in-up {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .animate-fade-in-down {
+                animation: fade-in-down 0.6s ease-out both;
+            }
+
+            .animate-fade-in-up {
+                animation: fade-in-up 0.6s ease-out both;
+            }
+        </style>
+    </div>
+
+</body>
+</html>

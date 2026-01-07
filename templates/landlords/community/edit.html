@@ -1,0 +1,106 @@
+{% extends "landlords/landlord_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <div class="max-w-3xl mx-auto">
+        <!-- Back Button -->
+        <a href="{% url 'landlords:community_detail' pk=post.pk %}" class="inline-flex items-center text-primary-600 hover:text-primary-800 mb-4">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Back to Discussion
+        </a>
+        
+        <!-- Edit Form Card -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <!-- Card Header -->
+            <div class="p-4 border-b border-gray-light bg-primary-600">
+                <h2 class="text-xl font-medium text-white">Edit Discussion</h2>
+            </div>
+            
+            <!-- Form Content -->
+            <form method="post" class="p-6">
+                {% csrf_token %}
+                
+                <!-- Title Field -->
+                <div class="mb-6">
+                    <label for="id_title" class="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                    <input type="text" id="id_title" name="title" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
+                           value="{{ form.title.value|default:post.title }}">
+                    {% if form.title.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.title.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Content Field -->
+                <div class="mb-6">
+                    <label for="id_content" class="block text-sm font-medium text-gray-700 mb-1">Content</label>
+                    <textarea id="id_content" name="content" rows="6" required
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-400">{{ form.content.value|default:post.content }}</textarea>
+                    {% if form.content.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.content.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Location Field -->
+                <div class="mb-6">
+                    <label for="id_location_tag" class="block text-sm font-medium text-gray-700 mb-1">Location (optional)</label>
+                    <input type="text" id="id_location_tag" name="location_tag"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
+                           value="{{ form.location_tag.value|default:post.location_tag|default:'' }}"
+                           placeholder="E.g. Lagos, Ikeja">
+                    {% if form.location_tag.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.location_tag.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Visibility Options -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">Who can see this post?</label>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+                            <input class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300" 
+                                   type="radio" name="visibility" id="visibility_all" value="all" 
+                                   {% if post.visibility == 'all' %}checked{% endif %}>
+                            <label for="visibility_all" class="ml-3 flex items-center">
+                                <i class="fas fa-globe text-green-500 mr-2"></i>
+                                <span class="block text-sm text-gray-700">
+                                    All Users (Seekers and Landlords)
+                                </span>
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+                            <input class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300" 
+                                   type="radio" name="visibility" id="visibility_landlords" value="landlords"
+                                   {% if post.visibility == 'landlords' %}checked{% endif %}>
+                            <label for="visibility_landlords" class="ml-3 flex items-center">
+                                <i class="fas fa-lock text-yellow-500 mr-2"></i>
+                                <span class="block text-sm text-gray-700">
+                                    Landlords Only
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    {% if form.visibility.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.visibility.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Form Actions -->
+                <div class="flex justify-end space-x-3 mt-6">
+                    <a href="{% url 'landlords:community_detail' pk=post.pk %}" 
+                       class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                            class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition flex items-center">
+                        <i class="fas fa-save mr-2"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

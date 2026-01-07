@@ -1,0 +1,255 @@
+{% extends 'landlords/admin/base.html' %}
+{% load static %}
+
+{% block admin_content %}
+<div class="px-4 sm:px-6 lg:px-8">
+    <!-- Header with search and filter -->
+    <div class="sm:flex sm:items-center sm:justify-between mb-8">
+        <div class="mb-4 sm:mb-0">
+            <h1 class="text-2xl font-bold text-gray-900">Landlords</h1>
+            <p class="mt-1 text-sm text-gray-500">Manage all landlord accounts</p>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <!-- Improved Search Form -->
+            <form method="get" class="w-full sm:w-auto">
+                <div class="relative rounded-md shadow-sm">
+                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                        <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <input 
+                        type="text" 
+                        name="search" 
+                        class="block w-full rounded-md border-0 py-2 pl-10 pr-12 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#257e0f] sm:text-sm sm:leading-6" 
+                        placeholder="Search landlords..." 
+                        value="{{ search_query }}"
+                        aria-label="Search landlords"
+                    >
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-2">
+                        {% if search_query %}
+                        <button 
+                            type="button" 
+                            class="text-gray-400 hover:text-gray-500 p-1"
+                            onclick="document.querySelector('input[name=\'search\']').value=''; this.form.submit()"
+                            aria-label="Clear search"
+                        >
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                        {% endif %}
+                        <button 
+                            type="submit" 
+                            class="ml-1 inline-flex items-center px-3 py-1.5 text-sm font-semibold text-white rounded-md hover:bg-[#008a17] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#257e0f]" 
+                            style="background-color: #257e0f;"
+                            aria-label="Submit search"
+                        >
+                            Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Filter Dropdown -->
+            <div class="relative w-full sm:w-auto">
+                <button type="button" class="inline-flex items-center justify-between w-full sm:w-auto rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50" id="menu-button" aria-expanded="false" aria-haspopup="true">
+                    <span>Filter: {{ status_filter|title }}</span>
+                    <svg class="-mr-1 ml-1.5 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <div class="absolute right-0 z-10 mt-2 w-full sm:w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none hidden" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                    <div class="py-1" role="none">
+                        <a href="?status=all{% if search_query %}&search={{ search_query }}{% endif %}" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">All Landlords</a>
+                        <a href="?status=verified{% if search_query %}&search={{ search_query }}{% endif %}" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Verified Only</a>
+                        <a href="?status=unverified{% if search_query %}&search={{ search_query }}{% endif %}" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Unverified Only</a>
+                        <a href="?status=active{% if search_query %}&search={{ search_query }}{% endif %}" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Active Only</a>
+                        <a href="?status=inactive{% if search_query %}&search={{ search_query }}{% endif %}" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem">Inactive Only</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Responsive Landlords table -->
+    <div class="mt-6 flow-root">
+        <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+                {% if landlords %}
+                <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+                    <!-- Desktop Table -->
+                    <table class="min-w-full divide-y divide-gray-300 hidden sm:table">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Landlord</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Company</th>
+                                <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold text-gray-900">Verification</th>
+                                <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold text-gray-900">Status</th>
+                                <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold text-gray-900">Properties</th>
+                                <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6 text-right">
+                                    <span class="sr-only">Action</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 bg-white">
+                            {% for landlord in landlords %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="whitespace-nowrap py-4 pl-4 pr-3 sm:pl-6">
+                                    <div class="flex items-center">
+                                        <div class="h-10 w-10 flex-shrink-0">
+                                            <img class="h-10 w-10 rounded-full" src="{% if landlord.profile_picture %}{{ landlord.profile_picture.url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}" alt="{{ landlord.get_full_name }}">
+                                        </div>
+                                        <div class="ml-4">
+                                            <div class="font-medium text-gray-900">{{ landlord.get_full_name }}</div>
+                                            <div class="text-gray-500">{{ landlord.email }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                    {{ landlord.landlord_profile.company_name|default:"-" }}
+                                </td>
+                                <td class="whitespace-nowrap px-3 py-4 text-center text-sm">
+                                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {% if landlord.landlord_profile.is_verified %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                        {% if landlord.landlord_profile.is_verified %}Verified{% else %}Pending{% endif %}
+                                    </span>
+                                </td>
+                                <td class="whitespace-nowrap px-3 py-4 text-center text-sm">
+                                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {% if landlord.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {% if landlord.is_active %}Active{% else %}Inactive{% endif %}
+                                    </span>
+                                </td>
+                                <td class="whitespace-nowrap px-3 py-4 text-center text-sm text-gray-500">
+                                    {{ landlord.landlord_profile.property_set.count }}
+                                </td>
+                                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                                    <a href="{% url 'landlords_admin:landlord_detail' landlord.pk %}" class="text-[#257e0f] hover:text-[#008a17] font-semibold">
+                                        View<span class="sr-only">, {{ landlord.get_full_name }}</span>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <!-- Mobile Cards -->
+                    <div class="grid grid-cols-1 gap-4 sm:hidden p-4">
+                        {% for landlord in landlords %}
+                        <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
+                            <div class="px-4 py-5 sm:p-6">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0">
+                                        <img class="h-12 w-12 rounded-full" src="{% if landlord.profile_picture %}{{ landlord.profile_picture.url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}" alt="{{ landlord.get_full_name }}">
+                                    </div>
+                                    <div class="ml-4">
+                                        <h3 class="text-lg font-medium text-gray-900">{{ landlord.get_full_name }}</h3>
+                                        <p class="text-sm text-gray-500">{{ landlord.email }}</p>
+                                    </div>
+                                </div>
+                                <div class="mt-4 grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Company</p>
+                                        <p class="mt-1 text-sm text-gray-900">{{ landlord.landlord_profile.company_name|default:"-" }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Properties</p>
+                                        <p class="mt-1 text-sm text-gray-900">{{ landlord.landlord_profile.property_set.count }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Verification</p>
+                                        <span class="mt-1 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {% if landlord.landlord_profile.is_verified %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                            {% if landlord.landlord_profile.is_verified %}Verified{% else %}Pending{% endif %}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Status</p>
+                                        <span class="mt-1 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {% if landlord.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                            {% if landlord.is_active %}Active{% else %}Inactive{% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="mt-4 text-right">
+                                    <a href="{% url 'landlords_admin:landlord_detail' landlord.pk %}" class="text-sm font-semibold text-[#257e0f] hover:text-[#008a17]">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-12 bg-white rounded-lg shadow">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    </svg>
+                    <h3 class="mt-2 text-lg font-medium text-gray-900">No landlords found</h3>
+                    <p class="mt-1 text-sm text-gray-500">Try adjusting your search or filter criteria</p>
+                    <div class="mt-6">
+                        <a href="?status=all" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#257e0f] hover:bg-[#008a17] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#257e0f]">
+                            Reset filters
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <nav class="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0 mt-8">
+        <div class="-mt-px flex w-0 flex-1">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                <svg class="mr-3 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a.75.75 0 01-.75.75H4.66l2.1 1.95a.75.75 0 11-1.02 1.1l-3.5-3.25a.75.75 0 010-1.1l3.5-3.25a.75.75 0 111.02 1.1l-2.1 1.95h12.59A.75.75 0 0118 10z" clip-rule="evenodd" />
+                </svg>
+                Previous
+            </a>
+            {% endif %}
+        </div>
+        <div class="hidden md:-mt-px md:flex">
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="inline-flex items-center border-t-2 border-[#257e0f] px-4 pt-4 text-sm font-medium text-[#257e0f]">
+                    {{ num }}
+                </a>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                    {{ num }}
+                </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <div class="-mt-px flex w-0 flex-1 justify-end">
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                Next
+                <svg class="ml-3 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M2 10a.75.75 0 01.75-.75h12.59l-2.1-1.95a.75.75 0 111.02-1.1l3.5 3.25a.75.75 0 010 1.1l-3.5 3.25a.75.75 0 11-1.02-1.1l2.1-1.95H2.75A.75.75 0 012 10z" clip-rule="evenodd" />
+                </svg>
+            </a>
+            {% endif %}
+        </div>
+    </nav>
+    {% endif %}
+</div>
+
+<script>
+    // Dropdown toggle functionality
+    document.getElementById('menu-button').addEventListener('click', function() {
+        const menu = this.nextElementSibling;
+        menu.classList.toggle('hidden');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        const dropdown = document.querySelector('.relative');
+        if (!dropdown.contains(event.target)) {
+            const menu = document.querySelector('.absolute.hidden');
+            if (menu) menu.classList.add('hidden');
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,281 @@
+{% extends 'landlords/admin/base.html' %}
+{% load static %}
+
+{% block admin_content %}
+<div class="px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="sm:flex sm:items-center sm:justify-between mb-8">
+        <div class="mb-4 sm:mb-0">
+            <h1 class="text-2xl font-bold text-gray-900">Landlord Details</h1>
+            <p class="mt-1 text-sm text-gray-500">Viewing profile for {{ landlord_user.get_full_name }}</p>
+        </div>
+        <a href="{% url 'landlords_admin:landlord_list' %}" class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+            <svg class="-ml-0.5 mr-1.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+            Back to List
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column - Profile Info -->
+        <div class="space-y-6">
+            <!-- Profile Card -->
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Profile Information</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="flex flex-col items-center">
+                        <img src="{% if landlord_profile.profile_picture %}{{ landlord_profile.profile_picture.url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}" 
+                             class="h-24 w-24 rounded-full object-cover mb-4" 
+                             alt="{{ landlord_user.get_full_name }}">
+                        <h3 class="text-lg font-medium text-gray-900">{{ landlord_user.get_full_name }}</h3>
+                        <p class="text-sm text-gray-500">{{ landlord_user.email }}</p>
+                        
+                        <div class="mt-4 w-full space-y-3">
+                            <div>
+                                <p class="text-sm font-medium text-gray-700">Account Status</p>
+                                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {% if landlord_user.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {% if landlord_user.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                            </div>
+                            
+                            <div>
+                                <p class="text-sm font-medium text-gray-700">Member Since</p>
+                                <p class="text-sm text-gray-900">{{ profile_data.date_joined }}</p>
+                            </div>
+                            
+                            <div>
+                                <p class="text-sm font-medium text-gray-700">Last Login</p>
+                                <p class="text-sm text-gray-900">{{ profile_data.last_login }}</p>
+                            </div>
+                        </div>
+                        
+                        {% if landlord_user != request.user %}
+                        <div class="mt-4 w-full">
+                            <a href="{% url 'landlords_admin:toggle_landlord_status' pk=landlord_user.pk %}" 
+                               class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white {% if landlord_user.is_active %}bg-red-600 hover:bg-red-700{% else %}bg-green-600 hover:bg-green-700{% endif %} focus:outline-none focus:ring-2 focus:ring-offset-2 {% if landlord_user.is_active %}focus:ring-red-500{% else %}focus:ring-green-500{% endif %}">
+                                {% if landlord_user.is_active %}Deactivate Account{% else %}Activate Account{% endif %}
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Verification Card -->
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Verification Status</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6 space-y-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-700">Profile Verified</p>
+                        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {% if profile_data.is_verified %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {% if profile_data.is_verified %}Verified{% else %}Pending{% endif %}
+                        </span>
+                    </div>
+                    
+                    <div>
+                        <p class="text-sm font-medium text-gray-700">Phone Verified</p>
+                        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {% if profile_data.phone_verified %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {% if profile_data.phone_verified %}Verified{% if profile_data.phone_verified_date %} ({{ profile_data.phone_verified_date }}){% endif %}{% else %}Not verified{% endif %}
+                        </span>
+                    </div>
+                    
+                    {% if profile_data.verification_documents %}
+                    <div>
+                        <p class="text-sm font-medium text-gray-700">Documents Submitted</p>
+                        <a href="{{ landlord_profile.verification_documents.url }}" target="_blank" 
+                           class="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            View Documents
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    {% if profile_data.verification_notes %}
+                    <div>
+                        <p class="text-sm font-medium text-gray-700">Verification Notes</p>
+                        <p class="text-sm text-gray-900">{{ profile_data.verification_notes }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Details and Properties -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Profile Details Card -->
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Profile Details</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Personal Info -->
+                        <div>
+                            <p class="text-sm font-medium text-gray-700">First Name</p>
+                            <p class="mt-1 text-sm text-gray-900">{{ landlord_user.first_name }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-700">Last Name</p>
+                            <p class="mt-1 text-sm text-gray-900">{{ landlord_user.last_name }}</p>
+                        </div>
+                        
+                        <!-- Company Info -->
+                        <div>
+                            <p class="text-sm font-medium text-gray-700">Company Name</p>
+                            <p class="mt-1 text-sm text-gray-900">{{ profile_data.company_name }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-700">Phone Number</p>
+                            <p class="mt-1 text-sm text-gray-900">{{ profile_data.phone_number }}</p>
+                        </div>
+                        
+                        <!-- Address -->
+                        <div class="md:col-span-2">
+                            <p class="text-sm font-medium text-gray-700">Business Address</p>
+                            <p class="mt-1 text-sm text-gray-900 whitespace-pre-line">{{ profile_data.business_address }}</p>
+                        </div>
+                        
+                        <!-- Bio -->
+                        <div class="md:col-span-2">
+                            <p class="text-sm font-medium text-gray-700">Bio</p>
+                            <p class="mt-1 text-sm text-gray-900 whitespace-pre-line">{{ profile_data.bio }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Social Media Card -->
+            {% if profile_data.social_facebook or profile_data.social_twitter or profile_data.social_linkedin or profile_data.social_instagram %}
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">Social Media</h3>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    <div class="flex flex-wrap gap-3">
+                        {% if profile_data.social_facebook %}
+                        <a href="{{ profile_data.social_facebook }}" target="_blank" class="inline-flex items-center px-3 py-2 rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100">
+                            <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/>
+                            </svg>
+                            Facebook
+                        </a>
+                        {% endif %}
+                        
+                        {% if profile_data.social_twitter %}
+                        <a href="{{ profile_data.social_twitter }}" target="_blank" class="inline-flex items-center px-3 py-2 rounded-md bg-blue-50 text-blue-400 hover:bg-blue-100">
+                            <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"/>
+                            </svg>
+                            Twitter
+                        </a>
+                        {% endif %}
+                        
+                        {% if profile_data.social_linkedin %}
+                        <a href="{{ profile_data.social_linkedin }}" target="_blank" class="inline-flex items-center px-3 py-2 rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100">
+                            <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                            </svg>
+                            LinkedIn
+                        </a>
+                        {% endif %}
+                        
+                        {% if profile_data.social_instagram %}
+                        <a href="{{ profile_data.social_instagram }}" target="_blank" class="inline-flex items-center px-3 py-2 rounded-md bg-pink-50 text-pink-600 hover:bg-pink-100">
+                            <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                            </svg>
+                            Instagram
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Properties Card - Updated for better display -->
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-medium leading-6 text-gray-900">Recent Properties</h3>
+                        <div class="flex items-center space-x-2">
+                            <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+                                {{ active_properties }} Active
+                            </span>
+                            <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
+                                {{ properties_count }} Total
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-4 py-5 sm:p-6">
+                    {% if properties %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {% for property in properties %}
+                        <div class="border rounded-lg overflow-hidden hover:shadow-md transition-shadow duration-200">
+                            <div class="h-40 bg-gray-100 relative">
+                                <img src="{% if property.images.first %}{{ property.images.first.image.url }}{% else %}{% static 'img/default-property.jpg' %}{% endif %}" 
+                                     alt="{{ property.title }}"
+                                     class="w-full h-full object-cover">
+                                <div class="absolute bottom-2 left-2 flex space-x-2">
+                                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {% if property.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {% if property.is_active %}Active{% else %}Inactive{% endif %}
+                                    </span>
+                                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {% if property.is_verified %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                        {% if property.is_verified %}Verified{% else %}Pending{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h4 class="font-medium text-gray-900">{{ property.title }}</h4>
+                                <p class="text-sm text-gray-500 mt-1">{{ property.address|truncatechars:40 }}</p>
+                                <div class="mt-3 flex justify-between items-center">
+                                    <span class="text-sm text-gray-500">
+                                        {{ property.get_property_type_display }}
+                                    </span>
+                                    <a href="{% url 'landlords:property_detail' property.id %}" 
+                                       class="text-sm font-medium text-[#257e0f] hover:text-[#008a17] flex items-center">
+                                        View
+                                        <svg class="ml-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if properties_count > properties|length %}
+                    <div class="mt-6 text-center">
+                        <a href="#" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-[#257e0f] hover:bg-[#008a17] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#257e0f]">
+                            View All Properties
+                            <svg class="ml-2 -mr-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    {% else %}
+                    <div class="text-center py-8">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">No properties found</h3>
+                        <p class="mt-1 text-sm text-gray-500">This landlord hasn't listed any properties yet.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock admin_content %}

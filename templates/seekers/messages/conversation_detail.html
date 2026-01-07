@@ -1,0 +1,192 @@
+{% extends "seekers/seekers_base.html" %}
+{% load static %}
+{% block content %}
+<div class="container mx-auto px-4">
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="h-screen flex flex-col">
+            <!-- Thread Header -->
+            <div class="p-4 border-b border-gray-light flex items-center bg-primary-50">
+                <a href="{% url 'seekers:messages' %}" class="mr-3 text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                
+                {% if other_participant.seeker_profile.profile_picture %}
+                <img src="{{ other_participant.seeker_profile.profile_picture.url }}" 
+                     alt="{{ other_participant.get_full_name }}" class="w-10 h-10 rounded-full object-cover">
+                {% else %}
+                <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
+                    <span class="text-gray-600 font-bold text-sm">
+                        {{ other_participant.get_full_name|first|default:"U" }}
+                    </span>
+                </div>
+                {% endif %}
+                
+                <div class="ml-3 flex-1">
+                    <h3 class="font-medium">{{ other_participant.get_full_name }}</h3>
+                    {% if property %}
+                    <p class="text-xs text-gray-500">{{ property.title }}</p>
+                    {% else %}
+                    <p class="text-xs text-gray-500">Direct Message</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Reply Preview Bar -->
+            <div id="reply-preview" class="hidden bg-gray-100 border-b border-gray-300 px-4 py-2">
+                <div class="flex justify-between items-center">
+                    <div class="flex-1">
+                        <div class="flex items-center">
+                            <i class="fas fa-reply text-primary-600 mr-2"></i>
+                            <span class="text-sm font-medium text-primary-600">Replying to</span>
+                        </div>
+                        <p id="reply-preview-content" class="text-xs text-gray-600 truncate"></p>
+                    </div>
+                    <button id="cancel-reply" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Messages -->
+            <div class="flex-1 overflow-y-auto p-4 bg-gray-50" id="messages-container">
+                {% for message in messages %}
+                <div class="message-item mb-3 {% if message.sender == request.user %}text-right{% endif %}" 
+                     data-message-id="{{ message.id }}">
+                    
+                    <!-- Reply Indicator -->
+                    {% if message.reply_to %}
+                    <div class="reply-indicator mb-1 {% if message.sender == request.user %}text-right{% else %}text-left{% endif %}">
+                        <div class="inline-block bg-white rounded-lg border-l-4 border-primary-500 px-3 py-1 max-w-xs">
+                            <p class="text-xs text-gray-500 font-medium">
+                                <i class="fas fa-reply mr-1"></i>
+                                {{ message.reply_to.sender.get_full_name }}
+                            </p>
+                            <p class="text-xs text-gray-600 truncate">
+                                {{ message.reply_to.get_decrypted_content|truncatewords:8 }}
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="flex {% if message.sender == request.user %}justify-end{% else %}justify-start{% endif %}">
+                        <div class="max-w-xs md:max-w-md lg:max-w-lg rounded-lg p-3 relative
+                                  {% if message.sender == request.user %}bg-primary-600 text-white{% else %}bg-white text-gray-800 shadow{% endif %}">
+                            
+                            <!-- Property Image if exists -->
+                            {% if message.property_image %}
+                            <div class="mb-2 rounded-lg overflow-hidden">
+                                <img src="{{ message.property_image.url }}" 
+                                     alt="Property image" 
+                                     class="w-full h-32 object-cover cursor-pointer"
+                                     onclick="openImageModal('{{ message.property_image.url }}')">
+                            </div>
+                            {% endif %}
+                            
+                            <p class="text-sm">{{ message.decrypted_content }}</p>
+                            <p class="text-xs mt-1 {% if message.sender == request.user %}text-primary-200{% else %}text-gray-500{% endif %}">
+                                {{ message.created_at|time }}
+                                {% if message.read and message.sender == request.user %}
+                                <i class="fas fa-check-double ml-1"></i>
+                                {% elif message.sender == request.user %}
+                                <i class="fas fa-check ml-1"></i>
+                                {% endif %}
+                            </p>
+                            
+                            <!-- Reply Button -->
+                            <button class="reply-btn absolute -bottom-2 right-2 bg-white text-gray-400 rounded-full p-1 shadow-md hover:text-primary-600 opacity-0 transition-opacity"
+                                    data-message-id="{{ message.id }}"
+                                    data-message-content="{{ message.decrypted_content }}"
+                                    data-sender-name="{{ message.sender.get_full_name }}">
+                                <i class="fas fa-reply text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-comments text-3xl mb-2"></i>
+                    <p>No messages yet. Start the conversation!</p>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Message Input -->
+            <div class="p-4 border-t border-gray-light bg-white">
+                <form method="post" id="message-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="reply_to" id="reply-to-input">
+                    <div class="flex items-center">
+                        <button type="button" class="p-2 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <input type="text" name="content" placeholder="Type your message..." 
+                               class="flex-1 mx-2 px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
+                               required id="message-input">
+                        <button type="submit" class="bg-primary-600 text-white p-3 rounded-full hover:bg-primary-700 transition">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Display messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                        {% if message.tags == 'error' %}
+                            <div class="mt-2 text-red-600 text-sm">{{ message }}</div>
+                        {% elif message.tags == 'success' %}
+                            <div class="mt-2 text-green-600 text-sm">{{ message }}</div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Same JavaScript as previous template -->
+<script>
+    // Auto scroll to bottom of messages
+    const messagesContainer = document.getElementById('messages-container');
+    if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+    
+    // Reply functionality
+    let replyingTo = null;
+    
+    document.querySelectorAll('.reply-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const messageId = this.dataset.messageId;
+            const messageContent = this.dataset.messageContent;
+            const senderName = this.dataset.senderName;
+            
+            replyingTo = messageId;
+            document.getElementById('reply-to-input').value = messageId;
+            
+            const replyPreview = document.getElementById('reply-preview');
+            const replyContent = document.getElementById('reply-preview-content');
+            replyContent.textContent = messageContent;
+            replyPreview.classList.remove('hidden');
+            
+            document.getElementById('message-input').focus();
+        });
+    });
+    
+    document.getElementById('cancel-reply')?.addEventListener('click', function() {
+        replyingTo = null;
+        document.getElementById('reply-to-input').value = '';
+        document.getElementById('reply-preview').classList.add('hidden');
+    });
+    
+    // Handle form submission
+    document.getElementById('message-form').addEventListener('submit', function() {
+        if (replyingTo) {
+            setTimeout(() => {
+                replyingTo = null;
+                document.getElementById('reply-to-input').value = '';
+                document.getElementById('reply-preview').classList.add('hidden');
+            }, 100);
+        }
+    });
+</script>
+{% endblock %}

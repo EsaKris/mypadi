@@ -1,0 +1,65 @@
+{% extends "seekers/seekers_base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-primary-800">Your Saved Properties</h2>
+        <div class="text-sm text-gray-500">
+            {{ saved_properties.count }} properties saved
+        </div>
+    </div>
+    
+    {% if saved_properties %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for saved in saved_properties %}
+        <div class="property-card bg-white rounded-lg shadow overflow-hidden transition duration-300">
+            <div class="relative">
+                <img src="{{ saved.property.images.first.image.url }}" alt="{{ saved.property.title }}" class="w-full h-48 object-cover">
+                <div class="absolute top-2 right-2">
+                    <button class="save-btn p-2 bg-white rounded-full shadow hover:bg-gray-100">
+                        <i class="fas fa-heart text-red-500"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="p-4">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-bold text-lg mb-1">{{ saved.property.title }}</h3>
+                        <p class="text-gray-500 mb-2">
+                            <i class="fas fa-map-marker-alt mr-1"></i> {{ saved.property.location }}
+                        </p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold text-primary-600">₦{{ saved.property.price|floatformat:"0" }}</p>
+                        <p class="text-xs text-gray-500">{{ saved.property.get_rental_period_display }}</p>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-light">
+                    <div class="flex space-x-2">
+                        <span class="amenity-chip flex items-center text-sm text-gray-600">
+                            <i class="fas fa-bed mr-1"></i> {{ saved.property.bedrooms }}
+                        </span>
+                        <span class="amenity-chip flex items-center text-sm text-gray-600">
+                            <i class="fas fa-bath mr-1"></i> {{ saved.property.bathrooms }}
+                        </span>
+                    </div>
+                    <a href="{% url 'seekers:property_detail' saved.property.slug %}" class="text-primary-600 hover:text-primary-800 text-sm font-medium">
+                        View Details <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white rounded-lg shadow p-8 text-center">
+        <i class="fas fa-heart text-4xl text-gray-300 mb-4"></i>
+        <h3 class="text-xl font-medium text-gray-700 mb-2">No saved properties yet</h3>
+        <p class="text-gray-500 mb-4">When you save properties, they'll appear here for easy access.</p>
+        <a href="{% url 'seekers:marketplace' %}" class="inline-block px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition">
+            Browse Properties
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

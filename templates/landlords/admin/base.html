@@ -1,0 +1,1075 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Padi Assist Admin Dashboard">
+    <title>{% block title %}Padi Assist - Admin Dashboard{% endblock %}</title>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+    
+    <!-- Tailwind CSS with Just-in-Time -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                        montserrat: ['Montserrat', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#f6faf3',
+                            100: '#e9f5e3',
+                            200: '#d3eac8',
+                            300: '#afd89d',
+                            400: '#82bd69',
+                            500: '#569340',
+                            600: '#4a8437',
+                            700: '#376b24',
+                            800: '#2d5520',
+                            900: '#25461c',
+                        },
+                        dark: {
+                            800: '#1a1c23',
+                            900: '#12141a',
+                        },
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.3s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(10px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        :root {
+            --sidebar-width: 280px;
+            --header-height: 64px;
+            --mobile-nav-height: 64px;
+        }
+        
+        html, body {
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #f8fafc;
+        }
+        
+        .dark body {
+            background-color: #0f172a;
+        }
+        
+        /* Layout */
+        .admin-container {
+            min-height: calc(100vh - var(--header-height) - var(--mobile-nav-height));
+        }
+        
+        /* Sidebar styles */
+        .admin-sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, #2A4A1D 0%, #1E3A14 100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 4px 0 12px rgba(0, 0, 0, 0.05);
+            z-index: 40;
+        }
+        
+        .dark .admin-sidebar {
+            background: linear-gradient(180deg, #1a2e12 0%, #12240d 100%);
+        }
+        
+        .admin-nav-item {
+            transition: all 0.2s ease;
+            border-radius: 6px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .admin-nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: white;
+        }
+        
+        .admin-nav-item.active {
+            background-color: rgba(86, 147, 64, 0.2);
+            border-left: 4px solid #569340;
+            color: white;
+        }
+        
+        /* Main content area */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: calc(100vh - var(--header-height));
+        }
+        
+        /* Card styles */
+        .admin-card {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .dark .admin-card {
+            background: #1e293b;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        
+        .admin-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Table styles */
+        .admin-table th {
+            background-color: #f9fafb;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            color: #6b7280;
+        }
+        
+        .dark .admin-table th {
+            background-color: #1e293b;
+            color: #94a3b8;
+        }
+        
+        .admin-table tr:not(:last-child) {
+            border-bottom: 1px solid #f1f5f9;
+        }
+        
+        .dark .admin-table tr:not(:last-child) {
+            border-bottom: 1px solid #334155;
+        }
+        
+        /* Form styles */
+        .form-input {
+            transition: all 0.2s ease;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+        }
+        
+        .dark .form-input {
+            background: #1e293b;
+            border-color: #334155;
+            color: white;
+        }
+        
+        .form-input:focus {
+            border-color: #569340;
+            box-shadow: 0 0 0 3px rgba(86, 147, 64, 0.2);
+        }
+        
+        /* Button styles */
+        .btn {
+            transition: all 0.2s ease;
+            border-radius: 8px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-primary {
+            background-color: #569340;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #4a8437;
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            color: #374151;
+        }
+        
+        .dark .btn-secondary {
+            background-color: #1e293b;
+            border-color: #334155;
+            color: #e2e8f0;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        
+        .dark ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+        
+        /* Animation classes */
+        .animate-fade-in {
+            animation: fadeIn 0.2s ease-out forwards;
+        }
+        
+        .animate-slide-up {
+            animation: slideUp 0.2s ease-out forwards;
+        }
+        
+        /* Loading spinner */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Mobile bottom nav */
+        .mobile-bottom-nav {
+            height: var(--mobile-nav-height);
+        }
+        
+        /* Optimize images */
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        /* Print styles */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            
+            .admin-card {
+                box-shadow: none !important;
+                border: 1px solid #e2e8f0 !important;
+            }
+        }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gray-50 dark:bg-slate-900 text-gray-800 dark:text-gray-200 antialiased">
+    <div class="flex h-full overflow-hidden">
+        <!-- Desktop Sidebar -->
+        <aside class="admin-sidebar hidden md:flex flex-col w-[var(--sidebar-width)] text-white flex-shrink-0 no-print">
+            <!-- Logo -->
+            <div class="flex items-center justify-center h-16 px-4 border-b border-primary-700">
+                <a href="{% url 'landlords_admin:dashboard' %}" class="flex items-center">
+                    <img src="{% static 'img/logo-white.png' %}" alt="Padi Assist" class="h-8 mr-2" loading="lazy">
+                    <span class="text-lg font-bold">Padi Assist</span>
+                </a>
+            </div>
+            
+            <!-- User Profile -->
+            <div class="flex items-center p-4 border-b border-primary-700">
+                <div class="relative">
+                    <img src="{% if request.user.profile_picture %}{{ request.user.profile_picture.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}" 
+                        alt="Admin" class="w-10 h-10 rounded-full object-cover border-2 border-white" loading="lazy">
+                    <div class="absolute bottom-0 right-0 w-3 h-3 {% if request.user.is_superuser %}bg-purple-500{% else %}bg-green-500{% endif %} rounded-full border-2 border-white"></div>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium truncate max-w-[160px]">{{ request.user.get_full_name }}</p>
+                    <p class="text-xs text-primary-200 truncate max-w-[160px]">
+                        {% if request.user.is_superuser %}
+                        Super Admin
+                        {% else %}
+                        Administrator
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Main Navigation -->
+            <nav class="flex-1 overflow-y-auto py-4">
+                <div class="space-y-1 px-2">
+                    <a href="{% url 'landlords_admin:dashboard' %}" 
+                       class="admin-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                        <i class="fas fa-tachometer-alt text-primary-300 mr-3 w-5 text-center"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    
+                    <!-- Property Management -->
+                    <div x-data="{ open: {% if 'property' in request.resolver_match.url_name %}true{% else %}false{% endif %} }">
+                        <button @click="open = !open" class="admin-nav-item flex items-center justify-between w-full px-4 py-3 text-sm font-medium rounded-md {% if 'property' in request.resolver_match.url_name %}active{% endif %}">
+                            <span class="flex items-center">
+                                <i class="fas fa-home text-primary-300 mr-3 w-5 text-center"></i>
+                                <span>Property Management</span>
+                            </span>
+                            <i class="fas fa-chevron-down text-xs text-primary-300 transition-transform transform" :class="{'rotate-180': open}"></i>
+                        </button>
+                        <div x-show="open" class="pl-4 mt-1 space-y-1">
+                            <a href="{% url 'landlords_admin:property_approvals' %}" 
+                               class="admin-nav-item flex items-center px-4 py-2 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'property_approvals' %}active{% endif %}">
+                                <i class="fas fa-check-circle text-primary-300 mr-3 text-xs w-5 text-center"></i>
+                                <span>Approvals</span>
+                                {% if pending_properties %}
+                                <span class="ml-auto bg-primary-500 text-white px-2 py-0.5 rounded-full text-xs font-medium animate-pulse-slow">
+                                    {{ pending_properties }}
+                                </span>
+                                {% endif %}
+                            </a>
+                            <a href="{}" 
+                               class="admin-nav-item flex items-center px-4 py-2 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'property_list' %}active{% endif %}">
+                                <i class="fas fa-list text-primary-300 mr-3 text-xs w-5 text-center"></i>
+                                <span>All Properties</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Landlord Management -->
+                    <div x-data="{ open: {% if 'landlord' in request.resolver_match.url_name %}true{% else %}false{% endif %} }">
+                        <button @click="open = !open" class="admin-nav-item flex items-center justify-between w-full px-4 py-3 text-sm font-medium rounded-md {% if 'landlord' in request.resolver_match.url_name %}active{% endif %}">
+                            <span class="flex items-center">
+                                <i class="fas fa-user-shield text-primary-300 mr-3 w-5 text-center"></i>
+                                <span>Landlord Management</span>
+                            </span>
+                            <i class="fas fa-chevron-down text-xs text-primary-300 transition-transform transform" :class="{'rotate-180': open}"></i>
+                        </button>
+                        <div x-show="open" class="pl-4 mt-1 space-y-1">
+                            <a href="{% url 'landlords_admin:landlord_verifications' %}" 
+                               class="admin-nav-item flex items-center px-4 py-2 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'landlord_verifications' %}active{% endif %}">
+                                <i class="fas fa-user-check text-primary-300 mr-3 text-xs w-5 text-center"></i>
+                                <span>Verifications</span>
+                                {% if pending_landlords %}
+                                <span class="ml-auto bg-primary-500 text-white px-2 py-0.5 rounded-full text-xs font-medium animate-pulse-slow">
+                                    {{ pending_landlords }}
+                                </span>
+                                {% endif %}
+                            </a>
+                            <a href="{% url 'landlords_admin:document_verifications' %}" 
+                               class="admin-nav-item flex items-center px-4 py-2 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'document_verifications' %}active{% endif %}">
+                                <i class="fas fa-file-alt text-primary-300 mr-3 text-xs w-5 text-center"></i>
+                                <span>Documents</span>
+                                {% if pending_documents %}
+                                <span class="ml-auto bg-primary-500 text-white px-2 py-0.5 rounded-full text-xs font-medium animate-pulse-slow">
+                                    {{ pending_documents }}
+                                </span>
+                                {% endif %}
+                            </a>
+                            <a href="{% url 'landlords_admin:landlord_list' %}" 
+                               class="admin-nav-item flex items-center px-4 py-2 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'landlord_list' %}active{% endif %}">
+                                <i class="fas fa-users text-primary-300 mr-3 text-xs w-5 text-center"></i>
+                                <span>All Landlords</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Seeker Management -->
+                    <div x-data="{ open: {% if 'seeker' in request.resolver_match.url_name %}true{% else %}false{% endif %} }">
+                        <button @click="open = !open" class="admin-nav-item flex items-center justify-between w-full px-4 py-3 text-sm font-medium rounded-md {% if 'seeker' in request.resolver_match.url_name %}active{% endif %}">
+                            <span class="flex items-center">
+                                <i class="fas fa-user-tag text-primary-300 mr-3 w-5 text-center"></i>
+                                <span>Seeker Management</span>
+                            </span>
+                            <i class="fas fa-chevron-down text-xs text-primary-300 transition-transform transform" :class="{'rotate-180': open}"></i>
+                        </button>
+                        <div x-show="open" class="pl-4 mt-1 space-y-1">
+                            <a href="{% url 'landlords_admin:seeker_list' %}" 
+                               class="admin-nav-item flex items-center px-4 py-2 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'seeker_list' %}active{% endif %}">
+                                <i class="fas fa-list text-primary-300 mr-3 text-xs w-5 text-center"></i>
+                                <span>All Seekers</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Admin Management (Super Admin Only) -->
+                    {% if request.user.is_superuser %}
+                    <div x-data="{ open: {% if 'admin' in request.resolver_match.url_name %}true{% else %}false{% endif %} }">
+                        <button @click="open = !open" class="admin-nav-item flex items-center justify-between w-full px-4 py-3 text-sm font-medium rounded-md {% if 'admin' in request.resolver_match.url_name %}active{% endif %}">
+                            <span class="flex items-center">
+                                <i class="fas fa-user-cog text-purple-300 mr-3 w-5 text-center"></i>
+                                <span>Admin Management</span>
+                            </span>
+                            <i class="fas fa-chevron-down text-xs text-primary-300 transition-transform transform" :class="{'rotate-180': open}"></i>
+                        </button>
+                        <div x-show="open" class="pl-4 mt-1 space-y-1">
+                            <a href="{% url 'landlords_admin:admin_list' %}" 
+                               class="admin-nav-item flex items-center px-4 py-2 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'admin_list' %}active{% endif %}">
+                                <i class="fas fa-list text-purple-300 mr-3 text-xs w-5 text-center"></i>
+                                <span>All Admins</span>
+                            </a>
+                            <a href="{% url 'landlords_admin:create_admin' %}" 
+                               class="admin-nav-item flex items-center px-4 py-2 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'create_admin' %}active{% endif %}">
+                                <i class="fas fa-plus text-purple-300 mr-3 text-xs w-5 text-center"></i>
+                                <span>Create Admin</span>
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Reports -->
+                    <a href="{% url 'landlords_admin:combined_analytics' %}" 
+                       class="admin-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'reports' %}active{% endif %}">
+                        <i class="fas fa-chart-line text-primary-300 mr-3 w-5 text-center"></i>
+                        <span>Reports & Analytics</span>
+                    </a>
+                </div>
+                
+                <!-- Secondary Navigation -->
+                <div class="border-t border-primary-700 mt-4 pt-4 px-2">
+                    <a href="{% url 'landlords_admin:admin_profile' %}" 
+                       class="admin-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'admin_profile' %}active{% endif %}">
+                        <i class="fas fa-user-circle text-primary-300 mr-3 w-5 text-center"></i>
+                        <span>Profile</span>
+                    </a>
+                    
+                    <a href="{% url 'landlords_admin:admin_settings' %}" 
+                       class="admin-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'admin_settings' %}active{% endif %}">
+                        <i class="fas fa-cog text-primary-300 mr-3 w-5 text-center"></i>
+                        <span>Settings</span>
+                    </a>
+                    
+                    <a href="{% url 'landing:home' %}" 
+                       class="admin-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
+                        <i class="fas fa-arrow-left text-primary-300 mr-3 w-5 text-center"></i>
+                        <span>Back to Portal</span>
+                    </a>
+                    
+                    <form action="{% url 'landlords_admin:logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center">
+                            <i class="fas fa-sign-out-alt mr-2 text-red-500 w-4 text-center"></i>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </div>
+            </nav>
+            
+            <!-- Version Info -->
+            <div class="p-4 text-xs text-primary-300 border-t border-primary-700">
+                <p>Padi Assist v1.0</p>
+                <p class="mt-1">{% now "F j, Y" %}</p>
+            </div>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <div class="flex-1 overflow-auto flex flex-col">
+            <!-- Top Navigation -->
+            <header class="bg-white dark:bg-slate-800 sticky top-0 z-30 border-b border-gray-200 dark:border-slate-700 shadow-sm no-print">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <!-- Mobile menu button -->
+                    <button class="mobile-admin-menu-button md:hidden text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    
+                    <!-- Breadcrumbs -->
+                    <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                        <a href="{% url 'landlords_admin:dashboard' %}" class="hover:text-primary-600 dark:hover:text-primary-400">Dashboard</a>
+                        {% block breadcrumbs %}
+                        {% if request.resolver_match.url_name != 'dashboard' %}
+                        <span class="mx-2 text-gray-400">/</span>
+                        <span class="text-primary-600 dark:text-primary-400 capitalize">
+                            {% if request.resolver_match.url_name == 'property_approvals' %}Property Approvals
+                            {% elif request.resolver_match.url_name == 'property_list' %}All Properties
+                            {% elif request.resolver_match.url_name == 'landlord_verifications' %}Landlord Verifications
+                            {% elif request.resolver_match.url_name == 'document_verifications' %}Document Verifications
+                            {% elif request.resolver_match.url_name == 'landlord_list' %}All Landlords
+                            {% elif request.resolver_match.url_name == 'seeker_list' %}All Seekers
+                            {% elif request.resolver_match.url_name == 'admin_list' %}Admin Management
+                            {% elif request.resolver_match.url_name == 'create_admin' %}Create Admin
+                            {% elif request.resolver_match.url_name == 'admin_profile' %}Profile
+                            {% elif request.resolver_match.url_name == 'admin_settings' %}Settings
+                            {% elif request.resolver_match.url_name == 'reports' %}Reports
+                            {% else %}{{ request.resolver_match.url_name|title }}
+                            {% endif %}
+                        </span>
+                        {% endif %}
+                        {% endblock %}
+                    </div>
+                    
+                    <!-- Admin Controls -->
+                    <div class="flex items-center space-x-4">
+                        <!-- Theme Toggle -->
+                        <button id="theme-toggle" class="p-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400" aria-label="Toggle dark mode">
+                            <i class="fas fa-moon dark:hidden"></i>
+                            <i class="fas fa-sun hidden dark:block"></i>
+                        </button>
+                        
+                        <!-- Notifications -->
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" class="p-2 text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 relative" aria-label="Notifications">
+                                <i class="fas fa-bell text-xl"></i>
+                                <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                            </button>
+                            
+                            <div x-show="open" @click.away="open = false" 
+                                 class="absolute right-0 mt-2 w-72 md:w-80 bg-white dark:bg-slate-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-slate-700 animate-fade-in">
+                                <div class="px-4 py-2 border-b border-gray-200 dark:border-slate-700">
+                                    <h3 class="text-sm font-medium text-gray-800 dark:text-white">Notifications</h3>
+                                </div>
+                                <div class="max-h-60 overflow-y-auto">
+                                    {% for notification in notifications|slice:":5" %}
+                                    <a href="{{ notification.link }}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700">
+                                        <p class="font-medium">{{ notification.title }}</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ notification.message }}</p>
+                                        <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">{{ notification.timestamp|timesince }} ago</p>
+                                    </a>
+                                    {% empty %}
+                                    <div class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
+                                        No new notifications
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <div class="border-t border-gray-200 dark:border-slate-700 px-4 py-2">
+                                    <a href="{% url 'landlords_admin:notifications' %}" class="text-xs text-primary-600 dark:text-primary-400 hover:underline">View all notifications</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- User Dropdown -->
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" id="admin-menu-button" class="flex items-center space-x-2 focus:outline-none group" aria-label="User menu">
+                                <div class="avatar w-9 h-9 flex items-center justify-center bg-primary-600 text-white rounded-full overflow-hidden">
+                                    {% if request.user.profile_picture %}
+                                        <img src="{{ request.user.profile_picture.url }}" alt="{{ request.user.get_full_name }}" class="w-full h-full object-cover" loading="lazy">
+                                    {% else %}
+                                        {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+                                    {% endif %}
+                                </div>
+                                <span class="hidden md:inline text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-primary-600 dark:group-hover:text-primary-400">
+                                    {{ request.user.first_name }}
+                                </span>
+                                <i class="fas fa-chevron-down hidden md:inline text-gray-400 text-xs group-hover:text-primary-600 dark:group-hover:text-primary-400"></i>
+                            </button>
+                            
+                            <div x-show="open" @click.away="open = false" 
+                                 class="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-md shadow-lg py-1 z-50 border border-gray-200 dark:border-slate-700 animate-fade-in">
+                                <a href="{% url 'landlords_admin:admin_profile' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center">
+                                    <i class="fas fa-user-circle mr-2 text-primary-500 w-4 text-center"></i>
+                                    <span>Profile</span>
+                                </a>
+                                <a href="{% url 'landlords_admin:admin_settings' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center">
+                                    <i class="fas fa-cog mr-2 text-primary-500 w-4 text-center"></i>
+                                    <span>Settings</span>
+                                </a>
+                                {% if request.user.is_superuser %}
+                                <div class="border-t border-gray-200 dark:border-slate-700 my-1"></div>
+                                <a href="{% url 'landlords_admin:admin_list' %}" class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center">
+                                    <i class="fas fa-user-cog mr-2 text-purple-500 w-4 text-center"></i>
+                                    <span>Admin Management</span>
+                                </a>
+                                {% endif %}
+                                <div class="border-t border-gray-200 dark:border-slate-700 my-1"></div>
+                                <form action="{% url 'landlords_admin:logout' %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center">
+                                        <i class="fas fa-sign-out-alt mr-2 text-red-500 w-4 text-center"></i>
+                                        <span>Logout</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Main Content -->
+            <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50 dark:bg-slate-900 admin-container">
+                <!-- Page Header -->
+                <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
+                            {% block admin_heading %}Admin Dashboard{% endblock %}
+                        </h1>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            {% block admin_subheading %}Overview and quick actions{% endblock %}
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        {% block admin_actions %}
+                        <button class="btn btn-primary px-4 py-2 text-sm">
+                            <i class="fas fa-plus mr-1"></i> New
+                        </button>
+                        <button class="btn btn-secondary px-4 py-2 text-sm">
+                            <i class="fas fa-download mr-1"></i> Export
+                        </button>
+                        {% endblock %}
+                    </div>
+                </div>
+                
+                <!-- Messages/Alerts -->
+                {% if messages %}
+                <div class="mb-6 space-y-3">
+                    {% for message in messages %}
+                    <div class="p-4 rounded-md flex items-start {% if message.tags == 'success' %}bg-green-50 text-green-800 dark:bg-green-900 dark:text-green-200{% elif message.tags == 'error' %}bg-red-50 text-red-800 dark:bg-red-900 dark:text-red-200{% else %}bg-blue-50 text-blue-800 dark:bg-blue-900 dark:text-blue-200{% endif %}">
+                        <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %} mr-3 mt-0.5"></i>
+                        <div>
+                            <p class="font-medium">{{ message }}</p>
+                            {% if message.extra_tags %}
+                            <p class="text-sm mt-1 opacity-80">{{ message.extra_tags }}</p>
+                            {% endif %}
+                        </div>
+                        <button class="ml-auto text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 message-close">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <!-- Loading Indicator (hidden by default) -->
+                <div id="loading-indicator" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-xl flex flex-col items-center">
+                        <div class="loading-spinner border-4 border-primary-500 border-t-transparent rounded-full w-12 h-12 mb-4"></div>
+                        <p class="text-gray-800 dark:text-white">Loading, please wait...</p>
+                    </div>
+                </div>
+                
+                <!-- Content -->
+                {% block admin_content %}
+                <!-- Sample Dashboard Content -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <!-- Stats Cards -->
+                    <div class="admin-card p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pending Properties</p>
+                                <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ pending_properties|default:"0" }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{% if pending_properties %}Require review{% else %}All caught up{% endif %}</p>
+                            </div>
+                            <div class="bg-primary-100 dark:bg-primary-900 p-3 rounded-full">
+                                <i class="fas fa-home text-primary-600 dark:text-primary-400 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="admin-card p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pending Landlords</p>
+                                <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ pending_landlords|default:"0" }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{% if pending_landlords %}Need verification{% else %}All verified{% endif %}</p>
+                            </div>
+                            <div class="bg-primary-100 dark:bg-primary-900 p-3 rounded-full">
+                                <i class="fas fa-user-shield text-primary-600 dark:text-primary-400 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="admin-card p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pending Documents</p>
+                                <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">{{ pending_documents|default:"0" }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{% if pending_documents %}Need verification{% else %}All reviewed{% endif %}</p>
+                            </div>
+                            <div class="bg-primary-100 dark:bg-primary-900 p-3 rounded-full">
+                                <i class="fas fa-file-alt text-primary-600 dark:text-primary-400 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="admin-card p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Properties</p>
+                                <p class="text-2xl font-bold text-gray-800 dark:text-white mt-1">1,248</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">+12% from last month</p>
+                            </div>
+                            <div class="bg-primary-100 dark:bg-primary-900 p-3 rounded-full">
+                                <i class="fas fa-chart-line text-primary-600 dark:text-primary-400 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="admin-card p-6 lg:col-span-2">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-lg font-semibold text-gray-800 dark:text-white">Recent Activity</h2>
+                            <a href="#" class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-500">View All</a>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            {% for i in "12345"|make_list %}
+                            <div class="flex items-start">
+                                <div class="avatar w-10 h-10 flex-shrink-0 bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-400 rounded-full flex items-center justify-center mr-3">
+                                    <i class="fas fa-user-circle text-lg"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-gray-800 dark:text-gray-200">New property submitted</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">3-bedroom apartment in Lekki by John Doe</p>
+                                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">2 hours ago</p>
+                                </div>
+                                <span class="bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 px-2 py-1 rounded-full text-xs font-medium ml-2">Pending</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="admin-card p-6">
+                        <h2 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Quick Actions</h2>
+                        
+                        <div class="space-y-3">
+                            <a href="{% url 'landlords_admin:property_approvals' %}" class="flex items-center p-3 border border-gray-200 dark:border-slate-700 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
+                                <div class="bg-primary-100 dark:bg-primary-900 p-2 rounded-md mr-3">
+                                    <i class="fas fa-check-circle text-primary-600 dark:text-primary-400"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800 dark:text-gray-200">Review Properties</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ pending_properties|default:"0" }} pending approval</p>
+                                </div>
+                            </a>
+                            
+                            <a href="{% url 'landlords_admin:landlord_verifications' %}" class="flex items-center p-3 border border-gray-200 dark:border-slate-700 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
+                                <div class="bg-primary-100 dark:bg-primary-900 p-2 rounded-md mr-3">
+                                    <i class="fas fa-user-check text-primary-600 dark:text-primary-400"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800 dark:text-gray-200">Verify Landlords</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ pending_landlords|default:"0" }} pending verification</p>
+                                </div>
+                            </a>
+                            
+                            <a href="{% url 'landlords_admin:document_verifications' %}" class="flex items-center p-3 border border-gray-200 dark:border-slate-700 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
+                                <div class="bg-primary-100 dark:bg-primary-900 p-2 rounded-md mr-3">
+                                    <i class="fas fa-file-signature text-primary-600 dark:text-primary-400"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800 dark:text-gray-200">Review Documents</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ pending_documents|default:"0" }} pending review</p>
+                                </div>
+                            </a>
+                            
+                            {% if request.user.is_superuser %}
+                            <a href="{% url 'landlords_admin:create_admin' %}" class="flex items-center p-3 border border-gray-200 dark:border-slate-700 rounded-md hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
+                                <div class="bg-purple-100 dark:bg-purple-900 p-2 rounded-md mr-3">
+                                    <i class="fas fa-user-plus text-purple-600 dark:text-purple-400"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800 dark:text-gray-200">Add New Admin</p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Create new admin account</p>
+                                </div>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endblock %}
+            </main>
+        </div>
+    </div>
+    
+    <!-- Mobile Sidebar (Hidden by default) -->
+    <div class="mobile-admin-menu hidden fixed inset-0 z-50 no-print" x-data="{ open: false }">
+        <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" @click="open = false" aria-hidden="true"></div>
+        <div class="relative flex flex-col w-80 max-w-xs h-full bg-gradient-to-b from-green-800 to-green-900 text-white mobile-admin-menu-content">
+            <button @click="open = false" class="mobile-admin-menu-close absolute top-3 right-3 p-2 text-green-300 hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+            
+            <div class="flex items-center justify-center h-16 px-4 border-b border-green-700">
+                <img src="{% static 'img/logo-white.png' %}" alt="Padi Assist" class="h-8" loading="lazy">
+            </div>
+            
+            <div class="flex items-center p-4 border-b border-green-700">
+                <div class="relative">
+                    <img src="{% if request.user.profile_picture %}{{ request.user.profile_picture.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}" 
+                        alt="Admin" class="w-10 h-10 rounded-full object-cover border-2 border-white" loading="lazy">
+                    <div class="absolute bottom-0 right-0 w-3 h-3 {% if request.user.is_superuser %}bg-purple-500{% else %}bg-green-500{% endif %} rounded-full border-2 border-white"></div>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium">{{ request.user.get_full_name }}</p>
+                    <p class="text-xs text-green-300">
+                        {% if request.user.is_superuser %}
+                        Super Admin
+                        {% else %}
+                        Administrator
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            
+            <nav class="flex-1 overflow-y-auto py-4 px-2">
+                <!-- Mobile navigation links -->
+                <a href="{% url 'landlords_admin:dashboard' %}" class="admin-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
+                    <i class="fas fa-tachometer-alt text-green-300 mr-3 w-5 text-center"></i>
+                    <span>Dashboard</span>
+                </a>
+                
+                <!-- Property Management Mobile -->
+                <div class="mb-2" x-data="{ open: false }">
+                    <button @click="open = !open" class="admin-nav-item flex items-center justify-between w-full px-4 py-3 text-sm font-medium rounded-md">
+                        <span class="flex items-center">
+                            <i class="fas fa-home text-green-300 mr-3 w-5 text-center"></i>
+                            <span>Property Management</span>
+                        </span>
+                        <i class="fas fa-chevron-down text-xs transition-transform" :class="{'transform rotate-180': open}"></i>
+                    </button>
+                    <div class="pl-2 mt-1 space-y-1" x-show="open" x-collapse>
+                        <a href="{% url 'landlords_admin:property_approvals' %}" class="admin-nav-item flex items-center px-4 py-2 text-sm font-medium rounded-md">
+                            <i class="fas fa-check-circle text-green-300 mr-3 text-xs w-5 text-center"></i>
+                            <span>Approvals</span>
+                            {% if pending_properties %}
+                            <span class="ml-auto bg-green-500 text-white px-2 py-0.5 rounded-full text-xs font-medium animate-pulse-slow">
+                                {{ pending_properties }}
+                            </span>
+                            {% endif %}
+                        </a>
+                        <a href="" class="admin-nav-item flex items-center px-4 py-2 text-sm font-medium rounded-md">
+                            <i class="fas fa-list text-green-300 mr-3 text-xs w-5 text-center"></i>
+                            <span>All Properties</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Landlord Management Mobile -->
+                <div class="mb-2" x-data="{ open: false }">
+                    <button @click="open = !open" class="admin-nav-item flex items-center justify-between w-full px-4 py-3 text-sm font-medium rounded-md">
+                        <span class="flex items-center">
+                            <i class="fas fa-user-shield text-green-300 mr-3 w-5 text-center"></i>
+                            <span>Landlord Management</span>
+                        </span>
+                        <i class="fas fa-chevron-down text-xs transition-transform" :class="{'transform rotate-180': open}"></i>
+                    </button>
+                    <div class="pl-2 mt-1 space-y-1" x-show="open" x-collapse>
+                        <a href="{% url 'landlords_admin:landlord_verifications' %}" class="admin-nav-item flex items-center px-4 py-2 text-sm font-medium rounded-md">
+                            <i class="fas fa-user-check text-green-300 mr-3 text-xs w-5 text-center"></i>
+                            <span>Verifications</span>
+                            {% if pending_landlords %}
+                            <span class="ml-auto bg-green-500 text-white px-2 py-0.5 rounded-full text-xs font-medium animate-pulse-slow">
+                                {{ pending_landlords }}
+                            </span>
+                            {% endif %}
+                        </a>
+                        <a href="{% url 'landlords_admin:document_verifications' %}" class="admin-nav-item flex items-center px-4 py-2 text-sm font-medium rounded-md">
+                            <i class="fas fa-file-alt text-green-300 mr-3 text-xs w-5 text-center"></i>
+                            <span>Documents</span>
+                            {% if pending_documents %}
+                            <span class="ml-auto bg-green-500 text-white px-2 py-0.5 rounded-full text-xs font-medium animate-pulse-slow">
+                                {{ pending_documents }}
+                            </span>
+                            {% endif %}
+                        </a>
+                        <a href="{% url 'landlords_admin:landlord_list' %}" class="admin-nav-item flex items-center px-4 py-2 text-sm font-medium rounded-md">
+                            <i class="fas fa-users text-green-300 mr-3 text-xs w-5 text-center"></i>
+                            <span>All Landlords</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Seeker Management Mobile -->
+                <div class="mb-2" x-data="{ open: false }">
+                    <button @click="open = !open" class="admin-nav-item flex items-center justify-between w-full px-4 py-3 text-sm font-medium rounded-md">
+                        <span class="flex items-center">
+                            <i class="fas fa-user-tag text-green-300 mr-3 w-5 text-center"></i>
+                            <span>Seeker Management</span>
+                        </span>
+                        <i class="fas fa-chevron-down text-xs transition-transform" :class="{'transform rotate-180': open}"></i>
+                    </button>
+                    <div class="pl-2 mt-1 space-y-1" x-show="open" x-collapse>
+                        <a href="{% url 'landlords_admin:seeker_list' %}" class="admin-nav-item flex items-center px-4 py-2 text-sm font-medium rounded-md">
+                            <i class="fas fa-list text-green-300 mr-3 text-xs w-5 text-center"></i>
+                            <span>All Seekers</span>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Admin Management Mobile (Super Admin Only) -->
+                {% if request.user.is_superuser %}
+                <div class="mb-2" x-data="{ open: false }">
+                    <button @click="open = !open" class="admin-nav-item flex items-center justify-between w-full px-4 py-3 text-sm font-medium rounded-md">
+                        <span class="flex items-center">
+                            <i class="fas fa-user-cog text-purple-300 mr-3 w-5 text-center"></i>
+                            <span>Admin Management</span>
+                        </span>
+                        <i class="fas fa-chevron-down text-xs transition-transform" :class="{'transform rotate-180': open}"></i>
+                    </button>
+                    <div class="pl-2 mt-1 space-y-1" x-show="open" x-collapse>
+                        <a href="{% url 'landlords_admin:admin_list' %}" class="admin-nav-item flex items-center px-4 py-2 text-sm font-medium rounded-md">
+                            <i class="fas fa-list text-purple-300 mr-3 text-xs w-5 text-center"></i>
+                            <span>All Admins</span>
+                        </a>
+                        <a href="{% url 'landlords_admin:create_admin' %}" class="admin-nav-item flex items-center px-4 py-2 text-sm font-medium rounded-md">
+                            <i class="fas fa-plus text-purple-300 mr-3 text-xs w-5 text-center"></i>
+                            <span>Create Admin</span>
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="border-t border-green-700 mt-4 pt-4">
+                    <a href="{% url 'landlords_admin:admin_profile' %}" class="admin-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
+                        <i class="fas fa-user-circle text-green-300 mr-3 w-5 text-center"></i>
+                        <span>Profile</span>
+                    </a>
+                    
+                    <a href="{% url 'landlords_admin:admin_settings' %}" class="admin-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
+                        <i class="fas fa-cog text-green-300 mr-3 w-5 text-center"></i>
+                        <span>Settings</span>
+                    </a>
+                    
+                    <form action="{% url 'landlords_admin:logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center">
+                            <i class="fas fa-sign-out-alt mr-2 text-red-500 w-4 text-center"></i>
+                            <span>Logout</span>
+                        </button>
+                    </form>                
+                </div>
+            </nav>
+        </div>
+    </div>
+    
+    <!-- Mobile Bottom Navigation -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 z-40 no-print">
+        <div class="flex justify-around items-center h-16 mobile-bottom-nav">
+            <a href="{% url 'landlords_admin:dashboard' %}" class="flex flex-col items-center justify-center text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">
+                <i class="fas fa-tachometer-alt text-xl mb-1"></i>
+                <span class="text-xs">Dashboard</span>
+            </a>
+            <a href="{% url 'landlords_admin:property_approvals' %}" class="flex flex-col items-center justify-center text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">
+                <i class="fas fa-home text-xl mb-1"></i>
+                <span class="text-xs">Properties</span>
+            </a>
+            <a href="{% url 'landlords_admin:landlord_verifications' %}" class="flex flex-col items-center justify-center text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">
+                <i class="fas fa-user-shield text-xl mb-1"></i>
+                <span class="text-xs">Landlords</span>
+            </a>
+            <a href="{% url 'landlords_admin:seeker_list' %}" class="flex flex-col items-center justify-center text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">
+                <i class="fas fa-user-tag text-xl mb-1"></i>
+                <span class="text-xs">Seekers</span>
+            </a>
+            <button class="mobile-admin-menu-button flex flex-col items-center justify-center text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">
+                <i class="fas fa-bars text-xl mb-1"></i>
+                <span class="text-xs">Menu</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Toggle mobile sidebar
+            const mobileMenuButton = document.querySelector('.mobile-admin-menu-button');
+            const mobileMenu = document.querySelector('.mobile-admin-menu');
+            
+            if (mobileMenuButton && mobileMenu) {
+                mobileMenuButton.addEventListener('click', function() {
+                    mobileMenu.classList.remove('hidden');
+                    document.body.classList.add('overflow-hidden');
+                });
+            }
+            
+            // Theme toggle
+            const themeToggle = document.getElementById('theme-toggle');
+            if (themeToggle) {
+                // Check for saved theme preference or use OS preference
+                if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
+                    localStorage.theme = 'dark';
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.theme = 'light';
+                }
+                
+                // Toggle theme on button click
+                themeToggle.addEventListener('click', function() {
+                    if (localStorage.theme === 'dark') {
+                        document.documentElement.classList.remove('dark');
+                        localStorage.theme = 'light';
+                    } else {
+                        document.documentElement.classList.add('dark');
+                        localStorage.theme = 'dark';
+                    }
+                });
+            }
+            
+            // Close message alerts
+            const messageCloseButtons = document.querySelectorAll('.message-close');
+            messageCloseButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    this.closest('.alert').style.opacity = '0';
+                    setTimeout(() => {
+                        this.closest('.alert').remove();
+                    }, 300);
+                });
+            });
+            
+            // Show loading indicator during page transitions
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('a') && !e.target.closest('a').href.includes('#')) {
+                    const loadingIndicator = document.getElementById('loading-indicator');
+                    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
+                }
+            });
+            
+            // Hide loading indicator when page finishes loading
+            window.addEventListener('load', function() {
+                const loadingIndicator = document.getElementById('loading-indicator');
+                if (loadingIndicator) loadingIndicator.classList.add('hidden');
+            });
+            
+            // Error handling for images
+            document.querySelectorAll('img').forEach(img => {
+                img.addEventListener('error', function() {
+                    this.src = '{% static "img/default-image.png" %}';
+                    this.alt = 'Image not available';
+                });
+            });
+        });
+        
+        // Service worker registration for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('{% static "js/sw.js" %}').then(registration => {
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }).catch(err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

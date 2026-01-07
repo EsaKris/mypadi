@@ -1,0 +1,226 @@
+{% extends "seekers/seekers_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 bg-cream">
+    <div class="max-w-4xl mx-auto">
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Edit Profile</h1>
+            <p class="text-gray-600">Update your personal information and preferences</p>
+        </div>
+        
+        <form method="post" enctype="multipart/form-data" class="bg-white rounded-xl shadow-md overflow-hidden p-6">
+            {% csrf_token %}
+            
+            <!-- Profile Picture Section -->
+            <div class="flex flex-col md:flex-row items-center gap-8 mb-8">
+                <div class="relative">
+                    <img id="profile-picture-preview" 
+                         src="{% if form.profile_picture.value %}{{ form.profile_picture.value.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}" 
+                         alt="Profile Picture" 
+                         class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg">
+                    <label for="id_profile_picture" class="absolute bottom-0 right-0 bg-primary-600 text-white p-2 rounded-full hover:bg-primary-800 transition cursor-pointer shadow-md">
+                        <i class="fas fa-camera"></i>
+                    </label>
+                    <input type="file" name="profile_picture" id="id_profile_picture" class="hidden" accept="image/*">
+                </div>
+                <div class="flex-1">
+                    <p class="text-sm text-gray-500 mb-2">Click the camera icon to change your profile picture</p>
+                    <p class="text-xs text-gray-400">Recommended size: 500x500 pixels. JPG, PNG format.</p>
+                </div>
+            </div>
+            
+            <!-- Personal Information Section -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Personal Information</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label for="id_first_name" class="block text-sm font-medium text-gray-700 mb-2">First Name*</label>
+                        <input type="text" id="id_first_name" name="first_name" value="{{ form.first_name.value|default:'' }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition">
+                        {% if form.first_name.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.first_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="id_last_name" class="block text-sm font-medium text-gray-700 mb-2">Last Name*</label>
+                        <input type="text" id="id_last_name" name="last_name" value="{{ form.last_name.value|default:'' }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition">
+                        {% if form.last_name.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.last_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="id_email" class="block text-sm font-medium text-gray-700 mb-2">Email*</label>
+                        <input type="email" id="id_email" name="email" value="{{ form.email.value|default:'' }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition">
+                        {% if form.email.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="id_phone_number" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                        <input type="tel" id="id_phone_number" name="phone_number" value="{{ form.phone_number.value|default:'' }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition"
+                               placeholder="+234 800 000 0000">
+                        {% if form.phone_number.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.phone_number.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div>
+                        <label for="id_date_of_birth" class="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                        <input type="date" id="id_date_of_birth" name="date_of_birth" value="{{ form.date_of_birth.value|date:'Y-m-d'|default:'' }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition">
+                        {% if form.date_of_birth.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.date_of_birth.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="id_gender" class="block text-sm font-medium text-gray-700 mb-2">Gender</label>
+                        <select id="id_gender" name="gender"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition">
+                            <option value="">Select Gender</option>
+                            {% for value, label in form.fields.gender.choices %}
+                                <option value="{{ value }}" {% if form.gender.value == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if form.gender.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.gender.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="id_employment_status" class="block text-sm font-medium text-gray-700 mb-2">Employment Status</label>
+                        <select id="id_employment_status" name="employment_status"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition">
+                            <option value="">Select Status</option>
+                            {% for value, label in form.fields.employment_status.choices %}
+                                <option value="{{ value }}" {% if form.employment_status.value == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if form.employment_status.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.employment_status.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label for="id_bio" class="block text-sm font-medium text-gray-700 mb-2">About Me</label>
+                    <textarea id="id_bio" name="bio" rows="4"
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition"
+                              placeholder="Tell us about yourself...">{{ form.bio.value|default:'' }}</textarea>
+                    {% if form.bio.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.bio.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="id_current_address" class="block text-sm font-medium text-gray-700 mb-2">Current Address</label>
+                    <textarea id="id_current_address" name="current_address" rows="3"
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition"
+                              placeholder="Your current residential address">{{ form.current_address.value|default:'' }}</textarea>
+                    {% if form.current_address.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.current_address.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Housing Preferences Section -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Housing Preferences</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div>
+                        <label for="id_min_budget" class="block text-sm font-medium text-gray-700 mb-2">Minimum Budget (₦)</label>
+                        <input type="number" id="id_min_budget" name="min_budget" value="{{ form.min_budget.value|default:'' }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition"
+                               placeholder="0">
+                        {% if form.min_budget.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.min_budget.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="id_max_budget" class="block text-sm font-medium text-gray-700 mb-2">Maximum Budget (₦)</label>
+                        <input type="number" id="id_max_budget" name="max_budget" value="{{ form.max_budget.value|default:'' }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition"
+                               placeholder="0">
+                        {% if form.max_budget.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.max_budget.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="id_preferred_property_type" class="block text-sm font-medium text-gray-700 mb-2">Property Type</label>
+                        <select id="id_preferred_property_type" name="preferred_property_type"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition">
+                            <option value="">Select Type</option>
+                            {% for value, label in form.fields.preferred_property_type.choices %}
+                                <option value="{{ value }}" {% if form.preferred_property_type.value == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        {% if form.preferred_property_type.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.preferred_property_type.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="id_preferred_locations" class="block text-sm font-medium text-gray-700 mb-2">Preferred Locations</label>
+                    <textarea id="id_preferred_locations" name="preferred_locations" rows="2"
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-primary-600 transition"
+                              placeholder="Enter preferred neighborhoods or areas, separated by commas">{{ form.preferred_locations.value|default:'' }}</textarea>
+                    {% if form.preferred_locations.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.preferred_locations.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-gray-200">
+                <a href="{% url 'seekers:profile' %}" 
+                   class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-light transition text-center">
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-800 transition font-medium">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Profile picture preview
+    document.getElementById('id_profile_picture').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('profile-picture-preview').src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Format phone number input
+    document.getElementById('id_phone_number').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 3 && value.length <= 6) {
+            value = value.replace(/(\d{3})(\d{1,3})/, '$1 $2');
+        } else if (value.length > 6) {
+            value = value.replace(/(\d{3})(\d{3})(\d{1,})/, '$1 $2 $3');
+        }
+        e.target.value = value;
+    });
+</script>
+{% endblock %}

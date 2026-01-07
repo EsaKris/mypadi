@@ -1,0 +1,585 @@
+{% extends "landlords/landlord_base.html" %}
+{% load static humanize %}
+{% block title %}My Properties{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+    <!-- Header with stats and action buttons -->
+    <div class="mb-6 sm:mb-8">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 sm:mb-6 gap-3 sm:gap-4">
+            <div>
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Property Portfolio</h1>
+                    <span class="px-2 sm:px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-xs sm:text-sm font-medium">
+                        {{ properties|length }} properties
+                    </span>
+                </div>
+                <p class="text-gray-600 mt-1 text-sm sm:text-base">Manage your rental properties and tenants</p>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                <a href="{% url 'landlords:property_create' %}" 
+                   class="inline-flex items-center px-4 sm:px-5 py-2 sm:py-2.5 bg-primary-600 hover:bg-primary-700 border border-transparent rounded-lg text-xs sm:text-sm font-medium text-white shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    <i class="fas fa-plus-circle mr-1 sm:mr-2"></i> Add Property
+                </a>
+                <button class="inline-flex items-center px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg bg-white text-xs sm:text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-all">
+                    <i class="fas fa-sliders-h mr-1 sm:mr-2"></i> Filters
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Cards - Mobile Stacked -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 mb-4 sm:mb-6">
+            <div class="bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl p-4 sm:p-5 border border-primary-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs sm:text-sm font-medium text-primary-800">Total Properties</p>
+                        <h3 class="text-xl sm:text-2xl font-bold text-primary-900 mt-1">{{ properties|length }}</h3>
+                    </div>
+                    <div class="p-2 sm:p-3 rounded-lg bg-white/50 text-primary-600">
+                        <i class="fas fa-home text-lg sm:text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-primary-200/50">
+                    <p class="text-xs text-primary-700 flex items-center">
+                        <span class="w-2 h-2 bg-primary-500 rounded-full mr-2"></span>
+                        {{ active_listings }} active listings
+                    </p>
+                </div>
+            </div>
+            
+            <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 sm:p-5 border border-green-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs sm:text-sm font-medium text-green-800">Occupied Units</p>
+                        <h3 class="text-xl sm:text-2xl font-bold text-green-900 mt-1">{{ occupied_count }}</h3>
+                    </div>
+                    <div class="p-2 sm:p-3 rounded-lg bg-white/50 text-green-600">
+                        <i class="fas fa-check-circle text-lg sm:text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-green-200/50">
+                    <p class="text-xs text-green-700 flex items-center">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                        {{ occupancy_rate }}% occupancy rate
+                    </p>
+                </div>
+            </div>
+            
+            <div class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-4 sm:p-5 border border-amber-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs sm:text-sm font-medium text-amber-800">Vacant Units</p>
+                        <h3 class="text-xl sm:text-2xl font-bold text-amber-900 mt-1">{{ vacant_count }}</h3>
+                    </div>
+                    <div class="p-2 sm:p-3 rounded-lg bg-white/50 text-amber-600">
+                        <i class="fas fa-bed text-lg sm:text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-amber-200/50">
+                    <p class="text-xs text-amber-700 flex items-center">
+                        <span class="w-2 h-2 bg-amber-500 rounded-full mr-2"></span>
+                        {{ maintenance_requests }} maintenance requests
+                    </p>
+                </div>
+            </div>
+            
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 sm:p-5 border border-blue-100">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs sm:text-sm font-medium text-blue-800">Total Views</p>
+                        <h3 class="text-xl sm:text-2xl font-bold text-blue-900 mt-1">{{ total_views|intcomma }}</h3>
+                    </div>
+                    <div class="p-2 sm:p-3 rounded-lg bg-white/50 text-blue-600">
+                        <i class="fas fa-eye text-lg sm:text-xl"></i>
+                    </div>
+                </div>
+                <div class="mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-blue-200/50">
+                    <p class="text-xs text-blue-700 flex items-center">
+                        <span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                        {{ inquiries }} inquiries this month
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Filters and Search - Mobile Optimized -->
+    <div class="bg-white rounded-xl shadow-xs p-3 sm:p-4 border border-gray-100 mb-4 sm:mb-6">
+        <div class="flex flex-col gap-3 sm:gap-4">
+            <div class="relative w-full">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400 text-sm"></i>
+                </div>
+                <input type="text" id="property-search" placeholder="Search properties..." 
+                       class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-3">
+                <div class="relative w-full">
+                    <select id="filter-status" class="appearance-none block w-full pl-3 pr-8 py-2 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                        <option value="all">All Statuses</option>
+                        <option value="occupied">Occupied</option>
+                        <option value="vacant">Vacant</option>
+                        <option value="maintenance">Maintenance</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                        <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                    </div>
+                </div>
+                
+                <div class="relative w-full">
+                    <select id="sort-by" class="appearance-none block w-full pl-3 pr-8 py-2 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="price-high">Price (High-Low)</option>
+                        <option value="price-low">Price (Low-High)</option>
+                        <option value="views">Most Viewed</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                        <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                    </div>
+                </div>
+                
+                <button class="p-2 sm:p-2.5 rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-600 flex items-center justify-center">
+                    <i class="fas fa-redo text-sm"></i>
+                    <span class="sr-only">Reset</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Advanced Filters (Collapsible) -->
+        <div class="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100 hidden" id="advanced-filters">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Property Type</label>
+                    <select class="block w-full pl-3 pr-8 py-2 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                        <option>All Types</option>
+                        <option>Apartment</option>
+                        <option>House</option>
+                        <option>Condo</option>
+                        <option>Townhouse</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Bedrooms</label>
+                    <select class="block w-full pl-3 pr-8 py-2 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                        <option>Any</option>
+                        <option>1+</option>
+                        <option>2+</option>
+                        <option>3+</option>
+                        <option>4+</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Price Range</label>
+                    <div class="flex items-center gap-2">
+                        <input type="number" placeholder="Min" class="w-full pl-3 pr-2 py-2 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                        <span class="text-gray-400 text-sm">to</span>
+                        <input type="number" placeholder="Max" class="w-full pl-3 pr-2 py-2 border border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm">
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3 sm:mt-4 flex justify-end gap-2 sm:gap-3">
+                <button class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-gray-700 hover:text-gray-900">
+                    Reset
+                </button>
+                <button class="px-3 sm:px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-xs sm:text-sm font-medium rounded-lg">
+                    Apply Filters
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Property Grid with List/Grid Toggle -->
+    <div class="mb-3 sm:mb-4 flex justify-between items-center">
+        <h2 class="text-base sm:text-lg font-semibold text-gray-800">Your Properties</h2>
+        <div class="flex items-center gap-1 sm:gap-2">
+            <span class="text-xs sm:text-sm text-gray-500 hidden sm:inline">View:</span>
+            <button class="p-1.5 sm:p-2 rounded-lg bg-gray-100 text-primary-600" id="grid-view" aria-label="Grid view">
+                <i class="fas fa-th-large text-sm sm:text-base"></i>
+            </button>
+            <button class="p-1.5 sm:p-2 rounded-lg text-gray-500 hover:bg-gray-100" id="list-view" aria-label="List view">
+                <i class="fas fa-list text-sm sm:text-base"></i>
+            </button>
+        </div>
+    </div>
+
+    {% if properties %}
+    <!-- Grid View (Default) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6" id="properties-grid">
+        {% for property in properties %}
+        <div class="property-card bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100">
+            <div class="relative">
+                {% if property.primary_image %}
+                <img src="{{ property.primary_image.image.url }}" 
+                     alt="{{ property.name }}" 
+                     class="w-full h-48 sm:h-60 md:h-72 object-cover transition-transform duration-500 hover:scale-105">
+                {% else %}
+                <div class="w-full h-48 sm:h-60 md:h-72 bg-gray-100 flex items-center justify-center">
+                    <i class="fas fa-home text-3xl text-gray-400"></i>
+                </div>
+                {% endif %}
+                <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-end p-3 sm:p-4">
+                    <a href="{% url 'landlords:property_detail' property.pk %}" class="quick-view-btn bg-white text-primary-800 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full flex items-center ml-auto text-xs sm:text-sm">
+                        <i class="fas fa-expand mr-1 sm:mr-2 text-xs"></i> Quick View
+                    </a>
+                </div>
+                <div class="absolute top-3 sm:top-4 left-3 sm:left-4 flex flex-col gap-1 sm:gap-2">
+                    {% if property.is_verified %}
+                    <span class="verified-badge bg-primary-600 text-white px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs flex items-center">
+                        <i class="fas fa-check-circle mr-1 text-xs"></i> Verified
+                    </span>
+                    {% endif %}
+                    {% if property.is_featured %}
+                    <span class="featured-badge bg-white text-primary-800 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs flex items-center shadow-sm">
+                        <i class="fas fa-star mr-1 text-yellow-400 text-xs"></i> Featured
+                    </span>
+                    {% endif %}
+                </div>
+                <div class="absolute bottom-3 sm:bottom-4 right-3 sm:right-4 bg-white/90 text-primary-800 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs flex items-center shadow-sm">
+                    <i class="fas fa-eye mr-1 text-xs"></i> {{ property.views|intcomma }}
+                </div>
+            </div>
+            <div class="p-3 sm:p-4 md:p-5">
+                <div class="flex justify-between items-start mb-2 sm:mb-3">
+                    <h3 class="text-lg sm:text-xl font-bold text-primary-800 truncate">
+                        <i class="fas fa-home text-primary-600 mr-1 sm:mr-2 text-sm"></i>{{ property.name }}
+                    </h3>
+                    <button class="save-btn text-gray-400 hover:text-primary-600 transition">
+                        <i class="far fa-heart text-lg sm:text-xl"></i>
+                    </button>
+                </div>
+                <div class="flex items-center text-gray-600 mb-3 text-xs sm:text-sm">
+                    <i class="fas fa-map-marker-alt text-primary-400 mr-1 sm:mr-2 text-xs"></i>
+                    <span class="truncate">{{ property.address|truncatechars:30 }}</span>
+                </div>
+                <div class="flex flex-wrap gap-1 sm:gap-2 mb-3 sm:mb-4">
+                    {% for amenity in property.amenities.all|slice:3 %}
+                    <span class="amenity-chip bg-primary-50 text-primary-800 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs">
+                        <i class="{{ amenity.icon }} mr-1 text-xs"></i>{{ amenity.name|truncatechars:10 }}
+                    </span>
+                    {% endfor %}
+                    {% if property.amenities.count > 3 %}
+                    <span class="amenity-chip bg-primary-50 text-primary-800 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs">
+                        +{{ property.amenities.count|add:"-3" }} more
+                    </span>
+                    {% endif %}
+                </div>
+                <div class="flex justify-between items-center border-t border-gray-100 pt-3 sm:pt-4">
+                    <div>
+                        <p class="text-xs text-gray-500">
+                            <i class="fas fa-calendar-alt mr-1 text-xs"></i>{{ property.get_price_period_display }} Rent
+                        </p>
+                        <p class="text-lg sm:text-xl font-bold text-primary-800">₦{{ property.price|intcomma }}</p>
+                    </div>
+                    <div class="flex gap-1 sm:gap-2">
+                        <button class="message-btn bg-primary-100 text-primary-800 p-1.5 sm:p-2 rounded-full hover:bg-primary-200 transition">
+                            <i class="fas fa-comment-dots text-sm"></i>
+                        </button>
+                        <a href="{% url 'landlords:property_detail' property.pk %}" class="cta-btn bg-primary-800 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-full hover:bg-primary-700 transition text-xs sm:text-sm">
+                            <i class="fas fa-external-link-alt mr-1 text-xs"></i>View
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- List View (Hidden by default) -->
+    <div class="hidden" id="properties-list">
+        <div class="bg-white rounded-xl shadow-xs border border-gray-100 overflow-hidden">
+            <div class="hidden sm:grid sm:grid-cols-12 bg-gray-50 p-4 border-b border-gray-100">
+                <div class="sm:col-span-3 font-medium text-sm text-gray-500">PROPERTY</div>
+                <div class="sm:col-span-2 font-medium text-sm text-gray-500">STATUS</div>
+                <div class="sm:col-span-2 font-medium text-sm text-gray-500">TENANTS</div>
+                <div class="sm:col-span-2 font-medium text-sm text-gray-500">PRICE</div>
+                <div class="sm:col-span-3 font-medium text-sm text-gray-500 text-right">ACTIONS</div>
+            </div>
+            
+            {% for property in properties %}
+            <div class="grid grid-cols-1 sm:grid-cols-12 p-3 sm:p-4 border-b border-gray-100 hover:bg-gray-50/50 transition">
+                <div class="col-span-1 sm:col-span-3 flex items-center gap-2 sm:gap-3 mb-2 sm:mb-0">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg overflow-hidden bg-gray-100">
+                        {% if property.primary_image %}
+                        <img src="{{ property.primary_image.image.url }}" alt="{{ property.name }}" class="w-full h-full object-cover">
+                        {% else %}
+                        <div class="w-full h-full flex items-center justify-center text-gray-400">
+                            <i class="fas fa-home text-sm"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-gray-900 text-sm sm:text-base">{{ property.name }}</h4>
+                        <p class="text-xs text-gray-500 truncate">{{ property.address|truncatechars:25 }}</p>
+                    </div>
+                </div>
+                
+                <div class="col-span-1 sm:col-span-2 flex items-center mb-2 sm:mb-0">
+                    <span class="px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium 
+                        {% if property.is_occupied %}bg-green-100 text-green-800
+                        {% else %}bg-amber-100 text-amber-800{% endif %}">
+                        {% if property.is_occupied %}Occupied{% else %}Vacant{% endif %}
+                    </span>
+                </div>
+                
+                <div class="col-span-1 sm:col-span-2 flex items-center mb-2 sm:mb-0">
+                    <div class="flex items-center">
+                        <span class="text-xs sm:text-sm text-gray-500 sm:hidden mr-2">Tenants:</span>
+                        <div class="flex -space-x-1 sm:-space-x-2">
+                            {% for tenant in property.tenants.all|slice:":3" %}
+                            <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gray-200 border-2 border-white flex items-center justify-center text-xs font-medium text-gray-700">
+                                {{ tenant.user.first_name|first }}{{ tenant.user.last_name|first }}
+                            </div>
+                            {% endfor %}
+                            {% if property.tenants.count > 3 %}
+                            <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gray-100 border-2 border-white flex items-center justify-center text-xs font-medium text-gray-500">
+                                +{{ property.tenants.count|add:"-3" }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-span-1 sm:col-span-2 flex items-center mb-3 sm:mb-0">
+                    <div>
+                        <span class="text-xs sm:text-sm text-gray-500 sm:hidden">Price:</span>
+                        <span class="font-medium text-gray-900 text-sm sm:text-base">₦{{ property.price|intcomma }}</span>
+                        <span class="text-xs text-gray-500 ml-1">/{{ property.get_price_period_display }}</span>
+                    </div>
+                </div>
+                
+                <div class="col-span-1 sm:col-span-3 flex items-center justify-end gap-1 sm:gap-2">
+                    <a href="{% url 'landlords:property_detail' property.pk %}" 
+                       class="p-1.5 sm:p-2 text-gray-500 hover:text-primary-600 rounded-lg hover:bg-gray-100"
+                       aria-label="View property">
+                        <i class="fas fa-eye text-sm"></i>
+                    </a>
+                    <a href="{% url 'landlords:property_edit' property.pk %}" 
+                       class="p-1.5 sm:p-2 text-gray-500 hover:text-blue-600 rounded-lg hover:bg-gray-100"
+                       aria-label="Edit property">
+                        <i class="fas fa-pencil-alt text-sm"></i>
+                    </a>
+                    <div class="dropdown relative">
+                        <button class="p-1.5 sm:p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100"
+                                aria-label="More options">
+                            <i class="fas fa-ellipsis-h text-sm"></i>
+                        </button>
+                        <div class="dropdown-menu absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden">
+                            <a href="#" class="block px-4 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-file-invoice-dollar mr-2 text-xs"></i> Payments
+                            </a>
+                            <a href="#" class="block px-4 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-tools mr-2 text-xs"></i> Maintenance
+                            </a>
+                            <a href="#" class="block px-4 py-2 text-xs sm:text-sm text-red-600 hover:bg-gray-100">
+                                <i class="fas fa-trash-alt mr-2 text-xs"></i> Delete
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 p-6 sm:p-8 md:p-12 text-center">
+        <div class="mx-auto max-w-md">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-primary-50 mb-3 sm:mb-4">
+                <i class="fas fa-home text-xl sm:text-2xl text-primary-600"></i>
+            </div>
+            <h3 class="text-base sm:text-lg font-medium text-gray-900">No properties in your portfolio</h3>
+            <p class="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-500">Get started by adding your first property to manage tenants, collect rent, and more.</p>
+            <div class="mt-4 sm:mt-6">
+                <a href="{% url 'landlords:property_create' %}" 
+                   class="inline-flex items-center px-4 py-2 sm:px-5 sm:py-2.5 bg-primary-600 hover:bg-primary-700 border border-transparent rounded-lg text-xs sm:text-sm font-medium text-white shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    <i class="fas fa-plus-circle mr-1 sm:mr-2"></i> Add Your First Property
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Pagination - Mobile Optimized -->
+    {% if is_paginated %}
+    <div class="mt-6 sm:mt-8 flex items-center justify-between border-t border-gray-200 pt-5 sm:pt-6">
+        <div class="flex-1 flex justify-between sm:hidden">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Previous
+            </a>
+            {% endif %}
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="ml-2 relative inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Next
+            </a>
+            {% endif %}
+        </div>
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+                <p class="text-xs sm:text-sm text-gray-700">
+                    Showing <span class="font-medium">{{ page_obj.start_index }}</span> to <span class="font-medium">{{ page_obj.end_index }}</span> of <span class="font-medium">{{ page_obj.paginator.count }}</span> properties
+                </p>
+            </div>
+            <div>
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-xs sm:text-sm text-gray-500 hover:bg-gray-50">
+                        <span class="sr-only">Previous</span>
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <a href="?page={{ num }}" class="relative inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 border border-primary-500 bg-primary-50 text-xs sm:text-sm font-medium text-primary-600">
+                        {{ num }}
+                    </a>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?page={{ num }}" class="relative inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-300 bg-white text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        {{ num }}
+                    </a>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-xs sm:text-sm text-gray-500 hover:bg-gray-50">
+                        <span class="sr-only">Next</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .property-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .property-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+    .dropdown:hover .dropdown-menu {
+        display: block;
+    }
+    [data-tooltip] {
+        position: relative;
+    }
+    [data-tooltip]:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #333;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        white-space: nowrap;
+        margin-bottom: 0.5rem;
+    }
+    @media (max-width: 640px) {
+        .amenity-chip {
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle between grid and list view
+    const gridViewBtn = document.getElementById('grid-view');
+    const listViewBtn = document.getElementById('list-view');
+    const propertiesGrid = document.getElementById('properties-grid');
+    const propertiesList = document.getElementById('properties-list');
+    
+    gridViewBtn.addEventListener('click', function() {
+        propertiesGrid.classList.remove('hidden');
+        propertiesList.classList.add('hidden');
+        gridViewBtn.classList.add('bg-gray-100', 'text-primary-600');
+        listViewBtn.classList.remove('bg-gray-100', 'text-primary-600');
+    });
+    
+    listViewBtn.addEventListener('click', function() {
+        propertiesGrid.classList.add('hidden');
+        propertiesList.classList.remove('hidden');
+        gridViewBtn.classList.remove('bg-gray-100', 'text-primary-600');
+        listViewBtn.classList.add('bg-gray-100', 'text-primary-600');
+    });
+    
+    // Toggle advanced filters
+    const filtersBtn = document.querySelector('button[aria-controls="advanced-filters"]');
+    if (filtersBtn) {
+        filtersBtn.addEventListener('click', function() {
+            document.getElementById('advanced-filters').classList.toggle('hidden');
+            this.setAttribute('aria-expanded', 
+                document.getElementById('advanced-filters').classList.contains('hidden') ? 'false' : 'true');
+        });
+    }
+    
+    // Simple search functionality
+    const searchInput = document.getElementById('property-search');
+    const propertyCards = document.querySelectorAll('.property-card');
+    
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        
+        propertyCards.forEach(card => {
+            const propertyName = card.querySelector('h3, h4').textContent.toLowerCase();
+            const propertyAddress = card.querySelector('[data-address]') ? 
+                card.querySelector('[data-address]').textContent.toLowerCase() : '';
+            
+            if (propertyName.includes(searchTerm) || propertyAddress.includes(searchTerm)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+    
+    // Filter by status
+    const statusFilter = document.getElementById('filter-status');
+    statusFilter.addEventListener('change', function() {
+        const status = this.value;
+        
+        propertyCards.forEach(card => {
+            const cardStatus = card.querySelector('.status-badge') ? 
+                card.querySelector('.status-badge').textContent.toLowerCase() : '';
+            
+            if (status === 'all' || cardStatus.includes(status)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+    
+    // Dropdown menu functionality for mobile
+    document.querySelectorAll('.dropdown').forEach(dropdown => {
+        const button = dropdown.querySelector('button');
+        const menu = dropdown.querySelector('.dropdown-menu');
+        
+        button.addEventListener('click', function(e) {
+            e.stopPropagation();
+            menu.classList.toggle('hidden');
+        });
+    });
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function() {
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+            menu.classList.add('hidden');
+        });
+    });
+});
+</script>
+{% endblock %}

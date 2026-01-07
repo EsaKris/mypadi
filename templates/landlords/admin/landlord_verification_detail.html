@@ -1,0 +1,153 @@
+{% extends "landlords/admin/base.html" %}
+
+{% block admin_heading %}Landlord Verification{% endblock %}
+{% block admin_subheading %}Review and verify landlord account{% endblock %}
+
+{% block admin_actions %}
+<div class="flex space-x-2">
+    <a href="{% url 'landlords_admin:landlord_verifications' %}" class="btn btn-secondary px-4 py-2 text-sm">
+        <i class="fas fa-arrow-left mr-2"></i> Back to List
+    </a>
+</div>
+{% endblock %}
+
+{% block admin_content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Landlord Information -->
+    <div class="admin-card lg:col-span-2 p-6">
+        <div class="flex items-start justify-between mb-6">
+            <div class="flex items-center">
+                <div class="relative mr-4">
+                    {% if landlord.user.profile_picture %}
+                    <img class="h-16 w-16 rounded-full object-cover border-2 border-white shadow" src="{{ landlord.user.profile_picture.url }}" alt="{{ landlord.user.get_full_name }}" loading="lazy">
+                    {% else %}
+                    <div class="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center border-2 border-white shadow">
+                        <i class="fas fa-user text-gray-400 text-2xl"></i>
+                    </div>
+                    {% endif %}
+                    <div class="absolute bottom-0 right-0 w-4 h-4 {% if landlord.is_verified %}bg-green-500{% else %}bg-yellow-500{% endif %} rounded-full border-2 border-white"></div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800 dark:text-white">{{ landlord.user.get_full_name }}</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ landlord.user.email }}</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        Joined {{ landlord.user.date_joined|date:"M d, Y" }}
+                    </p>
+                </div>
+            </div>
+            <div class="text-right">
+                <span class="px-3 py-1 rounded-full text-xs font-medium {% if landlord.is_verified %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200{% else %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200{% endif %}">
+                    {% if landlord.is_verified %}Verified{% else %}Pending Verification{% endif %}
+                </span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="bg-gray-50 dark:bg-slate-800 p-4 rounded-lg">
+                <p class="text-sm text-gray-500 dark:text-gray-400">Company</p>
+                <p class="font-medium text-gray-800 dark:text-white">{{ landlord.company_name|default:"-" }}</p>
+            </div>
+            <div class="bg-gray-50 dark:bg-slate-800 p-4 rounded-lg">
+                <p class="text-sm text-gray-500 dark:text-gray-400">Phone</p>
+                <p class="font-medium text-gray-800 dark:text-white">{{ landlord.phone_number|default:"-" }}</p>
+            </div>
+            <div class="bg-gray-50 dark:bg-slate-800 p-4 rounded-lg">
+                <p class="text-sm text-gray-500 dark:text-gray-400">ID Type</p>
+                <p class="font-medium text-gray-800 dark:text-white">{{ landlord.get_id_type_display|default:"-" }}</p>
+            </div>
+            <div class="bg-gray-50 dark:bg-slate-800 p-4 rounded-lg">
+                <p class="text-sm text-gray-500 dark:text-gray-400">Bank Account</p>
+                <p class="font-medium text-gray-800 dark:text-white">
+                    {% if landlord.bank_account_number %}
+                    {{ landlord.bank_name }} ••••{{ landlord.bank_account_number|slice:"-4:" }}
+                    {% else %}-{% endif %}
+                </p>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <h4 class="text-md font-semibold text-gray-800 dark:text-white mb-2">About</h4>
+            <p class="text-gray-600 dark:text-gray-300">
+                {{ landlord.about|default:"No information provided" }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Verification Form -->
+    <div class="admin-card p-6">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Verification Details</h3>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Verification Status</label>
+                    {{ form.is_verified }}
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Verification Notes</label>
+                    {{ form.verification_notes }}
+                </div>
+                
+                <div class="pt-2">
+                    <button type="submit" class="btn btn-primary w-full py-2">
+                        <i class="fas fa-save mr-2"></i> Save Changes
+                    </button>
+                </div>
+            </div>
+        </form>
+        
+        <!-- Documents Section -->
+        <div class="mt-6">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-3">Submitted Documents</h3>
+            
+            {% if landlord.id_document %}
+            <div class="mb-4">
+                <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">ID Document</p>
+                <div class="flex items-center justify-between bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">
+                    <div class="flex items-center">
+                        <i class="fas fa-file-pdf text-red-500 mr-2"></i>
+                        <span class="text-sm text-gray-800 dark:text-gray-200">ID_Document_{{ landlord.user.username }}.pdf</span>
+                    </div>
+                    <a href="{{ landlord.id_document.url }}" target="_blank" class="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-500 text-sm">
+                        <i class="fas fa-download mr-1"></i> Download
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if landlord.proof_of_address %}
+            <div class="mb-4">
+                <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Proof of Address</p>
+                <div class="flex items-center justify-between bg-gray-50 dark:bg-slate-800 p-3 rounded-lg">
+                    <div class="flex items-center">
+                        <i class="fas fa-file-pdf text-red-500 mr-2"></i>
+                        <span class="text-sm text-gray-800 dark:text-gray-200">Proof_of_Address_{{ landlord.user.username }}.pdf</span>
+                    </div>
+                    <a href="{{ landlord.proof_of_address.url }}" target="_blank" class="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-500 text-sm">
+                        <i class="fas fa-download mr-1"></i> Download
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if not landlord.id_document and not landlord.proof_of_address %}
+            <div class="text-center py-4 text-gray-500 dark:text-gray-400">
+                No documents submitted
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize any custom JS for this page
+    // For example, you could add document preview functionality here
+});
+</script>
+{% endblock %}

@@ -1,0 +1,257 @@
+{% extends "landlords/landlord_base.html" %}
+{% load static %}
+{% block title %}Tenant Management{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Tenant Management</h1>
+            <p class="text-gray-600">Convert interested seekers to tenants and manage existing ones</p>
+        </div>
+        <div class="mt-4 md:mt-0 space-x-2">
+            <a href="{% url 'landlords:messages' %}" 
+               class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <i class="fas fa-envelope mr-2"></i> View Messages
+            </a>
+            <a href="{% url 'landlords:properties' %}" 
+               class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700">
+                <i class="fas fa-home mr-2"></i> Manage Properties
+            </a>
+        </div>
+    </div>
+
+    <!-- Tabs for Prospective vs Existing Tenants -->
+    <div class="mb-6 border-b border-gray-200">
+        <nav class="-mb-px flex space-x-8">
+            <a href="#prospective" 
+               class="tab-link py-4 px-1 border-b-2 border-primary-500 font-medium text-sm text-primary-600 whitespace-nowrap">
+                Prospective Tenants ({{ tenants|length }})
+            </a>
+            <a href="#existing" 
+               class="tab-link py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap">
+                Existing Tenants ({{ existing_tenants.count }})
+            </a>
+        </nav>
+    </div>
+
+    <!-- Prospective Tenants Section -->
+    <div id="prospective-section" class="tab-content">
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                        Interested Seekers
+                    </h3>
+                    <div class="relative">
+                        <select id="propertyFilter" class="appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-8 py-1 text-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                            <option value="all">All Properties</option>
+                            {% for property in properties %}
+                            <option value="{{ property.id }}">{{ property.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            {% if tenants %}
+            <ul class="divide-y divide-gray-200" id="tenantList">
+                {% for tenant_data in tenants %}
+                <li class="tenant-item" data-property-id="{{ tenant_data.property.id }}">
+                    <div class="px-4 py-4 sm:px-6 hover:bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center flex-1 min-w-0">
+                                <div class="flex-shrink-0">
+                                    <img class="h-12 w-12 rounded-full" 
+                                         src="{% if tenant_data.seeker.seeker_profile.profile_picture %}{{ tenant_data.seeker.seeker_profile.profile_picture.url }}{% else %}{% static 'img/default-avatar.png' %}{% endif %}" 
+                                         alt="{{ tenant_data.seeker.get_full_name }}">
+                                </div>
+                                <div class="ml-4 flex-1 min-w-0">
+                                    <div class="flex items-center">
+                                        <p class="text-sm font-medium text-gray-900 truncate">
+                                            {{ tenant_data.seeker.get_full_name|default:tenant_data.seeker.email }}
+                                        </p>
+                                        {% if tenant_data.is_already_tenant %}
+                                        <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            Already Tenant (This Property)
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                    <p class="text-sm text-gray-500 property-name truncate">
+                                        Interested in {{ tenant_data.property.name }}
+                                    </p>
+                                    <p class="text-sm text-gray-500">
+                                        {{ tenant_data.seeker.email }} • {{ tenant_data.seeker.phone_number|default:"No phone" }}
+                                    </p>
+                                    {% if tenant_data.recent_message %}
+                                    <div class="text-sm text-gray-600 mt-1">
+                                        <span class="font-medium">Last message:</span> 
+                                        {{ tenant_data.recent_message.get_decrypted_content|truncatewords:8 }}
+                                        <span class="text-gray-400 text-xs">({{ tenant_data.recent_message.created_at|timesince }} ago)</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="ml-4 flex items-center space-x-4 flex-shrink-0">
+                                <div class="text-right">
+                                    <p class="text-sm font-medium text-gray-900">
+                                        {{ tenant_data.message_count }} message{{ tenant_data.message_count|pluralize }}
+                                    </p>
+                                    {% if tenant_data.unread_count %}
+                                    <p class="text-xs text-red-500 font-medium">
+                                        {{ tenant_data.unread_count }} unread
+                                    </p>
+                                    {% endif %}
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <a href="{% url 'landlords:messages' %}?conversation={{ tenant_data.conversation.id }}" 
+                                       class="text-primary-600 hover:text-primary-900 p-2 rounded-full hover:bg-primary-50"
+                                       title="View Conversation">
+                                        <i class="fas fa-comments"></i>
+                                    </a>
+                                    <a href="{% url 'landlords:property_detail' tenant_data.property.pk %}" 
+                                       class="text-green-600 hover:text-green-900 p-2 rounded-full hover:bg-green-50"
+                                       title="View Property">
+                                        <i class="fas fa-home"></i>
+                                    </a>
+                                    {% if not tenant_data.is_already_tenant %}
+                                    <a href="{% url 'landlords:tenant_create' tenant_data.property.id %}?seeker_id={{ tenant_data.seeker.id }}" 
+                                       class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                                       title="Add as Tenant">
+                                        <i class="fas fa-user-plus mr-1"></i> Add
+                                    </a>
+                                    {% else %}
+                                    <span class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-gray-500 bg-gray-100 cursor-not-allowed">
+                                        Already Tenant
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="px-4 py-12 text-center">
+                <i class="fas fa-users text-4xl text-gray-400 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900">No interested seekers yet</h3>
+                <p class="mt-1 text-sm text-gray-500">Seekers who message you about your properties will appear here.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Existing Tenants Section -->
+    <div id="existing-section" class="tab-content hidden">
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    Current Tenants
+                </h3>
+            </div>
+            
+            {% if existing_tenants %}
+            <ul class="divide-y divide-gray-200">
+                {% for tenant in existing_tenants %}
+                <li class="px-4 py-4 sm:px-6 hover:bg-gray-50">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="h-12 w-12 rounded-full bg-primary-100 flex items-center justify-center">
+                                    <span class="text-primary-600 font-medium text-lg">
+                                        {{ tenant.full_name|first|upper }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">
+                                    {{ tenant.full_name }}
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    {{ tenant.property.name }} • {{ tenant.email }}
+                                </div>
+                                <div class="text-xs text-gray-400 mt-1">
+                                    Lease: {{ tenant.lease_start|date:"M d, Y" }} - {{ tenant.lease_end|date:"M d, Y" }} • 
+                                    ₦{{ tenant.rent_amount }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Active Tenant
+                            </span>
+                            <a href="#" class="text-primary-600 hover:text-primary-900 p-2 rounded-full hover:bg-primary-50">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="px-4 py-12 text-center">
+                <i class="fas fa-user-friends text-4xl text-gray-400 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900">No tenants yet</h3>
+                <p class="mt-1 text-sm text-gray-500">Add interested seekers as tenants to manage them here.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Property filter functionality
+    const propertyFilter = document.getElementById('propertyFilter');
+    const tenantItems = document.querySelectorAll('.tenant-item');
+    
+    if (propertyFilter) {
+        propertyFilter.addEventListener('change', function() {
+            const selectedPropertyId = this.value;
+            
+            tenantItems.forEach(item => {
+                if (selectedPropertyId === 'all') {
+                    item.style.display = 'flex';
+                } else {
+                    const itemPropertyId = item.getAttribute('data-property-id');
+                    if (itemPropertyId === selectedPropertyId) {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                }
+            });
+        });
+    }
+
+    // Tab functionality
+    const tabLinks = document.querySelectorAll('.tab-link');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = this.getAttribute('href').substring(1);
+            
+            // Update active tab
+            tabLinks.forEach(tab => {
+                tab.classList.remove('border-primary-500', 'text-primary-600');
+                tab.classList.add('border-transparent', 'text-gray-500');
+            });
+            this.classList.add('border-primary-500', 'text-primary-600');
+            this.classList.remove('border-transparent', 'text-gray-500');
+            
+            // Show target content
+            tabContents.forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(target + '-section').classList.remove('hidden');
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "landlords/landlord_base.html" %}
+{% load static %}
+
+{% block title %}Rental Applications{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Rental Applications</h1>
+        <p class="text-gray-600">Review and manage property applications</p>
+    </div>
+
+    <!-- Status Filter -->
+    <div class="flex space-x-2 mb-6 overflow-x-auto pb-2">
+        <a href="?status=all" 
+           class="filter-btn px-4 py-2 rounded-full text-sm font-medium {% if status_filter == 'all' %}active bg-primary-100 text-primary-800{% else %}bg-white text-gray-700 hover:bg-gray-50{% endif %}">
+            All Applications
+        </a>
+        <a href="?status=pending" 
+           class="filter-btn px-4 py-2 rounded-full text-sm font-medium {% if status_filter == 'pending' %}active bg-yellow-100 text-yellow-800{% else %}bg-white text-gray-700 hover:bg-gray-50{% endif %}">
+            Pending
+        </a>
+        <a href="?status=approved" 
+           class="filter-btn px-4 py-2 rounded-full text-sm font-medium {% if status_filter == 'approved' %}active bg-green-100 text-green-800{% else %}bg-white text-gray-700 hover:bg-gray-50{% endif %}">
+            Approved
+        </a>
+        <a href="?status=rejected" 
+           class="filter-btn px-4 py-2 rounded-full text-sm font-medium {% if status_filter == 'rejected' %}active bg-red-100 text-red-800{% else %}bg-white text-gray-700 hover:bg-gray-50{% endif %}">
+            Rejected
+        </a>
+    </div>
+
+    <!-- Application List -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        {% if applications %}
+        <ul class="divide-y divide-gray-200">
+            {% for application in applications %}
+            <li>
+                <a href="{% url 'landlords:application_detail' application.pk %}" class="block hover:bg-gray-50">
+                    <div class="px-4 py-4 sm:px-6">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <img class="h-10 w-10 rounded-full" 
+                                         src="{% static 'img/default-avatar.png' %}" 
+                                         alt="{{ application.applicant.get_full_name }}">
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-primary-600">{{ application.applicant.get_full_name }}</div>
+                                    <div class="text-sm text-gray-500">{{ application.property.name }}</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="mr-4 text-sm text-gray-500">
+                                    {{ application.application_date|date:"M d, Y" }}
+                                </div>
+                                <span class="px-2 py-1 text-xs rounded-full 
+                                    {% if application.status == 'approved' %}bg-green-100 text-green-800
+                                    {% elif application.status == 'rejected' %}bg-red-100 text-red-800
+                                    {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                    {{ application.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="px-4 py-12 text-center">
+            <i class="fas fa-file-alt text-4xl text-gray-400 mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900">No applications found</h3>
+            <p class="mt-1 text-sm text-gray-500">There are currently no applications matching your criteria.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

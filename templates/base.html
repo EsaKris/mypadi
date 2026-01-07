@@ -1,0 +1,355 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+<head>
+    <!-- Primary Meta Tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My House Padi - Find & List Verified Homes & Workspaces in Nigeria | No Agents</title>
+    <meta name="google-site-verification" content="QZ6tNBeQWZ2UXwDCV8YnXG0D7HAUk568dU5lwiy4Q1c" />
+    <meta name="description" content="Nigeria's trusted digital marketplace for homes & offices. Connect directly with verified landlords & property managers. No agent fees. Real listings. 3D tours. Secure booking.">
+    <meta name="keywords" content="Nigeria real estate, rent apartment Lagos, Abuja houses for rent, office space Nigeria, no agent property, verified landlords, digital lease agreement, property finder Nigeria">
+    <meta name='impact-site-verification' value='4a1a9e90-9900-4d2e-8a94-631ea9e04083'>
+    <!-- Geo / Location Tags -->
+    <meta name="geo.region" content="NG" />
+    <meta name="geo.placename" content="Lagos, Abuja, Port Harcourt" />
+    <meta name="geo.position" content="6.5244;3.3792" />
+    <meta name="ICBM" content="6.5244, 3.3792" />
+    
+    <!-- Open Graph / Social Media Meta -->
+    <meta property="og:title" content="My House Padi - Verified Homes & Workspaces Without Agents">
+    <meta property="og:description" content="Nigeria's trusted digital marketplace connecting property seekers directly with verified owners. No middlemen, no fake listings.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://myhousepadi.com/">
+    <meta property="og:image" content="https://myhousepadi.com/static/img/logo.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="My House Padi">
+    <meta property="og:locale" content="en_NG">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Find Your Perfect Space in Nigeria - No Agents | My House Padi">
+    <meta name="twitter:description" content="Verified apartments, offices & co-working spaces across Lagos, Abuja & Port Harcourt. Direct from owners with digital agreements.">
+    <meta name="twitter:image" content="https://myhousepadi.com/static/img/logo.png">
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'favicon/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicon/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static 'favicon/site.webmanifest' %}">
+    <link rel="mask-icon" href="{% static 'favicon/safari-pinned-tab.svg' %}" color="#569340">
+    <meta name="msapplication-TileColor" content="#569340">
+    <meta name="theme-color" content="#ffffff">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://myhousepadi.com/" />
+
+    <!-- Structured Data / Schema.org -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "RealEstateAgent",
+      "name": "My House Padi",
+      "image": "https://myhousepadi.com/static/img/logo.png",
+      "@id": "https://myhousepadi.com/",
+      "url": "https://myhousepadi.com/",
+      "telephone": "+2348000000000",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "24 House Padi Avenue",
+        "addressLocality": "Lagos",
+        "addressRegion": "NG",
+        "postalCode": "100001",
+        "addressCountry": "NG"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": "6.5244",
+        "longitude": "3.3792"
+      },
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday"
+        ],
+        "opens": "08:00",
+        "closes": "20:00"
+      },
+      "sameAs": [
+        "https://facebook.com/myhousepadi",
+        "https://twitter.com/myhousepadi",
+        "https://instagram.com/myhousepadi",
+        "https://linkedin.com/company/myhousepadi"
+      ]
+    }
+    </script>
+
+    <!-- CSS & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        montserrat: ['Montserrat', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary-800': '#376B24',
+                        'primary-600': '#569340',
+                        'primary-400': '#98CF84',
+                        'white': '#FFFFFF',
+                        'cream': '#FBF5F1',
+                        'gray-light': '#F4F2F0',
+                        'black': '#000000',
+                    },
+                    backdropBlur: {
+                        'xs': '2px',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .glass-nav {
+            background: rgba(251, 245, 241, 0.9);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .extra-black {
+            font-weight: 900;
+        }
+        .filter-btn.active {
+            box-shadow: 0 4px 6px -1px rgba(55, 107, 36, 0.2);
+        }
+        .property-card:hover {
+            transform: translateY(-5px);
+        }
+        .save-btn.active {
+            color: #EF4444;
+        }
+        .quick-view-btn {
+            transition: all 0.3s ease;
+        }
+        .quick-view-btn:hover {
+            background-color: #F3F4F6;
+        }
+        .amenity-chip i {
+            width: 14px;
+            text-align: center;
+        }
+        .search-modal {
+            transition: all 0.3s ease-out;
+        }
+        .search-icon-btn:hover {
+            transform: scale(1.1);
+        }
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background: transparent;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="font-montserrat bg-cream">
+    <!-- Sticky Glass Navbar -->
+    <nav class="fixed w-full glass-nav z-50 py-4 px-4 md:px-8">
+        <div class="container mx-auto flex items-center justify-between">
+            <!-- Logo Image -->
+            <div class="md:ml-[91px]">
+                <a href="{% url 'landing:home' %}">
+                    <img src="{% static 'img/logo.png' %}" alt="PadiHomes Logo" class="h-8 md:h-10">
+                </a>
+            </div>
+            <!-- Mobile Menu Button with Sign Up -->
+            <div class="flex items-center md:hidden">
+                <a href="{% url 'accounts:register' %}" class="bg-primary-800 text-white px-4 py-1 rounded-md mr-4">Sign Up</a>
+                <button class="text-primary-800 mobile-menu-button">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex items-center">
+                <div class="flex space-x-6 lg:space-x-12 mr-8">
+                    <a href="{% url 'landing:home' %}" class="text-primary-800 font-medium hover:text-primary-600">Home</a>
+                    <a href="{% url 'landing:property_list' %}" class="text-primary-800 font-medium hover:text-primary-600">Properties</a>
+                    <a href="#" class="text-primary-800 font-medium hover:text-primary-600">About</a>
+                    <a href="#" class="text-primary-800 font-medium hover:text-primary-600">Contact</a>
+                </div>
+                <div class="flex items-center">
+                    <i class="fas fa-user-circle text-primary-800 text-lg md:text-xl mr-2"></i>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'accounts:logout' %}" class="text-primary-800 font-medium hover:text-primary-600 mr-4 md:mr-6">Logout</a>
+                        <a href="{% url 'seekers:dashboard' %}" class="bg-primary-800 text-white px-4 py-1 md:px-6 md:py-2 rounded-md hover:bg-primary-600 transition">
+                            Dashboard
+                        </a>
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}" class="text-primary-800 font-medium hover:text-primary-600 mr-4 md:mr-6">Sign In</a>
+                        <a href="{% url 'accounts:register' %}" class="bg-primary-800 text-white px-4 py-1 md:px-6 md:py-2 rounded-md hover:bg-primary-600 transition">Sign Up</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu (hidden by default) -->
+        <div class="mobile-menu hidden md:hidden bg-cream w-full mt-4 py-4 px-4 rounded-lg shadow-lg">
+            <a href="{% url 'landing:home' %}" class="block py-2 text-primary-800 font-medium">Home</a>
+            <a href="{% url 'landing:property_list' %}" class="block py-2 text-primary-800 font-medium">Properties</a>
+            <a href="#" class="block py-2 text-primary-800 font-medium">About</a>
+            <a href="#" class="block py-2 text-primary-800 font-medium">Contact</a>
+            <div class="flex items-center pt-4 border-t border-gray-light">
+                <i class="fas fa-user-circle text-primary-800 text-xl mr-2"></i>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'accounts:logout' %}" class="text-primary-800 font-medium">Logout</a>
+                {% else %}
+                    <a href="{% url 'accounts:login' %}" class="text-primary-800 font-medium">Sign In</a>
+                {% endif %}
+            </div>
+        </div>
+
+    </nav>
+    {% block content %}{% endblock %}
+    <footer class="bg-primary-800 text-white pt-16 pb-8">
+      <div class="container mx-auto px-4 md:px-8 lg:px-16">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+          <div>
+            <img src="{% static 'img/logo-white.png' %}" alt="My House Padi" class="h-10 mb-4">
+            <p class="text-primary-200 mb-4">
+              Nigeria's trusted direct-from-owner property marketplace. No agents. No stress.
+            </p>
+            <div class="flex space-x-4">
+              <a href="https://www.facebook.com/share/1Dqce7jUee/?mibextid=wwXIfr" class="text-primary-200 hover:text-white transition">
+                <i class="fab fa-facebook-f text-lg"></i>
+              </a>
+              <a href="https://x.com/myhousepadi_ng?s=11" class="text-primary-200 hover:text-white transition">
+                <i class="fab fa-twitter text-lg"></i>
+              </a>
+              <a href="https://www.instagram.com/_myhousepadi?igsh=MW1va3J0MzVtcXJp&utm_source=qr" class="text-primary-200 hover:text-white transition">
+                <i class="fab fa-instagram text-lg"></i>
+              </a>
+              <a href="https://www.tiktok.com/@myhousepadi?_t=ZN-8y4Z1T15msw&_r=1" class="text-primary-200 hover:text-white transition">
+                <i class="fab fa-tiktok text-lg"></i>
+              </a>
+            </div>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold mb-4 flex items-center">
+              <i class="fas fa-link mr-2 text-primary-400"></i> Quick Links
+            </h3>
+            <ul class="space-y-2">
+              <li><a href="{% url 'landing:home' %}" class="text-primary-200 hover:text-white transition">Home</a></li>
+              <li><a href="#" class="text-primary-200 hover:text-white transition">Properties</a></li>
+              <li><a href="#" class="text-primary-200 hover:text-white transition">How It Works</a></li>
+              <li><a href="#" class="text-primary-200 hover:text-white transition">Neighborhood Guides</a></li>
+              <li><a href="#" class="text-primary-200 hover:text-white transition">Padi Assist</a></li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold mb-4 flex items-center">
+              <i class="fas fa-headset mr-2 text-primary-400"></i> Support
+            </h3>
+            <ul class="space-y-2">
+              <li class="flex items-start">
+                <i class="fas fa-phone-alt text-primary-400 mr-2 mt-1"></i>
+                <span>01-700-555-PADI</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fab fa-whatsapp text-primary-400 mr-2 mt-1"></i>
+                <span>+234 809 555 1234</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-envelope text-primary-400 mr-2 mt-1"></i>
+                <span>help@myhousepadi.com</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-map-marker-alt text-primary-400 mr-2 mt-1"></i>
+                <span>12A Admiralty Way, Lekki Phase 1, Lagos</span>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold mb-4 flex items-center">
+              <i class="fas fa-envelope-open-text mr-2 text-primary-400"></i> Newsletter
+            </h3>
+            <p class="text-primary-200 mb-4">
+              Get weekly property alerts and market tips
+            </p>
+            <form class="flex">
+              <input type="email" placeholder="Your email" class="px-4 py-2 rounded-l-md w-full text-primary-800 focus:outline-none">
+              <button type="submit" class="bg-primary-600 hover:bg-primary-700 px-4 py-2 rounded-r-md">
+                <i class="fas fa-paper-plane"></i>
+              </button>
+            </form>
+            <p class="text-xs text-primary-300 mt-2">
+              We respect your privacy. Unsubscribe anytime.
+            </p>
+          </div>
+        </div>
+        <div class="border-t border-primary-700 my-8"></div>
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="mb-4 md:mb-0">
+            <p class="text-primary-300 text-sm">
+              &copy; 2025 My House Padi. All rights reserved.
+            </p>
+          </div>
+          <div class="flex flex-wrap justify-center gap-4">
+            <a href="#" class="text-primary-300 hover:text-white text-sm transition">Terms of Service</a>
+            <a href="#" class="text-primary-300 hover:text-white text-sm transition">Privacy Policy</a>
+            <a href="#" class="text-primary-300 hover:text-white text-sm transition">Cookie Policy</a>
+            <a href="#" class="text-primary-300 hover:text-white text-sm transition">Sitemap</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script>
+        // Mobile menu toggle functionality
+        document.querySelector('.mobile-menu-button').addEventListener('click', function() {
+            const mobileMenu = document.querySelector('.mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+            // Toggle icon between bars and times
+            const icon = this.querySelector('i');
+            if (icon.classList.contains('fa-bars')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+        // FAQ Accordion (if present)
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.faq-item button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const item = button.closest('.faq-item');
+                    const content = button.nextElementSibling;
+                    const icon = button.querySelector('i');
+                    document.querySelectorAll('.faq-item').forEach(el => {
+                        if (el !== item) {
+                            el.querySelector('.faq-content').classList.add('hidden');
+                            el.querySelector('i').classList.remove('rotate-180');
+                        }
+                    });
+                    content.classList.toggle('hidden');
+                    icon.classList.toggle('rotate-180');
+                    if (!content.classList.contains('hidden')) {
+                        setTimeout(() => {
+                            item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        }, 100);
+                    }
+                });
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

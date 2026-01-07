@@ -1,0 +1,21 @@
+Verify Your Email - House Padi
+
+Hello!
+
+Thank you for choosing House Padi. To activate your account and start exploring properties, please verify your email address using one of the methods below:
+
+OPTION 1: Click the Verification Link
+{{ verification_link }}
+
+OPTION 2: Use Verification Code
+Your verification code is: {{ otp_code }}
+
+Enter this 6-digit code on the verification page.
+
+IMPORTANT: This verification code will expire in 10 minutes.
+
+If you didn't create an account with House Padi, please ignore this email.
+
+Best regards,
+House Padi Team
+Support: support@housepadi.com

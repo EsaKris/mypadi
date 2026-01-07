@@ -1,0 +1,590 @@
+{% extends "landlords/landlord_base.html" %}
+
+{% block title %}Edit Property - {{ property.name }}{% endblock %}
+
+{% block content %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+    <!-- Header with back button for mobile -->
+    <div class="mb-6 sm:mb-8">
+        <div class="flex items-center sm:hidden mb-4">
+            <a href="{% url 'landlords:property_detail' property.pk %}" class="text-primary-600 mr-2">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1 class="text-xl font-bold text-primary-800">Edit Property</h1>
+        </div>
+        <div class="hidden sm:block text-center">
+            <h1 class="text-3xl font-bold text-primary-800">Edit {{ property.name }}</h1>
+            <p class="text-gray-600 mt-2">Update your property details</p>
+        </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+        <form method="post" enctype="multipart/form-data" class="p-4 sm:p-6 md:p-8">
+            {% csrf_token %}
+            
+            <!-- Progress indicator for mobile -->
+            <div class="mb-6 sm:hidden">
+                <div class="flex justify-between text-xs text-gray-500 mb-2">
+                    <span>Step 1 of 4</span>
+                    <span>20% complete</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-1.5">
+                    <div class="bg-primary-600 h-1.5 rounded-full" style="width: 20%"></div>
+                </div>
+            </div>
+            
+            <!-- Property Basic Info Section -->
+            <div class="mb-8">
+                <h2 class="text-lg sm:text-xl font-semibold text-primary-800 mb-4 sm:mb-6 flex items-center">
+                    <span class="bg-primary-100 p-2 rounded-full mr-2 sm:mr-3">
+                        <i class="fas fa-info-circle text-primary-600 text-sm sm:text-base"></i>
+                    </span>
+                    Basic Information
+                </h2>
+                
+                <div class="space-y-4 sm:space-y-6">
+                    <!-- Property Name -->
+                    <div class="form-group">
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                            <i class="fas fa-home text-primary-400 mr-1 sm:mr-2 text-xs sm:text-sm"></i>Property Name
+                        </label>
+                        <input type="text" name="name" id="name" value="{{ form.name.value }}" required
+                               class="block w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300">
+                    </div>
+
+                    <!-- Address -->
+                    <div class="form-group">
+                        <label for="address" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                            <i class="fas fa-map-marker-alt text-primary-400 mr-1 sm:mr-2 text-xs sm:text-sm"></i>Full Address
+                        </label>
+                        <textarea id="address" name="address" rows="2"
+                                  class="block w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300">{{ form.address.value }}</textarea>
+                    </div>
+
+                    <!-- Location Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+                        <div class="form-group">
+                            <label for="city" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">City</label>
+                            <input type="text" name="city" id="city" value="{{ form.city.value }}" required
+                                   class="block w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300">
+                        </div>
+                           <div class="form-group">
+                            <label for="state" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">State</label>
+                            <input type="text" name="state" id="state" required
+                                class="block w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300">
+                        </div>
+                        <div class="form-group">
+                            <label for="zip_code" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">Postal Code</label>
+                            <input type="text" name="zip_code" id="zip_code" value="{{ form.zip_code.value|default_if_none:'' }}"
+                                   class="block w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Property Details Section -->
+            <div class="mb-8">
+                <h2 class="text-lg sm:text-xl font-semibold text-primary-800 mb-4 sm:mb-6 flex items-center">
+                    <span class="bg-primary-100 p-2 rounded-full mr-2 sm:mr-3">
+                        <i class="fas fa-clipboard-list text-primary-600 text-sm sm:text-base"></i>
+                    </span>
+                    Property Details
+                </h2>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+                    <!-- Property Type -->
+                    <div class="form-group">
+                        <label for="property_type" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">Property Type</label>
+                        <div class="relative">
+                            <select id="property_type" name="property_type" required
+                                    class="block w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none">
+                                {% for value, label in form.property_type.field.choices %}
+                                    <option value="{{ value }}" {% if form.property_type.value == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Number of Units -->
+                    <div class="form-group">
+                        <label for="num_units" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">Number of Units</label>
+                        <input type="number" name="num_units" id="num_units" min="1" value="{{ form.num_units.value }}" required
+                               class="block w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300">
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group mt-4 sm:mt-6">
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                        <i class="fas fa-align-left text-primary-400 mr-1 sm:mr-2 text-xs sm:text-sm"></i>Description
+                    </label>
+                    <textarea id="description" name="description" rows="4"
+                              class="block w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300">{{ form.description.value }}</textarea>
+                    <p class="mt-1 text-xs text-gray-500">Describe key features, nearby amenities, and unique aspects of your property</p>
+                </div>
+            </div>
+
+            <!-- Photo Upload Section -->
+            <div class="mb-8">
+                <h2 class="text-lg sm:text-xl font-semibold text-primary-800 mb-4 sm:mb-6 flex items-center">
+                    <span class="bg-primary-100 p-2 rounded-full mr-2 sm:mr-3">
+                        <i class="fas fa-camera text-primary-600 text-sm sm:text-base"></i>
+                    </span>
+                    Property Images
+                </h2>
+                
+                <!-- Current Images -->
+                <div class="mb-4">
+                    <h3 class="text-sm font-medium text-gray-700 mb-2">Current Images</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4" id="current-images-container">
+                        {% for image in property.images.all %}
+                        <div class="relative group">
+                            <img src="{{ image.image.url }}" alt="Property image" class="w-full h-24 sm:h-32 object-cover rounded-lg">
+                            <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                                <button type="button" class="delete-image-btn bg-red-500 text-white p-1 rounded-full hover:bg-red-600 transition" data-image-id="{{ image.id }}">
+                                    <i class="fas fa-trash text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-sm text-gray-500 col-span-3">No images uploaded yet</p>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- New Image Upload -->
+                <div class="border-2 border-dashed border-gray-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center hover:border-primary-300 transition-all duration-300">
+                    <div class="flex flex-col items-center justify-center space-y-2">
+                        <i class="fas fa-cloud-upload-alt text-3xl sm:text-4xl text-primary-400"></i>
+                        <h3 class="text-sm sm:text-lg font-medium text-gray-700">Add more images</h3>
+                        <p class="text-xs sm:text-sm text-gray-500">or</p>
+                        <label for="property_images" class="cursor-pointer">
+                            <span class="inline-flex items-center px-3 sm:px-4 py-1 sm:py-2 bg-primary-50 border border-transparent rounded-full text-xs sm:text-sm font-medium text-primary-700 hover:bg-primary-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all">
+                                <i class="fas fa-folder-open mr-1 sm:mr-2 text-xs sm:text-sm"></i> Browse Files
+                            </span>
+                            <input id="property_images" name="property_images" type="file" class="sr-only" multiple accept="image/*">
+                        </label>
+                        <p class="text-xs text-gray-500">Upload additional images (JPEG, PNG)</p>
+                    </div>
+                </div>
+                
+                <!-- New Image Preview Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-4 sm:mt-6" id="image-preview-container">
+                    <!-- Preview thumbnails for new images will appear here -->
+                </div>
+                
+                <!-- Mobile image upload tips -->
+                <div class="sm:hidden mt-3 p-2 bg-blue-50 rounded-lg">
+                    <p class="text-xs text-blue-800 flex items-center">
+                        <i class="fas fa-info-circle mr-2"></i> Tip: Take photos directly from your phone for best quality
+                    </p>
+                </div>
+            </div>
+
+            <!-- Pricing Section -->
+            <div class="mb-8">
+                <h2 class="text-lg sm:text-xl font-semibold text-primary-800 mb-4 sm:mb-6 flex items-center">
+                    <span class="bg-primary-100 p-2 rounded-full mr-2 sm:mr-3">
+                        <i class="fas fa-tag text-primary-600 text-sm sm:text-base"></i>
+                    </span>
+                    Pricing Information
+                </h2>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+                    <div class="form-group">
+                        <label for="price" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">Price (₦)</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500">₦</span>
+                            </div>
+                            <input type="number" name="price" id="price" min="0" step="1000" value="{{ form.price.value }}" required
+                                   class="block w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="price_period" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">Pricing Period</label>
+                        <div class="relative">
+                            <select id="price_period" name="price_period" required
+                                    class="block w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300 appearance-none">
+                                {% for value, label in form.price_period.field.choices %}
+                                    <option value="{{ value }}" {% if form.price_period.value == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Price note -->
+                <div class="mt-3 p-2 bg-gray-50 rounded-lg">
+                    <p class="text-xs text-gray-600 flex items-start">
+                        <i class="fas fa-lightbulb text-yellow-500 mt-0.5 mr-2"></i> Competitive pricing attracts more tenants. Consider local market rates when setting your price.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Amenities Section -->
+            <div class="mb-8">
+                <h2 class="text-lg sm:text-xl font-semibold text-primary-800 mb-4 sm:mb-6 flex items-center">
+                    <span class="bg-primary-100 p-2 rounded-full mr-2 sm:mr-3">
+                        <i class="fas fa-star text-primary-600 text-sm sm:text-base"></i>
+                    </span>
+                    Amenities & Features
+                </h2>
+                
+                <div class="ml-0 sm:ml-11">
+                    <!-- Selected Amenities Display -->
+                    <div class="mb-3 sm:mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                            Selected Amenities
+                        </label>
+                        <div id="selected-amenities" class="flex flex-wrap gap-2 min-h-10 p-2 border border-gray-200 rounded-lg bg-gray-50">
+                            {% for amenity in form.amenities.value %}
+                                {% for a in form.amenities.field.queryset %}
+                                    {% if a.id == amenity %}
+                                    <span class="amenity-chip inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 bg-primary-100 text-primary-800 rounded-full text-xs sm:text-sm">
+                                        <i class="{{ a.icon }} mr-1 text-primary-600 text-xs sm:text-sm"></i>{{ a.name }}
+                                        <button type="button" class="ml-1 sm:ml-2 text-primary-600 hover:text-primary-800 remove-amenity" data-id="{{ a.id }}">
+                                            <i class="fas fa-times text-2xs sm:text-xs"></i>
+                                        </button>
+                                    </span>
+                                    {% endif %}
+                                {% endfor %}
+                            {% empty %}
+                                <p class="text-xs sm:text-sm text-gray-500 self-center">No amenities selected yet</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Search and Dropdown -->
+                    <div class="relative mb-3 sm:mb-4">
+                        <label for="amenity-search" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                            Add Amenities
+                        </label>
+                        <div class="relative">
+                            <input type="text" id="amenity-search" placeholder="Search amenities..." 
+                                class="w-full p-2 sm:p-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 pr-8 sm:pr-10">
+                            <div class="absolute inset-y-0 right-0 pr-2 sm:pr-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400 text-xs sm:text-sm"></i>
+                            </div>
+                        </div>
+                        
+                        <div id="amenity-dropdown" class="hidden absolute z-10 w-full mt-1 bg-white shadow-lg rounded-lg border border-gray-300 max-h-48 sm:max-h-60 overflow-auto">
+                            <div class="py-1">
+                                {% for amenity in form.amenities.field.queryset %}
+                                <div class="amenity-option px-3 sm:px-4 py-1 sm:py-2 hover:bg-primary-50 cursor-pointer flex items-center text-xs sm:text-sm"
+                                    data-id="{{ amenity.id }}" data-name="{{ amenity.name }}" data-icon="{{ amenity.icon }}">
+                                    <i class="{{ amenity.icon }} mr-2 text-primary-600 text-xs sm:text-sm"></i>
+                                    <span>{{ amenity.name }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p id="amenity-limit-message" class="text-xs sm:text-sm text-red-500 mt-1 sm:mt-2 hidden">
+                        <i class="fas fa-info-circle mr-1"></i> Maximum of 10 amenities allowed
+                    </p>
+                    
+                    <!-- Popular amenities quick select -->
+                    <div class="mt-3 sm:mt-4">
+                        <p class="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2">Popular choices:</p>
+                        <div class="flex flex-wrap gap-1 sm:gap-2">
+                            {% for amenity in form.amenities.field.queryset|slice:":6" %}
+                            <button type="button" class="quick-amenity-btn text-2xs xs:text-xs sm:text-sm px-2 sm:px-3 py-0.5 sm:py-1 border border-gray-300 rounded-full hover:bg-primary-50 hover:border-primary-300 transition"
+                                data-id="{{ amenity.id }}" data-name="{{ amenity.name }}" data-icon="{{ amenity.icon }}">
+                                <i class="{{ amenity.icon }} mr-1 text-primary-600 text-xs"></i>{{ amenity.name }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Hidden input for form submission -->
+                    <select name="amenities" id="amenities-input" multiple class="hidden">
+                        {% for amenity in form.amenities.value %}
+                        <option value="{{ amenity }}" selected></option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Form Actions with sticky footer for mobile -->
+            <div class="sticky sm:static bottom-0 left-0 right-0 bg-white border-t border-gray-200 -mx-4 sm:mx-0 -mb-4 sm:mb-0 px-4 sm:px-0 py-3 sm:py-0 sm:border-t-0">
+                <div class="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-0 sm:mt-6 pt-0 sm:pt-6">
+                    <a href="{% url 'landlords:property_detail' property.pk %}" class="order-2 sm:order-1 px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 rounded-full text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all text-center">
+                        Cancel
+                    </a>
+                    <button type="submit" class="order-1 sm:order-2 px-4 sm:px-6 py-2 sm:py-3 bg-primary-600 border border-transparent rounded-full text-xs sm:text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all flex items-center justify-center">
+                        <i class="fas fa-save mr-1 sm:mr-2 text-xs sm:text-sm"></i> Update Property
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .amenity-option:hover {
+        background-color: #f0f7ff;
+    }
+    #amenity-dropdown {
+        scrollbar-width: thin;
+        scrollbar-color: #3b82f6 #f0f0f0;
+    }
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    @media (min-width: 640px) {
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+    }
+    #image-preview-container img, #current-images-container img {
+        border-radius: 0.5rem;
+        height: 100px;
+        width: 100%;
+        object-fit: cover;
+    }
+    @media (min-width: 640px) {
+        #image-preview-container img, #current-images-container img {
+            border-radius: 0.75rem;
+            height: 120px;
+        }
+    }
+    /* Custom scrollbar for dropdown */
+    #amenity-dropdown::-webkit-scrollbar {
+        width: 6px;
+    }
+    #amenity-dropdown::-webkit-scrollbar-track {
+        background: #f0f0f0;
+    }
+    #amenity-dropdown::-webkit-scrollbar-thumb {
+        background-color: #3b82f6;
+        border-radius: 3px;
+    }
+    .delete-image-btn {
+        transition: all 0.2s ease;
+    }
+</style>
+
+<script>
+    // Image upload preview functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('property_images');
+        const previewContainer = document.getElementById('image-preview-container');
+        
+        fileInput.addEventListener('change', function() {
+            previewContainer.innerHTML = '';
+            const files = Array.from(this.files).slice(0, 12); // Limit to 12 files
+            
+            if (files.length === 0) {
+                previewContainer.innerHTML = '<p class="text-sm text-gray-500 col-span-2 sm:col-span-3 text-center py-4">No new images selected</p>';
+                return;
+            }
+            
+            files.forEach((file, index) => {
+                if (!file.type.match('image.*')) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const div = document.createElement('div');
+                    div.className = 'relative';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview" class="h-full w-full object-cover">
+                        <button type="button" class="absolute top-1 right-1 bg-white/80 text-red-500 p-0.5 rounded-full hover:bg-white transition" data-index="${index}">
+                            <i class="fas fa-times text-2xs"></i>
+                        </button>
+                        <div class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-2xs p-0.5 truncate">${file.name}</div>
+                    `;
+                    previewContainer.appendChild(div);
+                    
+                    // Add remove button functionality
+                    div.querySelector('button').addEventListener('click', function() {
+                        const filesArray = Array.from(fileInput.files);
+                        filesArray.splice(index, 1);
+                        
+                        // Create new DataTransfer object and update files
+                        const dataTransfer = new DataTransfer();
+                        filesArray.forEach(file => dataTransfer.items.add(file));
+                        fileInput.files = dataTransfer.files;
+                        
+                        // Trigger change event to update preview
+                        const event = new Event('change');
+                        fileInput.dispatchEvent(event);
+                    });
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+        
+        // Initialize with empty state if no files
+        if (fileInput.files.length === 0) {
+            previewContainer.innerHTML = '<p class="text-sm text-gray-500 col-span-2 sm:col-span-3 text-center py-4">No new images selected</p>';
+        }
+        
+        // Handle deletion of existing images
+        document.querySelectorAll('.delete-image-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const imageId = this.dataset.imageId;
+                const imageContainer = this.closest('.relative.group');
+                
+                // Create hidden input to mark image for deletion
+                const deleteInput = document.createElement('input');
+                deleteInput.type = 'hidden';
+                deleteInput.name = 'delete_images';
+                deleteInput.value = imageId;
+                document.querySelector('form').appendChild(deleteInput);
+                
+                // Remove the image from display
+                imageContainer.remove();
+                
+                // If no images left, show message
+                if (document.querySelectorAll('#current-images-container img').length === 0) {
+                    document.getElementById('current-images-container').innerHTML = '<p class="text-sm text-gray-500 col-span-3">No images remaining</p>';
+                }
+            });
+        });
+    });
+
+    // Amenities selection functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('amenity-search');
+        const dropdown = document.getElementById('amenity-dropdown');
+        const options = document.querySelectorAll('.amenity-option');
+        const selectedContainer = document.getElementById('selected-amenities');
+        const hiddenInput = document.getElementById('amenities-input');
+        const limitMessage = document.getElementById('amenity-limit-message');
+        const quickBtns = document.querySelectorAll('.quick-amenity-btn');
+        const maxAmenities = 10;
+        
+        // Initialize with any pre-selected amenities
+        function initializeSelectedAmenities() {
+            const selectedOptions = hiddenInput.querySelectorAll('option[selected]');
+            selectedOptions.forEach(option => {
+                const id = option.value;
+                const amenity = Array.from(options).find(opt => opt.dataset.id === id);
+                if (amenity) {
+                    addSelectedAmenity(
+                        amenity.dataset.id,
+                        amenity.dataset.name,
+                        amenity.dataset.icon
+                    );
+                }
+            });
+            
+            // If no amenities selected, show placeholder
+            if (selectedOptions.length === 0) {
+                selectedContainer.innerHTML = '<p class="text-xs sm:text-sm text-gray-500 self-center">No amenities selected yet</p>';
+            }
+        }
+        
+        // Add amenity to selected list
+        function addSelectedAmenity(id, name, icon) {
+            // Check if already selected
+            if (hiddenInput.querySelector(`option[value="${id}"][selected]`)) {
+                return;
+            }
+            
+            // Check limit
+            if (hiddenInput.querySelectorAll('option[selected]').length >= maxAmenities) {
+                limitMessage.classList.remove('hidden');
+                return;
+            }
+            
+            limitMessage.classList.add('hidden');
+            
+            // Remove placeholder if it exists
+            if (selectedContainer.querySelector('p.text-gray-500')) {
+                selectedContainer.innerHTML = '';
+            }
+            
+            // Add to selected container
+            const chip = document.createElement('span');
+            chip.className = 'inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 bg-primary-600 text-white rounded-full text-xs sm:text-sm';
+            chip.innerHTML = `
+                <i class="${icon} mr-1 text-xs sm:text-sm"></i>${name}
+                <button type="button" class="ml-1 sm:ml-2 text-white hover:text-primary-200 remove-amenity">
+                    <i class="fas fa-times text-2xs sm:text-xs"></i>
+                </button>
+            `;
+            selectedContainer.appendChild(chip);
+            
+            // Add to hidden input
+            const option = document.createElement('option');
+            option.value = id;
+            option.selected = true;
+            hiddenInput.appendChild(option);
+            
+            // Add remove event
+            chip.querySelector('.remove-amenity').addEventListener('click', function() {
+                chip.remove();
+                hiddenInput.querySelector(`option[value="${id}"]`).remove();
+                limitMessage.classList.add('hidden');
+                
+                // If no amenities left, show placeholder
+                if (hiddenInput.querySelectorAll('option[selected]').length === 0) {
+                    selectedContainer.innerHTML = '<p class="text-xs sm:text-sm text-gray-500 self-center">No amenities selected yet</p>';
+                }
+            });
+        }
+        
+        // Filter amenities based on search
+        function filterAmenities() {
+            const searchTerm = searchInput.value.toLowerCase();
+            options.forEach(option => {
+                const name = option.dataset.name.toLowerCase();
+                option.style.display = name.includes(searchTerm) ? 'flex' : 'none';
+            });
+        }
+        
+        // Event listeners
+        searchInput.addEventListener('focus', () => {
+            dropdown.classList.remove('hidden');
+            filterAmenities();
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#amenity-search') && !e.target.closest('#amenity-dropdown')) {
+                dropdown.classList.add('hidden');
+            }
+        });
+        
+        searchInput.addEventListener('input', filterAmenities);
+        
+        options.forEach(option => {
+            option.addEventListener('click', () => {
+                addSelectedAmenity(
+                    option.dataset.id,
+                    option.dataset.name,
+                    option.dataset.icon
+                );
+                searchInput.value = '';
+                filterAmenities();
+                dropdown.classList.add('hidden');
+            });
+        });
+        
+        quickBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                addSelectedAmenity(
+                    btn.dataset.id,
+                    btn.dataset.name,
+                    btn.dataset.icon
+                );
+            });
+        });
+        
+        // Initialize
+        initializeSelectedAmenities();
+    });
+</script>
+{% endblock %}
