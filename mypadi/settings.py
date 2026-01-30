@@ -18,7 +18,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY
 SECRET_KEY = os.getenv('SECRET_KEY')
-DEBUG = False  # Production must have DEBUG=False
+DEBUG = True  # Production must have DEBUG=False
 ALLOWED_HOSTS = [
     'myhousepadi.com',
     'www.myhousepadi.com',
@@ -184,7 +184,8 @@ CSRF_TRUSTED_ORIGINS = [
     'https://myhousepadi.com',
     'https://www.myhousepadi.com',
     'https://myhousepadi.name.ng',
-    'https://myhousepadii.onrender.com'
+    'https://myhousepadii.onrender.com',
+    'http://localhost:8000'
 ]
 
 # Custom error handlers
