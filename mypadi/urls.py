@@ -25,7 +25,7 @@ from pathlib import Path
 from landlords.admin_views import AdminLoginView 
 
 def google_verification(request):
-    path = Path(__file__).resolve().parent.parent / "verification/google5f2380d4436b4f7d.html"
+    path = Path(__file__).resolve().parent.parent / "google5f2380d4436b4f7d.html"
     return FileResponse(open(path, 'rb'), content_type='text/html')
 
 urlpatterns = [
