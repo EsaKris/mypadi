@@ -38,6 +38,8 @@ logger = logging.getLogger(__name__)
 # HELPER FUNCTIONS
 # ===========================
 
+
+
 def redirect_user_by_type(user):
     """Redirect user to appropriate dashboard based on role"""
     if user.is_tenant():
