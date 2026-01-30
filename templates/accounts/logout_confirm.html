@@ -1,0 +1,34 @@
+{% extends "accounts/base.html" %}
+{% load static %}
+{% block content %}
+<section class="min-h-screen bg-cream flex items-center justify-center p-4">
+  <div class="w-full max-w-md">
+    
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <img src="{% static 'img/logo.png' %}" alt="My House Padi" class="h-12 mx-auto mb-4">
+      <h1 class="text-3xl font-bold text-primary-800">Confirm Logout</h1>
+      <p class="text-gray-600">Are you sure you want to log out of your account?</p>
+    </div>
+
+    <!-- Logout Confirmation Buttons -->
+    <div class="space-y-4 mb-6">
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="w-full bg-primary-800 hover:bg-primary-700 text-white py-3 px-4 rounded-lg font-medium transition flex items-center justify-center">
+          <i class="fas fa-sign-out-alt mr-2"></i> Yes, Log Out
+        </button>
+      </form>
+      <a href="#" class="w-full text-center block bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 px-4 rounded-lg transition">
+        Cancel
+      </a>
+    </div>
+
+    <!-- Optional Info -->
+    <div class="text-center mt-6">
+      <p class="text-gray-500 text-sm">You will need to log in again to access your account.</p>
+    </div>
+
+  </div>
+</section>
+{% endblock %}
