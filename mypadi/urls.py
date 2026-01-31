@@ -21,6 +21,12 @@ from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
 from pathlib import Path
+from django.contrib.sitemaps.views import sitemap
+from landing.sitemaps import CombinedSitemap
+
+sitemaps = {
+    'all': CombinedSitemap(),
+}
 
 from landlords.admin_views import AdminLoginView 
 
@@ -29,6 +35,8 @@ def google_verification(request):
     return FileResponse(open(path, 'rb'), content_type='text/html')
 
 urlpatterns = [
+
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='sitemap'),
 
     path('google5f2380d4436b4f7d.html', google_verification, name='google_verification'),
     path('admin/', include(('landlords.urls_admin', 'landlords_admin'))),
