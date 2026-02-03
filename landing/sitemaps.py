@@ -25,3 +25,4 @@ class CombinedSitemap(Sitemap):
         elif isinstance(item, Seeker):
             return reverse('seekers:dashboard')  # or seeker profile page
         return '/'
+
