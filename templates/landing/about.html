@@ -1,0 +1,378 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}About House Padi - Our Story{% endblock %}
+<meta name="google-site-verification" content="QZ6tNBeQWZ2UXwDCV8YnXG0D7HAUk568dU5lwiy4Q1c" />
+
+{% block content %}
+<!-- Hero Section - About House Padi -->
+<div class="container mx-auto flex flex-col md:flex-row items-center pt-24 md:pt-32 px-4 md:px-8 lg:px-[173px]">
+    <!-- Left Content -->
+    <div class="w-full md:w-1/2 order-2 md:order-1">
+        <div class="max-w-[514px] mx-auto md:mx-0 pb-4">
+            <span class="bg-primary-100 text-primary-800 px-4 py-1 rounded-full text-sm font-medium inline-block mb-4">
+                <i class="fas fa-flag mr-2"></i>Since 2025
+            </span>
+            <h1 class="text-4xl md:text-5xl lg:text-[64px] extra-black text-primary-800 leading-tight md:leading-[80px]">
+                Nigeria's #1<br>Agent-Free<br>Property Platform
+            </h1>
+            <p class="text-base md:text-[18px] text-gray-600 mt-4 md:mt-[32px]">
+                We're on a mission to make Nigerian real estate transparent, affordable, and stress-free by connecting tenants directly with verified owners.
+            </p>
+            <div class="flex gap-4 mt-6 md:mt-[42px]">
+                <button class="bg-primary-800 text-white px-6 py-2 md:px-8 md:py-3 rounded-md hover:bg-primary-700 transition">
+                    <i class="fas fa-play mr-2"></i>Watch Our Story
+                </button>
+                <button class="bg-white border-2 border-primary-800 text-primary-800 px-6 py-2 md:px-8 md:py-3 rounded-md hover:bg-primary-50 transition">
+                    <i class="fas fa-users mr-2"></i>Join Community
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Right Image - Team/Office -->
+    <div class="w-full md:w-1/2 order-1 md:order-2 flex justify-center md:justify-end mb-8 md:mb-0">
+        <div class="relative">
+            <img src="{% static 'img/house.svg' %}" alt="House Padi Team" class="h-auto max-h-[600px] w-full md:w-auto rounded-2xl shadow-xl">
+            <div class="absolute -bottom-6 -left-6 bg-white p-4 rounded-lg shadow-lg hidden md:block">
+                <div class="flex items-center">
+                    <div class="bg-primary-100 p-2 rounded-full mr-3">
+                        <i class="fas fa-smile text-primary-800 text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-2xl font-bold text-primary-800">4,812+</p>
+                        <p class="text-xs text-gray-600">Happy Tenants</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Banner -->
+<div class="bg-primary-800 text-white py-12 md:py-16 mt-16 md:mt-24">
+    <div class="container mx-auto px-4 md:px-8 lg:px-[173px]">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div>
+                <p class="text-3xl md:text-4xl font-bold mb-1">₦2.1B+</p>
+                <p class="text-sm md:text-base text-primary-200">Rent Processed</p>
+            </div>
+            <div>
+                <p class="text-3xl md:text-4xl font-bold mb-1">98%</p>
+                <p class="text-sm md:text-base text-primary-200">Verified Listings</p>
+            </div>
+            <div>
+                <p class="text-3xl md:text-4xl font-bold mb-1">5,200+</p>
+                <p class="text-sm md:text-base text-primary-200">Properties</p>
+            </div>
+            <div>
+                <p class="text-3xl md:text-4xl font-bold mb-1">72h</p>
+                <p class="text-sm md:text-base text-primary-200">Avg. Time to Rent</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Our Story Section -->
+<section class="py-16 md:py-24 bg-white">
+    <div class="container mx-auto px-4 md:px-8 lg:px-[173px]">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <h2 class="text-3xl md:text-4xl extra-black text-primary-800 mb-6">
+                    <i class="fas fa-book-open text-primary-600 mr-3"></i>Our Story
+                </h2>
+                <div class="space-y-4 text-gray-700">
+                    <p>House Padi was born in 2025 from a shared frustration. Our founder, Dr. Terese Shadrach Akpem, spent three months searching for an apartment in Makurdi—viewing 12 properties, paying "browsing fees" to three different agents, and encountering two fake listings.</p>
+                    <p>The breaking point came when he discovered the apartment he finally paid for didn't actually exist. The agent disappeared with his ₦50,000 "booking fee."</p>
+                    <p class="font-medium text-primary-800">That's when he decided: there had to be a better way.</p>
+                    <p>Dr. Terese Shadrach Akpem gathered a team of engineers, real estate professionals, and legal experts. Their goal: build a platform that eliminates the middleman, verifies every listing, and makes the rental process transparent from start to finish.</p>
+                    <p>Today, My House Padi serves thousands of Nigerians across Lagos, Abuja, Port Harcourt, Kaduna, and Benue. We've processed over ₦2.1 billion in rent and helped tenants save an average of ₦150,000 in agent fees per transaction.</p>
+                </div>
+                
+                <div class="flex items-center mt-8 p-5 bg-primary-50 rounded-lg">
+                    <div class="mr-4 flex-shrink-0">
+                        <div class="w-16 h-16 bg-primary-800 rounded-full flex items-center justify-center">
+                            <i class="fas fa-quote-right text-white text-2xl"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-sm md:text-base italic text-gray-700">"Every Nigerian deserves access to safe, affordable housing without being exploited. House Padi is our contribution to making that a reality."</p>
+                        <p class="text-sm font-bold text-primary-800 mt-2">— Dr.Terese Shadrach Akpem, Founder & CEO</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="relative flex justify-center lg:justify-end">
+                <!-- Image wrapper -->
+                <div class="relative w-full max-w-md lg:max-w-lg">
+                    <div class="overflow-hidden rounded-2xl shadow-xl bg-gray-100">
+                        <img 
+                            src="{% static 'img/dr_shed.jpg' %}" 
+                            alt="Dr. Terese Shadrach Akpem"
+                            class="w-full h-[420px] lg:h-[520px] object-cover object-top"
+                        >
+                    </div>
+
+                    <!-- Floating badge -->
+                    <div class="absolute -top-4 -right-4 bg-white p-3 rounded-lg shadow-md hidden md:flex items-center">
+                        <i class="fas fa-trophy text-yellow-400 text-2xl mr-2"></i>
+                        <div>
+                            <p class="text-sm font-bold">Real Estate Tech</p>
+                            <p class="text-xs text-gray-600">Award Winner 2025</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Our Mission & Vision -->
+<section class="py-16 md:py-24 bg-gray-50">
+    <div class="container mx-auto px-4 md:px-8 lg:px-[173px]">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition">
+                <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mb-6">
+                    <i class="fas fa-bullseye text-primary-800 text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-primary-800 mb-4">Our Mission</h3>
+                <p class="text-gray-700 mb-6">To democratize the Nigerian real estate market by removing information asymmetry, eliminating exploitative fees, and creating a trusted environment where property seekers and owners connect directly.</p>
+                <div class="border-t border-gray-200 pt-6">
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-check-circle text-primary-600 mt-1"></i>
+                        <span class="text-sm">Transparency in every transaction</span>
+                    </div>
+                    <div class="flex items-start space-x-3 mt-2">
+                        <i class="fas fa-check-circle text-primary-600 mt-1"></i>
+                        <span class="text-sm">No hidden fees, ever</span>
+                    </div>
+                    <div class="flex items-start space-x-3 mt-2">
+                        <i class="fas fa-check-circle text-primary-600 mt-1"></i>
+                        <span class="text-sm">Verification you can trust</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition">
+                <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mb-6">
+                    <i class="fas fa-eye text-primary-800 text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-primary-800 mb-4">Our Vision</h3>
+                <p class="text-gray-700 mb-6">To become the most trusted real estate ecosystem in Africa—where finding and renting property is as easy as ordering food, and where every Nigerian can confidently navigate the housing market without intermediaries.</p>
+                <div class="border-t border-gray-200 pt-6">
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-arrow-right text-primary-600 mt-1"></i>
+                        <span class="text-sm">1M+ Nigerians housed by 2028</span>
+                    </div>
+                    <div class="flex items-start space-x-3 mt-2">
+                        <i class="fas fa-arrow-right text-primary-600 mt-1"></i>
+                        <span class="text-sm">Expand to 10 African countries</span>
+                    </div>
+                    <div class="flex items-start space-x-3 mt-2">
+                        <i class="fas fa-arrow-right text-primary-600 mt-1"></i>
+                        <span class="text-sm">Industry standard for property verification</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Core Values -->
+<section class="py-16 md:py-24 bg-white">
+    <div class="container mx-auto px-4 md:px-8 lg:px-[173px] text-center">
+        <h2 class="text-3xl md:text-4xl extra-black text-primary-800 mb-4">
+            <i class="fas fa-heart text-primary-600 mr-3"></i>What We Stand For
+        </h2>
+        <p class="text-lg text-gray-600 max-w-3xl mx-auto mb-12">
+            Our core values guide every decision we make at House Padi
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="p-6 bg-cream rounded-xl border border-gray-100 hover:shadow-md transition group">
+                <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary-800 transition">
+                    <i class="fas fa-shield-alt text-primary-800 group-hover:text-white text-2xl transition"></i>
+                </div>
+                <h3 class="text-xl font-bold text-primary-800 mb-2">Trust First</h3>
+                <p class="text-gray-600 text-sm">We never compromise on verification. Every listing and user is thoroughly vetted.</p>
+            </div>
+            
+            <div class="p-6 bg-cream rounded-xl border border-gray-100 hover:shadow-md transition group">
+                <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary-800 transition">
+                    <i class="fas fa-balance-scale text-primary-800 group-hover:text-white text-2xl transition"></i>
+                </div>
+                <h3 class="text-xl font-bold text-primary-800 mb-2">Fairness</h3>
+                <p class="text-gray-600 text-sm">We level the playing field. No more information asymmetry or unfair agent fees.</p>
+            </div>
+            
+            <div class="p-6 bg-cream rounded-xl border border-gray-100 hover:shadow-md transition group">
+                <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary-800 transition">
+                    <i class="fas fa-lightbulb text-primary-800 group-hover:text-white text-2xl transition"></i>
+                </div>
+                <h3 class="text-xl font-bold text-primary-800 mb-2">Innovation</h3>
+                <p class="text-gray-600 text-sm">We continuously improve our technology to solve real Nigerian housing problems.</p>
+            </div>
+            
+            <div class="p-6 bg-cream rounded-xl border border-gray-100 hover:shadow-md transition group">
+                <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary-800 transition">
+                    <i class="fas fa-users text-primary-800 group-hover:text-white text-2xl transition"></i>
+                </div>
+                <h3 class="text-xl font-bold text-primary-800 mb-2">Community</h3>
+                <p class="text-gray-600 text-sm">We're building more than a platform—we're building a movement for better housing.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Meet the Team -->
+<section class="py-16 md:py-24 bg-gray-50">
+    <div class="container mx-auto px-4 md:px-8 lg:px-[173px]">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl extra-black text-primary-800 mb-2">
+                <i class="fas fa-user-friends text-primary-600 mr-3"></i>Meet the Padi Team
+            </h2>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                The team behind your stress-free housing journey
+            </p>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Founder -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 text-center group hover:shadow-md transition">
+                <div class="relative mb-4 mx-auto w-32 h-32">
+                    <img src="{% static 'img/dr_shed.jpg' %}" alt="Dr. Terese Shadrach Akpem" class="w-full h-full object-cover rounded-full border-4 border-primary-100 group-hover:border-primary-800 transition">
+                </div>
+                <h3 class="text-xl font-bold text-primary-800">Dr. Terese Shadrach Akpem</h3>
+                <p class="text-sm text-primary-600 mb-2">Founder & CEO</p>
+                <p class="text-xs text-gray-500 mb-3">Veterinarian, Top AgriFood Pioneer</p>
+                <div class="flex justify-center space-x-3 text-gray-500">
+                    <a href="https://www.linkedin.com/in/akpemshadrach/" class="hover:text-primary-800"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="hover:text-primary-800"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+            
+            <!-- CTO -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 text-center group hover:shadow-md transition">
+                <div class="relative mb-4 mx-auto w-32 h-32">
+                    <img src="{% static 'img/esakris.png' %}" alt="Esa Kris" class="w-full h-full object-cover rounded-full border-4 border-primary-100 group-hover:border-primary-800 transition">
+                </div>
+                <h3 class="text-xl font-bold text-primary-800">Esa Kris</h3>
+                <p class="text-sm text-primary-600 mb-2">Web Developer</p>
+                <p class="text-xs text-gray-500 mb-3">Python/Django Expert</p>
+                <div class="flex justify-center space-x-3 text-gray-500">
+                    <a href="https://www.linkedin.com/in/esakris/" class="hover:text-primary-800"><i class="fab fa-linkedin"></i></a>
+                    <a href="https://github.com/EsaKris" class="hover:text-primary-800"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            
+            <!-- COO -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 text-center group hover:shadow-md transition">
+                <div class="relative mb-4 mx-auto w-32 h-32">
+                    <img src="{% static 'img/team-tunde.png' %}" alt="Tunde Balogun" class="w-full h-full object-cover rounded-full border-4 border-primary-100 group-hover:border-primary-800 transition">
+                </div>
+                <h3 class="text-xl font-bold text-primary-800">Tunde Balogun</h3>
+                <p class="text-sm text-primary-600 mb-2">COO</p>
+                <p class="text-xs text-gray-500 mb-3">Ex-Redemption Housing, Operations</p>
+                <div class="flex justify-center space-x-3 text-gray-500">
+                    <a href="#" class="hover:text-primary-800"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="hover:text-primary-800"><i class="fab fa-twitter"></i></a>
+                </div>
+            </div>
+            
+            <!-- Head of Product -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 text-center group hover:shadow-md transition">
+                <div class="relative mb-4 mx-auto w-32 h-32">
+                    <img src="{% static 'img/team-zainab.png' %}" alt="Zainab Musa" class="w-full h-full object-cover rounded-full border-4 border-primary-100 group-hover:border-primary-800 transition">
+                </div>
+                <h3 class="text-xl font-bold text-primary-800">Zainab Musa</h3>
+                <p class="text-sm text-primary-600 mb-2">Head of Product</p>
+                <p class="text-xs text-gray-500 mb-3">Ex-PiggyVest, UX Specialist</p>
+                <div class="flex justify-center space-x-3 text-gray-500">
+                    <a href="#" class="hover:text-primary-800"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" class="hover:text-primary-800"><i class="fab fa-dribbble"></i></a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-10">
+            <a href="#" class="text-primary-800 font-medium hover:text-primary-600 transition">
+                View Full Team <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Our Investors & Partners -->
+<section class="py-16 md:py-24 bg-white">
+    <div class="container mx-auto px-4 md:px-8 lg:px-[173px] text-center">
+        <h2 class="text-3xl md:text-4xl extra-black text-primary-800 mb-4">
+            <i class="fas fa-handshake text-primary-600 mr-3"></i>Trusted By
+        </h2>
+        <p class="text-lg text-gray-600 max-w-3xl mx-auto mb-12">
+            We're proud to partner with leading organizations
+        </p>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">
+            <div class="p-4 grayscale hover:grayscale-0 transition">
+                <img src="{% static 'img/partner-redemption.png' %}" alt="Redemption Housing" class="max-h-12 mx-auto">
+            </div>
+            <div class="p-4 grayscale hover:grayscale-0 transition">
+                <img src="{% static 'img/partner-y combinator.png' %}" alt="Y Combinator" class="max-h-12 mx-auto">
+            </div>
+            <div class="p-4 grayscale hover:grayscale-0 transition">
+                <img src="{% static 'img/partner-fcmb.png' %}" alt="FCMB" class="max-h-12 mx-auto">
+            </div>
+            <div class="p-4 grayscale hover:grayscale-0 transition">
+                <img src="{% static 'img/partner-nitda.png' %}" alt="NITDA" class="max-h-12 mx-auto">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Press & Media -->
+<section class="py-12 bg-gray-50">
+    <div class="container mx-auto px-4 md:px-8 lg:px-[173px]">
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-6 items-center text-center">
+            <div>
+                <span class="text-lg font-bold text-gray-400">TechCrunch</span>
+            </div>
+            <div>
+                <span class="text-lg font-bold text-gray-400">CNN</span>
+            </div>
+            <div>
+                <span class="text-lg font-bold text-gray-400">TechCabal</span>
+            </div>
+            <div>
+                <span class="text-lg font-bold text-gray-400">The Guardian</span>
+            </div>
+            <div>
+                <span class="text-lg font-bold text-gray-400">Nigerian Tribune</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Join Us CTA -->
+<section class="py-16 md:py-24 bg-primary-800 text-white">
+    <div class="container mx-auto px-4 md:px-8 lg:px-[173px] text-center">
+        <div class="max-w-3xl mx-auto">
+            <div class="w-20 h-20 bg-primary-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-hand-holding-heart text-white text-3xl"></i>
+            </div>
+            <h2 class="text-3xl md:text-4xl extra-black mb-4">Join Our Mission</h2>
+            <p class="text-lg text-primary-100 mb-8">
+                We're always looking for passionate people to help transform Nigerian real estate. 
+                Whether you're an engineer, designer, or operations specialist—we'd love to hear from you.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="" class="bg-white text-primary-800 hover:bg-gray-100 px-8 py-3 rounded-full transition flex items-center justify-center font-medium">
+                    <i class="fas fa-briefcase mr-2"></i> View Open Positions
+                </a>
+                <a href="{% url 'landing:contact' %}" class="bg-transparent border border-white text-white hover:bg-primary-700 px-8 py-3 rounded-full transition flex items-center justify-center">
+                    <i class="fas fa-envelope mr-2"></i> Contact Us
+                </a>
+            </div>
+            <p class="text-primary-300 mt-6 text-sm">5 open roles • Remote & Hybrid options</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
