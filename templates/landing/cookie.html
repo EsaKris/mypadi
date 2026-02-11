@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Cookie Policy - House Padi{% endblock %}
+<meta name="google-site-verification" content="QZ6tNBeQWZ2UXwDCV8YnXG0D7HAUk568dU5lwiy4Q1c" />
+
+{% block content %}
+<!-- Hero Section -->
+<div class="container mx-auto flex flex-col items-center pt-24 md:pt-32 px-4 md:px-8 lg:px-[173px] text-center">
+    <div class="max-w-[800px] mx-auto pb-4">
+        <div class="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-cookie-bite text-primary-800 text-3xl"></i>
+        </div>
+        <h1 class="text-4xl md:text-5xl lg:text-[64px] extra-black text-primary-800 leading-tight md:leading-[80px]">
+            Cookie Policy
+        </h1>
+        <p class="text-base md:text-[18px] text-gray-600 mt-4 md:mt-[32px] max-w-3xl mx-auto">
+            How House Padi uses cookies and similar technologies
+        </p>
+        <div class="mt-6">
+            <span class="bg-primary-50 text-primary-800 px-4 py-2 rounded-full text-sm font-medium">
+                <i class="fas fa-clock mr-2"></i>Effective: February 11, 2026
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- Cookie Policy Content -->
+<section class="py-16 md:py-24 bg-gray-50">
+    <div class="container mx-auto px-4 md:px-8 lg:px-[173px]">
+        <div class="max-w-4xl mx-auto">
+            <!-- What Are Cookies -->
+            <div class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-200 mb-6">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-question-circle text-primary-800 text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-primary-800">What Are Cookies?</h2>
+                </div>
+                
+                <p class="text-gray-700 mb-4">Cookies are small text files placed on your device when you visit a website. They help websites function properly, remember your preferences, and provide analytics to improve your experience.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                    <div class="bg-gray-50 p-4 rounded-lg text-center">
+                        <i class="fas fa-tachometer-alt text-primary-600 text-2xl mb-2"></i>
+                        <h3 class="font-bold text-primary-800 text-sm mb-1">Performance</h3>
+                        <p class="text-xs text-gray-600">Help us understand how visitors interact with our site</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg text-center">
+                        <i class="fas fa-sliders-h text-primary-600 text-2xl mb-2"></i>
+                        <h3 class="font-bold text-primary-800 text-sm mb-1">Functionality</h3>
+                        <p class="text-xs text-gray-600">Remember your preferences and settings</p>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg text-center">
+                        <i class="fas fa-bullseye text-primary-600 text-2xl mb-2"></i>
+                        <h3 class="font-bold text-primary-800 text-sm mb-1">Targeting</h3>
+                        <p class="text-xs text-gray-600">Deliver relevant advertisements</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cookie Table -->
+            <div class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-200 mb-6">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-table text-primary-800 text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-primary-800">Cookies We Use</h2>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+                        <thead class="bg-primary-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-sm font-bold text-primary-800">Cookie Name</th>
+                                <th class="px-4 py-3 text-left text-sm font-bold text-primary-800">Provider</th>
+                                <th class="px-4 py-3 text-left text-sm font-bold text-primary-800">Purpose</th>
+                                <th class="px-4 py-3 text-left text-sm font-bold text-primary-800">Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t border-gray-200">
+                                <td class="px-4 py-3 text-sm font-medium">session_id</td>
+                                <td class="px-4 py-3 text-sm">House Padi</td>
+                                <td class="px-4 py-3 text-sm">Maintains login session</td>
+                                <td class="px-4 py-3 text-sm">Session</td>
+                            </tr>
+                            <tr class="border-t border-gray-200 bg-gray-50">
+                                <td class="px-4 py-3 text-sm font-medium">csrf_token</td>
+                                <td class="px-4 py-3 text-sm">House Padi</td>
+                                <td class="px-4 py-3 text-sm">Security, prevents cross-site request forgery</td>
+                                <td class="px-4 py-3 text-sm">1 year</td>
+                            </tr>
+                            <tr class="border-t border-gray-200">
+                                <td class="px-4 py-3 text-sm font-medium">_ga</td>
+                                <td class="px-4 py-3 text-sm">Google Analytics</td>
+                                <td class="px-4 py-3 text-sm">Distinguishes users</td>
+                                <td class="px-4 py-3 text-sm">2 years</td>
+                            </tr>
+                            <tr class="border-t border-gray-200 bg-gray-50">
+                                <td class="px-4 py-3 text-sm font-medium">_gid</td>
+                                <td class="px-4 py-3 text-sm">Google Analytics</td>
+                                <td class="px-4 py-3 text-sm">Distinguishes users</td>
+                                <td class="px-4 py-3 text-sm">24 hours</td>
+                            </tr>
+                            <tr class="border-t border-gray-200">
+                                <td class="px-4 py-3 text-sm font-medium">_fbp</td>
+                                <td class="px-4 py-3 text-sm">Meta</td>
+                                <td class="px-4 py-3 text-sm">Facebook advertising</td>
+                                <td class="px-4 py-3 text-sm">3 months</td>
+                            </tr>
+                            <tr class="border-t border-gray-200 bg-gray-50">
+                                <td class="px-4 py-3 text-sm font-medium">pref_city</td>
+                                <td class="px-4 py-3 text-sm">House Padi</td>
+                                <td class="px-4 py-3 text-sm">Remembers your preferred location</td>
+                                <td class="px-4 py-3 text-sm">1 year</td>
+                            </tr>
+                            <tr class="border-t border-gray-200">
+                                <td class="px-4 py-3 text-sm font-medium">saved_searches</td>
+                                <td class="px-4 py-3 text-sm">House Padi</td>
+                                <td class="px-4 py-3 text-sm">Stores your recent property searches</td>
+                                <td class="px-4 py-3 text-sm">30 days</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Third-Party Cookies -->
+            <div class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-200 mb-6">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-handshake text-primary-800 text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-primary-800">Third-Party Cookies</h2>
+                </div>
+                
+                <p class="text-gray-700 mb-4">We allow certain third parties to place cookies on your device for analytics and advertising:</p>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                        <img src="{% static 'img/google-analytics-icon.png' %}" alt="Google" class="w-8 h-8 mr-3">
+                        <div>
+                            <h4 class="font-bold text-primary-800">Google Analytics</h4>
+                            <p class="text-xs text-gray-600">Tracks site usage and provides anonymized analytics. <a href="https://policies.google.com/privacy" target="_blank" class="text-primary-600 hover:underline">Learn more</a></p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                        <img src="{% static 'img/meta-icon.png' %}" alt="Meta" class="w-8 h-8 mr-3">
+                        <div>
+                            <h4 class="font-bold text-primary-800">Meta Pixel</h4>
+                            <p class="text-xs text-gray-600">Measures Facebook ad effectiveness and retargeting. <a href="https://www.facebook.com/policy.php" target="_blank" class="text-primary-600 hover:underline">Learn more</a></p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                        <img src="{% static 'img/hotjar-icon.png' %}" alt="Hotjar" class="w-8 h-8 mr-3">
+                        <div>
+                            <h4 class="font-bold text-primary-800">Hotjar</h4>
+                            <p class="text-xs text-gray-600">User behavior analytics and heatmaps. <a href="https://www.hotjar.com/legal/policies/privacy/" target="_blank" class="text-primary-600 hover:underline">Learn more</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Your Choices -->
+            <div class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-200 mb-6">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-user-cog text-primary-800 text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-primary-800">Your Cookie Choices</h2>
+                </div>
+                
+                <p class="text-gray-700 mb-4">You can control cookies in several ways:</p>
+                
+                <div class="space-y-4 mb-6">
+                    <div class="border-l-4 border-primary-600 pl-4 py-2">
+                        <h3 class="font-bold text-primary-800">Browser Settings</h3>
+                        <p class="text-sm text-gray-600">Most browsers allow you to block or delete cookies. Check your browser's help section:</p>
+                        <ul class="text-xs mt-2 space-y-1">
+                            <li><a href="#" class="text-primary-600 hover:underline">Chrome: Settings → Privacy and security → Cookies</a></li>
+                            <li><a href="#" class="text-primary-600 hover:underline">Firefox: Options → Privacy & Security → Cookies</a></li>
+                            <li><a href="#" class="text-primary-600 hover:underline">Safari: Preferences → Privacy → Cookies</a></li>
+                            <li><a href="#" class="text-primary-600 hover:underline">Edge: Settings → Site permissions → Cookies</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="border-l-4 border-primary-600 pl-4 py-2">
+                        <h3 class="font-bold text-primary-800">Opt-Out Tools</h3>
+                        <p class="text-sm text-gray-600">Industry opt-out programs:</p>
+                        <ul class="text-xs mt-2 space-y-1">
+                            <li><a href="https://optout.aboutads.info" target="_blank" class="text-primary-600 hover:underline">Digital Advertising Alliance (DAA)</a></li>
+                            <li><a href="https://optout.networkadvertising.org" target="_blank" class="text-primary-600 hover:underline">Network Advertising Initiative (NAI)</a></li>
+                            <li><a href="https://tools.google.com/dlpage/gaoptout" target="_blank" class="text-primary-600 hover:underline">Google Analytics Opt-out Browser Add-on</a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-400">
+                    <p class="text-sm"><span class="font-bold text-yellow-800">Important:</span> Blocking essential cookies may prevent some platform features from working properly, such as login and saved properties.</p>
+                </div>
+                
+                <button id="manageCookiesFromPolicy" class="mt-6 bg-primary-800 text-white px-6 py-3 rounded-md hover:bg-primary-700 transition flex items-center">
+                    <i class="fas fa-cog mr-2"></i> Manage Cookie Preferences
+                </button>
+            </div>
+            
+            <!-- Do Not Track -->
+            <div class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-200 mb-6">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-ban text-primary-800 text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-primary-800">Do Not Track (DNT)</h2>
+                </div>
+                
+                <p class="text-gray-700">Some browsers transmit "Do Not Track" signals. Currently, no uniform standard for responding to DNT signals exists. We respond to DNT signals by continuing our current practices unless a legal standard is established.</p>
+            </div>
+            
+            <!-- Updates -->
+            <div class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-gray-200 mb-6">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-sync-alt text-primary-800 text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl md:text-3xl font-bold text-primary-800">Policy Updates</h2>
+                </div>
+                
+                <p class="text-gray-700">We may update this Cookie Policy from time to time. The latest version will always be available at myhousepadi.com/cookie-policy. Significant changes will be communicated via email or platform notification.</p>
+            </div>
+            
+            <!-- Contact -->
+            <div class="bg-primary-800 p-6 md:p-8 rounded-xl shadow-sm text-white">
+                <h2 class="text-2xl font-bold mb-4">Questions About Cookies?</h2>
+                <p class="mb-6 text-primary-100">Our privacy team is happy to answer any questions about how we use cookies.</p>
+                
+                <div class="flex flex-col md:flex-row gap-4">
+                    <a href="mailto:privacy@myhousepadi.com" class="bg-white text-primary-800 hover:bg-gray-100 px-6 py-3 rounded-lg font-medium transition inline-flex items-center justify-center">
+                        <i class="fas fa-envelope mr-2"></i> privacy@myhousepadi.com
+                    </a>
+                    <a href="{% url 'landing:policy' %}" class="bg-transparent border border-white text-white hover:bg-primary-700 px-6 py-3 rounded-lg font-medium transition inline-flex items-center justify-center">
+                        <i class="fas fa-shield-alt mr-2"></i> Privacy Policy
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div id="cookieModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 transform transition-all duration-300">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold text-primary-800 flex items-center">
+                    <i class="fas fa-cookie-bite text-primary-600 mr-2"></i> Cookie Preferences
+                </h3>
+                <button class="close-cookie-modal text-gray-500 hover:text-primary-800">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-6">
+            <p class="text-gray-600 mb-4">We use cookies to enhance your experience on House Padi. Select your preferences:</p>
+            
+            <div class="space-y-4 mb-6">
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <h4 class="font-bold text-primary-800">Essential Cookies</h4>
+                        <p class="text-xs text-gray-600">Required for platform functionality. Cannot be disabled.</p>
+                    </div>
+                    <span class="px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-xs font-medium">Always Active</span>
+                </div>
+                
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <h4 class="font-bold text-primary-800">Preference Cookies</h4>
+                        <p class="text-xs text-gray-600">Remember your settings and preferences.</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="prefCookies" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                    </label>
+                </div>
+                
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <h4 class="font-bold text-primary-800">Analytics Cookies</h4>
+                        <p class="text-xs text-gray-600">Help us improve our platform by understanding usage.</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="analyticsCookies" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                    </label>
+                </div>
+                
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div>
+                        <h4 class="font-bold text-primary-800">Marketing Cookies</h4>
+                        <p class="text-xs text-gray-600">Personalize ads and measure campaign effectiveness.</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="marketingCookies" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="p-6 border-t border-gray-200 flex justify-end gap-4">
+            <button id="saveCookiePreferences" class="bg-primary-800 text-white px-6 py-2 rounded-md hover:bg-primary-700 transition">
+                Save Preferences
+            </button>
+            <button id="acceptAllCookiesModal" class="bg-white border border-primary-800 text-primary-800 px-6 py-2 rounded-md hover:bg-primary-50 transition">
+                Accept All
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Link to open cookie preferences
+    const manageBtn = document.getElementById('manageCookiesFromPolicy');
+    const cookieModal = document.getElementById('cookieModal');
+    
+    if (manageBtn && cookieModal) {
+        manageBtn.addEventListener('click', function() {
+            cookieModal.classList.remove('hidden');
+            cookieModal.classList.add('flex');
+        });
+    }
+    
+    if (cookieModal) {
+        cookieModal.addEventListener('click', function(e) {
+            if (e.target === cookieModal) {
+                cookieModal.classList.add('hidden');
+                cookieModal.classList.remove('flex');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,723 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Contact Us - House Padi{% endblock %}
+<meta name="google-site-verification" content="QZ6tNBeQWZ2UXwDCV8YnXG0D7HAUk568dU5lwiy4Q1c" />
+
+{% block content %}
+<!-- Hero Section -->
+<div class="container mx-auto flex flex-col items-center pt-24 md:pt-32 px-4 md:px-8 lg:px-[173px] text-center">
+    <div class="max-w-[800px] mx-auto pb-4">
+        <div class="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fas fa-headset text-primary-800 text-3xl"></i>
+        </div>
+        <h1 class="text-4xl md:text-5xl lg:text-[64px] extra-black text-primary-800 leading-tight md:leading-[80px]">
+            We're Here to Help
+        </h1>
+        <p class="text-base md:text-[18px] text-gray-600 mt-4 md:mt-[32px] max-w-3xl mx-auto">
+            Have questions about listings, your account, or need technical support? 
+            Our team responds within 15 minutes during business hours.
+        </p>
+    </div>
+</div>
+
+<!-- Quick Contact Options -->
+<section class="py-8 md:py-12 bg-gray-50">
+    <div class="container mx-auto px-4 md:px-8 lg:px-[173px]">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Live Chat -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition text-center group">
+                <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary-800 transition">
+                    <i class="fas fa-comment-dots text-primary-800 group-hover:text-white text-2xl transition"></i>
+                </div>
+                <h3 class="text-xl font-bold text-primary-800 mb-2">Live Chat</h3>
+                <p class="text-gray-600 text-sm mb-4">Chat with our support team instantly</p>
+                <p class="text-xs text-green-600 mb-2"><i class="fas fa-circle mr-1"></i> Online • < 2 min response</p>
+                <button id="startChatBtn" class="w-full bg-primary-800 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition flex items-center justify-center">
+                    <i class="fas fa-comment mr-2"></i> Start Chat
+                </button>
+            </div>
+            
+            <!-- Phone Support -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition text-center group">
+                <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary-800 transition">
+                    <i class="fas fa-phone-alt text-primary-800 group-hover:text-white text-2xl transition"></i>
+                </div>
+                <h3 class="text-xl font-bold text-primary-800 mb-2">Phone Support</h3>
+                <p class="text-gray-600 text-sm mb-4">Speak directly with a support agent</p>
+                <p class="text-sm font-medium text-primary-800 mb-2">+234 (0) 800 123 4567</p>
+                <p class="text-xs text-gray-500">Mon-Fri: 8am - 6pm | Sat: 9am - 3pm</p>
+            </div>
+            
+            <!-- Email Support -->
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition text-center group">
+                <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary-800 transition">
+                    <i class="fas fa-envelope text-primary-800 group-hover:text-white text-2xl transition"></i>
+                </div>
+                <h3 class="text-xl font-bold text-primary-800 mb-2">Email Support</h3>
+                <p class="text-gray-600 text-sm mb-4">Get a detailed response within 4 hours</p>
+                <p class="text-sm font-medium text-primary-800 mb-2">support@myhousepadi.com</p>
+                <p class="text-xs text-gray-500">We reply within 4 hours, 24/7</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Contact Section -->
+<section class="py-16 md:py-24 bg-white">
+    <div class="container mx-auto px-4 md:px-8 lg:px-[173px]">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- Contact Form -->
+            <div>
+                <h2 class="text-2xl md:text-3xl font-bold text-primary-800 mb-2">
+                    <i class="fas fa-paper-plane text-primary-600 mr-3"></i>Send Us a Message
+                </h2>
+                <p class="text-gray-600 mb-8">
+                    Fill out the form below and we'll get back to you within 4 hours.
+                </p>
+                
+                <form id="contactForm" class="space-y-6">
+                    <!-- Name Field -->
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-primary-800 mb-1">
+                            Full Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="name" name="name" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-600 outline-none transition"
+                               placeholder="Enter your full name">
+                    </div>
+                    
+                    <!-- Email Field -->
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-primary-800 mb-1">
+                            Email Address <span class="text-red-500">*</span>
+                        </label>
+                        <input type="email" id="email" name="email" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-600 outline-none transition"
+                               placeholder="you@example.com">
+                    </div>
+                    
+                    <!-- Phone Field -->
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-primary-800 mb-1">
+                            Phone Number
+                        </label>
+                        <input type="tel" id="phone" name="phone"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-600 outline-none transition"
+                               placeholder="0801 234 5678">
+                    </div>
+                    
+                    <!-- Subject Field -->
+                    <div>
+                        <label for="subject" class="block text-sm font-medium text-primary-800 mb-1">
+                            Subject <span class="text-red-500">*</span>
+                        </label>
+                        <select id="subject" name="subject" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-600 outline-none transition bg-white">
+                            <option value="" disabled selected>Select a topic</option>
+                            <option value="general">General Inquiry</option>
+                            <option value="property">Property Listing Issue</option>
+                            <option value="account">Account & Verification</option>
+                            <option value="payment">Payment & Fees</option>
+                            <option value="technical">Technical Support</option>
+                            <option value="partnership">Partnership Opportunity</option>
+                            <option value="complaint">Complaint / Escalation</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Message Field -->
+                    <div>
+                        <label for="message" class="block text-sm font-medium text-primary-800 mb-1">
+                            Message <span class="text-red-500">*</span>
+                        </label>
+                        <textarea id="message" name="message" rows="5" required
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-600 outline-none transition resize-none"
+                                  placeholder="How can we help you?"></textarea>
+                    </div>
+                    
+                    <!-- Attachment -->
+                    <div>
+                        <label for="attachment" class="block text-sm font-medium text-primary-800 mb-1">
+                            Attachment (Screenshots, Documents)
+                        </label>
+                        <div class="border border-gray-300 rounded-lg p-4 bg-gray-50">
+                            <input type="file" id="attachment" name="attachment" class="hidden" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx">
+                            <div class="flex items-center justify-between">
+                                <span id="file-name" class="text-sm text-gray-500">No file chosen</span>
+                                <button type="button" id="attachBtn" class="bg-white border border-primary-800 text-primary-800 px-4 py-2 rounded-md hover:bg-primary-50 transition text-sm flex items-center">
+                                    <i class="fas fa-paperclip mr-2"></i> Choose File
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">Max size: 10MB. Supported: JPG, PNG, PDF, DOC</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Consent Checkbox -->
+                    <div class="flex items-start">
+                        <input type="checkbox" id="consent" name="consent" required
+                               class="mt-1 mr-3 w-5 h-5 accent-primary-800">
+                        <label for="consent" class="text-sm text-gray-600">
+                            I consent to House Padi processing my personal data to respond to my inquiry. 
+                            <a href="{% url 'landing:policy' %}" class="text-primary-800 hover:underline">Privacy Policy</a>.
+                        </label>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <button type="submit" 
+                            class="w-full bg-primary-800 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition font-medium flex items-center justify-center">
+                        <i class="fas fa-paper-plane mr-2"></i> Send Message
+                    </button>
+                </form>
+                
+                <!-- Form Success Message (hidden by default) -->
+                <div id="formSuccess" class="hidden mt-6 p-4 bg-green-50 border border-green-200 rounded-lg text-center">
+                    <i class="fas fa-check-circle text-green-500 text-3xl mb-2"></i>
+                    <h4 class="font-bold text-green-800 mb-1">Message Sent Successfully!</h4>
+                    <p class="text-sm text-green-700">Thank you for contacting House Padi. We'll respond within 4 hours.</p>
+
+                </div>
+            </div>
+            
+            <!-- Contact Information & Map -->
+            <div>
+                <!-- Office Locations -->
+                <h2 class="text-2xl md:text-3xl font-bold text-primary-800 mb-6">
+                    <i class="fas fa-map-marker-alt text-primary-600 mr-3"></i>Visit Our Offices
+                </h2>
+                
+                <div class="space-y-6 mb-8">
+                    <!-- Lagos HQ -->
+                    <div class="bg-gray-50 p-5 rounded-lg border border-gray-200 hover:border-primary-400 transition">
+                        <div class="flex items-start">
+                            <div class="w-10 h-10 bg-primary-800 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                <i class="fas fa-building text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-primary-800">Lagos Headquarters</h3>
+                                <p class="text-sm text-gray-600 mb-2">
+                                    24 Bishop Aboyade Cole,<br>
+                                    Victoria Island, Lagos
+                                </p>
+                                <div class="flex items-center text-xs text-gray-500">
+                                    <i class="fas fa-phone-alt mr-2 text-primary-600"></i>
+                                    +234 (0) 800 123 4567
+                                </div>
+                                <div class="flex items-center text-xs text-gray-500 mt-1">
+                                    <i class="fas fa-envelope mr-2 text-primary-600"></i>
+                                    lagos@myhousepadi.com
+                                </div>
+                                <div class="flex items-center text-xs text-gray-500 mt-1">
+                                    <i class="fas fa-clock mr-2 text-primary-600"></i>
+                                    Mon-Fri: 8am - 6pm | Sat: 9am - 3pm
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Abuja Office -->
+                    <div class="bg-gray-50 p-5 rounded-lg border border-gray-200 hover:border-primary-400 transition">
+                        <div class="flex items-start">
+                            <div class="w-10 h-10 bg-primary-800 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                <i class="fas fa-landmark text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-primary-800">Abuja Office</h3>
+                                <p class="text-sm text-gray-600 mb-2">
+                                    Suite 205, Ceddi Plaza,<br>
+                                    Central Business District, Abuja
+                                </p>
+                                <div class="flex items-center text-xs text-gray-500">
+                                    <i class="fas fa-phone-alt mr-2 text-primary-600"></i>
+                                    +234 (0) 800 890 1234
+                                </div>
+                                <div class="flex items-center text-xs text-gray-500 mt-1">
+                                    <i class="fas fa-envelope mr-2 text-primary-600"></i>
+                                    abuja@myhousepadi.com
+                                </div>
+                                <div class="flex items-center text-xs text-gray-500 mt-1">
+                                    <i class="fas fa-clock mr-2 text-primary-600"></i>
+                                    Mon-Fri: 9am - 5pm
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Port Harcourt Office -->
+                    <div class="bg-gray-50 p-5 rounded-lg border border-gray-200 hover:border-primary-400 transition">
+                        <div class="flex items-start">
+                            <div class="w-10 h-10 bg-primary-800 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                                <i class="fas fa-water text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-primary-800">Port Harcourt Office</h3>
+                                <p class="text-sm text-gray-600 mb-2">
+                                    15 Woji Road, GRA Phase 2,<br>
+                                    Port Harcourt, Rivers State
+                                </p>
+                                <div class="flex items-center text-xs text-gray-500">
+                                    <i class="fas fa-phone-alt mr-2 text-primary-600"></i>
+                                    +234 (0) 800 567 8901
+                                </div>
+                                <div class="flex items-center text-xs text-gray-500 mt-1">
+                                    <i class="fas fa-envelope mr-2 text-primary-600"></i>
+                                    ph@myhousepadi.com
+                                </div>
+                                <div class="flex items-center text-xs text-gray-500 mt-1">
+                                    <i class="fas fa-clock mr-2 text-primary-600"></i>
+                                    Mon-Fri: 9am - 5pm
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Google Map -->
+                <div class="mb-8">
+                    <h3 class="font-bold text-primary-800 mb-3 flex items-center">
+                        <i class="fas fa-map-marked-alt text-primary-600 mr-2"></i> Find Us in Lagos
+                    </h3>
+                    <div class="relative h-[250px] rounded-xl overflow-hidden shadow-md border border-gray-200">
+                        <div class="absolute inset-0 z-10 cursor-pointer" onclick="window.open('https://www.google.com/maps/place/Victoria+Island,+Lagos/@6.4281,3.4213,15z/data=!3m1!4b1!4m6!3m5!1s0x103bf4d047d3b9c1:0x7d1a4b3e9b8a2f0!8m2!3d6.4281!4d3.4213!16zL20vMDJjaGs?entry=ttu', '_blank')"></div>
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3964.5847123456789!2d3.4213!3d6.4281!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x103bf4d047d3b9c1%3A0x7d1a4b3e9b8a2f0!2sVictoria%20Island%2C%20Lagos!5e0!3m2!1sen!2sng!4v1234567890!5m2!1sen!2sng" 
+                                class="w-full h-full pointer-events-none" 
+                                style="border:0;" 
+                                allowfullscreen="" 
+                                loading="lazy" 
+                                referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2 flex items-center">
+                        <i class="fas fa-info-circle mr-1"></i> Click on the map to open in Google Maps
+                    </p>
+                </div>
+                
+                <!-- Social Media Links -->
+                <div class="bg-primary-50 p-5 rounded-lg border border-primary-200">
+                    <h3 class="font-bold text-primary-800 mb-3 flex items-center">
+                        <i class="fas fa-share-alt text-primary-600 mr-2"></i> Connect With Us
+                    </h3>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="#" class="bg-white w-10 h-10 rounded-full flex items-center justify-center text-primary-800 hover:bg-primary-800 hover:text-white transition shadow-sm">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="bg-white w-10 h-10 rounded-full flex items-center justify-center text-primary-800 hover:bg-primary-800 hover:text-white transition shadow-sm">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="bg-white w-10 h-10 rounded-full flex items-center justify-center text-primary-800 hover:bg-primary-800 hover:text-white transition shadow-sm">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="bg-white w-10 h-10 rounded-full flex items-center justify-center text-primary-800 hover:bg-primary-800 hover:text-white transition shadow-sm">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="bg-white w-10 h-10 rounded-full flex items-center justify-center text-primary-800 hover:bg-primary-800 hover:text-white transition shadow-sm">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                        <a href="#" class="bg-white w-10 h-10 rounded-full flex items-center justify-center text-primary-800 hover:bg-primary-800 hover:text-white transition shadow-sm">
+                            <i class="fab fa-tiktok"></i>
+                        </a>
+                    </div>
+                    <p class="text-xs text-gray-600 mt-3">
+                        <i class="fas fa-hashtag text-primary-600 mr-1"></i> Follow us for property tips, market updates, and success stories.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section - Contact Specific -->
+<section class="py-16 md:py-24 bg-gray-50">
+    <div class="container mx-auto px-4 md:px-8 lg:px-[173px]">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl extra-black text-primary-800 mb-2">
+                <i class="fas fa-question-circle text-primary-600 mr-2"></i> Frequently Asked Questions
+            </h2>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                Quick answers to common contact and support questions
+            </p>
+        </div>
+        
+        <div class="max-w-3xl mx-auto">
+            <!-- FAQ Accordion -->
+            <div class="space-y-4">
+                <!-- FAQ 1 -->
+                <div class="faq-item bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+                    <button class="flex justify-between items-center w-full text-left">
+                        <h3 class="font-bold text-primary-800">
+                            <i class="fas fa-clock text-primary-600 mr-2"></i> What are your response times?
+                        </h3>
+                        <i class="fas fa-chevron-down text-primary-600 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-content hidden mt-3 text-gray-600 text-sm">
+                        <p>We strive to respond within:</p>
+                        <ul class="list-disc pl-5 mt-2 space-y-1">
+                            <li><strong>Live Chat:</strong> 2 minutes (during business hours)</li>
+                            <li><strong>Email:</strong> 4 hours</li>
+                            <li><strong>Phone:</strong> Immediate (when calling during business hours)</li>
+                            <li><strong>Social Media:</strong> 6 hours</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- FAQ 2 -->
+                <div class="faq-item bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+                    <button class="flex justify-between items-center w-full text-left">
+                        <h3 class="font-bold text-primary-800">
+                            <i class="fas fa-flag text-primary-600 mr-2"></i> How do I report a fake listing?
+                        </h3>
+                        <i class="fas fa-chevron-down text-primary-600 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-content hidden mt-3 text-gray-600 text-sm">
+                        <p>If you suspect a fake or misleading listing:</p>
+                        <ol class="list-decimal pl-5 mt-2 space-y-1">
+                            <li>Click the "Report" button on the property page</li>
+                            <li>Select "Fake/Misleading Listing" as the reason</li>
+                            <li>Provide any additional details or evidence</li>
+                            <li>Our trust & safety team will investigate within 2 hours</li>
+                        </ol>
+                        <p class="mt-2 text-xs text-primary-700">You can also email abuse@myhousepadi.com directly for urgent reports.</p>
+                    </div>
+                </div>
+                
+                <!-- FAQ 3 -->
+                <div class="faq-item bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+                    <button class="flex justify-between items-center w-full text-left">
+                        <h3 class="font-bold text-primary-800">
+                            <i class="fas fa-user-lock text-primary-600 mr-2"></i> I forgot my password / can't log in
+                        </h3>
+                        <i class="fas fa-chevron-down text-primary-600 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-content hidden mt-3 text-gray-600 text-sm">
+                        <p>Don't worry! You can reset your password:</p>
+                        <ol class="list-decimal pl-5 mt-2 space-y-1">
+                            <li>Click "Forgot Password" on the login page</li>
+                            <li>Enter your registered email address</li>
+                            <li>Check your inbox for the reset link (valid for 30 minutes)</li>
+                            <li>Create a new password</li>
+                        </ol>
+                        <p class="mt-2">Still having trouble? Contact support with your registered email and phone number.</p>
+                    </div>
+                </div>
+                
+                <!-- FAQ 4 -->
+                <div class="faq-item bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+                    <button class="flex justify-between items-center w-full text-left">
+                        <h3 class="font-bold text-primary-800">
+                            <i class="fas fa-handshake text-primary-600 mr-2"></i> Do you offer in-person support?
+                        </h3>
+                        <i class="fas fa-chevron-down text-primary-600 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-content hidden mt-3 text-gray-600 text-sm">
+                        <p>Yes! We have physical offices in Lagos, Abuja, and Port Harcourt. Walk-ins are welcome during business hours for:</p>
+                        <ul class="list-disc pl-5 mt-2 space-y-1">
+                            <li>Account verification assistance</li>
+                            <li>Property listing help</li>
+                            <li>Document review</li>
+                            <li>General inquiries</li>
+                        </ul>
+                        <p class="mt-2 text-xs">Appointments are recommended but not required.</p>
+                    </div>
+                </div>
+                
+                <!-- FAQ 5 -->
+                <div class="faq-item bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+                    <button class="flex justify-between items-center w-full text-left">
+                        <h3 class="font-bold text-primary-800">
+                            <i class="fas fa-briefcase text-primary-600 mr-2"></i> I'm a property owner. How do I get support?
+                        </h3>
+                        <i class="fas fa-chevron-down text-primary-600 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-content hidden mt-3 text-gray-600 text-sm">
+                        <p>Property owners and landlords have dedicated support channels:</p>
+                        <ul class="list-disc pl-5 mt-2 space-y-1">
+                            <li><strong>Owner Hotline:</strong> +234 (0) 800 777 8888</li>
+                            <li><strong>Email:</strong> landlords@myhousepadi.com</li>
+                            <li><strong>WhatsApp:</strong> +234 (0) 800 999 0000</li>
+                        </ul>
+                        <p class="mt-2">Priority support for owners with active listings.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Emergency Support Banner -->
+<section class="py-8 md:py-12 bg-primary-800 text-white">
+    <div class="container mx-auto px-4 md:px-8 lg:px-[173px]">
+        <div class="flex flex-col md:flex-row items-center justify-between">
+            <div class="flex items-center mb-4 md:mb-0">
+                <div class="w-12 h-12 bg-primary-600 rounded-full flex items-center justify-center mr-4">
+                    <i class="fas fa-exclamation-triangle text-white text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold">Urgent Issue?</h3>
+                    <p class="text-primary-200 text-sm">24/7 emergency support for scams, security concerns, or account takeover</p>
+                </div>
+            </div>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <a href="tel:+2348001234567" class="bg-white text-primary-800 hover:bg-gray-100 px-6 py-3 rounded-lg font-medium transition flex items-center">
+                    <i class="fas fa-phone-alt mr-2"></i> Emergency Line
+                </a>
+                <a href="mailto:security@myhousepadi.com" class="bg-transparent border border-white text-white hover:bg-primary-700 px-6 py-3 rounded-lg font-medium transition flex items-center">
+                    <i class="fas fa-shield-alt mr-2"></i> Report Security Issue
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- JavaScript for Contact Page -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // FAQ Accordion
+    const faqItems = document.querySelectorAll('.faq-item button');
+    faqItems.forEach(button => {
+        button.addEventListener('click', function() {
+            const content = this.nextElementSibling;
+            const icon = this.querySelector('.fa-chevron-down');
+            
+            // Toggle current FAQ
+            content.classList.toggle('hidden');
+            icon.style.transform = content.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+        });
+    });
+    
+    // File attachment handler
+    const attachBtn = document.getElementById('attachBtn');
+    const fileInput = document.getElementById('attachment');
+    const fileNameSpan = document.getElementById('file-name');
+    
+    if (attachBtn && fileInput) {
+        attachBtn.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                fileNameSpan.textContent = this.files[0].name;
+                fileNameSpan.classList.add('text-primary-800');
+            } else {
+                fileNameSpan.textContent = 'No file chosen';
+                fileNameSpan.classList.remove('text-primary-800');
+            }
+        });
+    }
+    
+    // Form submission
+    const contactForm = document.getElementById('contactForm');
+    const formSuccess = document.getElementById('formSuccess');
+    
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Simulate form submission (in production, send to server)
+            // fetch('/api/contact/', { method: 'POST', body: FormData })
+            
+            // Show success message
+            contactForm.classList.add('hidden');
+            formSuccess.classList.remove('hidden');
+            
+            // Reset form (commented out for demo)
+            // contactForm.reset();
+            
+            // Scroll to success message
+            formSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    }
+    
+    // Live Chat button
+    const chatBtn = document.getElementById('startChatBtn');
+    if (chatBtn) {
+        chatBtn.addEventListener('click', function() {
+            // Open chat widget (in production, integrate with Intercom/Tawk.to)
+            alert('Live chat would open here. In production, integrate with a chat service.');
+        });
+    }
+    
+    // Department contact cards - copy to clipboard functionality
+    const contactCards = document.querySelectorAll('.bg-gray-50 .text-primary-800');
+    contactCards.forEach(card => {
+        if (card.textContent.includes('@')) {
+            card.addEventListener('click', function() {
+                const email = this.textContent.trim();
+                navigator.clipboard.writeText(email).then(() => {
+                    showToast('Email copied to clipboard');
+                });
+            });
+            card.style.cursor = 'pointer';
+        }
+    });
+    
+    // Toast notification function
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-4 right-4 bg-primary-800 text-white px-4 py-2 rounded-md shadow-lg transform translate-y-10 opacity-0 transition-all duration-300 z-50';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.remove('translate-y-10', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+        }, 10);
+        
+        setTimeout(() => {
+            toast.classList.remove('translate-y-0', 'opacity-100');
+            toast.classList.add('translate-y-10', 'opacity-0');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+    
+    // Validation for phone number (Nigerian format)
+    const phoneInput = document.getElementById('phone');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function() {
+            // Basic Nigerian phone number validation
+            let value = this.value.replace(/\D/g, '');
+            if (value.length > 11) value = value.slice(0, 11);
+            this.value = value;
+        });
+    }
+});
+</script>
+
+<!-- Department Contact Cards -->
+<section class="py-12 bg-white">
+    <div class="container mx-auto px-4 md:px-8 lg:px-[173px]">
+        <h2 class="text-2xl md:text-3xl font-bold text-primary-800 mb-6 text-center">
+            <i class="fas fa-sitemap text-primary-600 mr-3"></i> Contact the Right Department
+        </h2>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:shadow-md transition">
+                <div class="flex items-center mb-2">
+                    <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-home text-primary-800 text-sm"></i>
+                    </div>
+                    <h3 class="font-bold text-primary-800">Property Support</h3>
+                </div>
+                <p class="text-xs text-gray-500 mb-2">Listings, verification, property issues</p>
+                <p class="text-sm font-medium text-primary-800">property@myhousepadi.com</p>
+            </div>
+            
+            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:shadow-md transition">
+                <div class="flex items-center mb-2">
+                    <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-user-check text-primary-800 text-sm"></i>
+                    </div>
+                    <h3 class="font-bold text-primary-800">Verification</h3>
+                </div>
+                <p class="text-xs text-gray-500 mb-2">KYC, document verification, badges</p>
+                <p class="text-sm font-medium text-primary-800">verify@myhousepadi.com</p>
+            </div>
+            
+            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:shadow-md transition">
+                <div class="flex items-center mb-2">
+                    <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-coins text-primary-800 text-sm"></i>
+                    </div>
+                    <h3 class="font-bold text-primary-800">Billing & Payments</h3>
+                </div>
+                <p class="text-xs text-gray-500 mb-2">Fees, invoices, payment issues</p>
+                <p class="text-sm font-medium text-primary-800">billing@myhousepadi.com</p>
+            </div>
+            
+            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 hover:shadow-md transition">
+                <div class="flex items-center mb-2">
+                    <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="fas fa-gavel text-primary-800 text-sm"></i>
+                    </div>
+                    <h3 class="font-bold text-primary-800">Legal & Compliance</h3>
+                </div>
+                <p class="text-xs text-gray-500 mb-2">Terms, privacy, DPO, subpoenas</p>
+                <p class="text-sm font-medium text-primary-800">legal@myhousepadi.com</p>
+            </div>
+        </div>
+        
+        <div class="text-center mt-6">
+            <p class="text-sm text-gray-600">
+                <i class="fas fa-clock mr-1 text-primary-600"></i> All departments respond within 4 hours, Monday-Saturday.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Feedback / NPS Widget -->
+<section class="py-8 bg-gray-100">
+    <div class="container mx-auto px-4 md:px-8 lg:px-[173px] text-center">
+        <div class="flex flex-col md:flex-row items-center justify-between">
+            <div class="flex items-center mb-4 md:mb-0">
+                <i class="fas fa-star text-yellow-400 text-2xl mr-3"></i>
+                <div>
+                    <h4 class="font-bold text-primary-800">How did we do?</h4>
+                    <p class="text-xs text-gray-600">Rate your support experience</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button class="feedback-btn w-10 h-10 bg-white border border-gray-300 rounded-full hover:bg-red-100 hover:border-red-500 transition flex items-center justify-center text-gray-600 hover:text-red-600" data-rating="1">
+                    😞
+                </button>
+                <button class="feedback-btn w-10 h-10 bg-white border border-gray-300 rounded-full hover:bg-orange-100 hover:border-orange-500 transition flex items-center justify-center text-gray-600 hover:text-orange-600" data-rating="2">
+                    😐
+                </button>
+                <button class="feedback-btn w-10 h-10 bg-white border border-gray-300 rounded-full hover:bg-yellow-100 hover:border-yellow-500 transition flex items-center justify-center text-gray-600 hover:text-yellow-600" data-rating="3">
+                    🙂
+                </button>
+                <button class="feedback-btn w-10 h-10 bg-white border border-gray-300 rounded-full hover:bg-green-100 hover:border-green-500 transition flex items-center justify-center text-gray-600 hover:text-green-600" data-rating="4">
+                    😊
+                </button>
+                <button class="feedback-btn w-10 h-10 bg-white border border-gray-300 rounded-full hover:bg-green-200 hover:border-green-600 transition flex items-center justify-center text-gray-600 hover:text-green-700" data-rating="5">
+                    😍
+                </button>
+            </div>
+        </div>
+        
+        <!-- Feedback thank you message -->
+        <div id="feedbackThankYou" class="hidden mt-4 text-sm text-primary-800 font-medium">
+            <i class="fas fa-check-circle mr-2"></i> Thank you for your feedback!
+        </div>
+    </div>
+</section>
+
+<script>
+    // Feedback buttons
+    const feedbackBtns = document.querySelectorAll('.feedback-btn');
+    const feedbackThankYou = document.getElementById('feedbackThankYou');
+    
+    feedbackBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const rating = this.getAttribute('data-rating');
+            
+            // In production, send to analytics
+            // ga('send', 'event', 'feedback', 'rating', rating);
+            
+            // Show thank you message
+            if (feedbackThankYou) {
+                feedbackThankYou.classList.remove('hidden');
+                setTimeout(() => {
+                    feedbackThankYou.classList.add('hidden');
+                }, 3000);
+            }
+        });
+    });
+</script>
+
+<!-- CSS for contact page -->
+<style>
+    .faq-item button .fa-chevron-down {
+        transition: transform 0.3s ease;
+    }
+    
+    .feedback-btn {
+        transition: all 0.2s ease;
+    }
+    
+    .feedback-btn:hover {
+        transform: scale(1.1);
+    }
+    
+    /* Smooth scrolling for anchor links */
+    html {
+        scroll-behavior: smooth;
+    }
+</style>
+{% endblock %}

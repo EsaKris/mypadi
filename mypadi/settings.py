@@ -18,7 +18,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY
 SECRET_KEY = os.getenv('SECRET_KEY')
-DEBUG = False  # Production must have DEBUG=False
+DEBUG = True  # Production must have DEBUG=False
 ALLOWED_HOSTS = [
     'myhousepadi.com',
     'www.myhousepadi.com',

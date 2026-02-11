@@ -91,3 +91,35 @@ class PropertyDetailView(DetailView):
             is_active=True
         ).exclude(id=property.id).select_related('landlord').prefetch_related('images')[:4]
         return context
+
+
+from django.shortcuts import render
+from django.views.generic import TemplateView
+
+# ============================================
+# SIMPLE STATIC PAGE VIEWS - NO CONTEXT NEEDED
+# ============================================
+
+class TermsOfServiceView(TemplateView):
+    """Terms of Service page"""
+    template_name = 'landing/terms.html'
+
+
+class PrivacyPolicyView(TemplateView):
+    """Privacy Policy page"""
+    template_name = 'landing/policy.html'
+
+
+class CookiePolicyView(TemplateView):
+    """Cookie Policy page"""
+    template_name = 'landing/cookie.html'
+
+
+class AboutUsView(TemplateView):
+    """About Us page"""
+    template_name = 'landing/about.html'
+
+
+class ContactView(TemplateView):
+    """Contact page"""
+    template_name = 'landing/contact.html'
