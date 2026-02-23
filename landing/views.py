@@ -123,3 +123,8 @@ class AboutUsView(TemplateView):
 class ContactView(TemplateView):
     """Contact page"""
     template_name = 'landing/contact.html'
+
+class HowitworksView(TemplateView):
+    """How it works page"""
+    template_name = 'landing/works.html'
+    

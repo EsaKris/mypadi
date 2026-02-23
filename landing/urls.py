@@ -17,4 +17,5 @@ urlpatterns = [
     # Company Pages
     path('about-us/', views.AboutUsView.as_view(), name='about'),
     path('contact-us/', views.ContactView.as_view(), name='contact'),
+    path('how-it-works/', views.HowitworksView.as_view(), name='works'),
 ]
