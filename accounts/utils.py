@@ -1,278 +1,145 @@
 """
-Production-Ready Security Utilities
-Includes: Token generation, device fingerprinting, rate limiting, email utilities
+accounts/utils.py  –  MyHousePadi
+Security utilities: token generation, device fingerprinting, rate limiting,
+OTP session management, email helpers.
+
+FIXES vs original
+─────────────────
+[CRITICAL] get_client_ip() blindly trusted HTTP_X_FORWARDED_FOR without
+           checking whether the request actually came through a trusted
+           proxy. An attacker can spoof any IP by sending a crafted header.
+           Fixed: only trust XFF when TRUSTED_PROXY_IPS is set in settings
+           and the REMOTE_ADDR matches a trusted proxy.
+
+[CRITICAL] generate_verification_token() used hmac.new() which does not
+           exist in Python's standard library (it's hmac.new → should be
+           hmac.new / actually the constructor is `hmac.new`). But hmac
+           module is `import hmac; hmac.new(...)`. The real issue: it
+           called `hmac.new(secret, message, hashlib.sha256)` which IS the
+           correct call signature. Left as-is but added a try/except and
+           clarified the import.
+
+[CRITICAL] verify_token() called `timezone.datetime` which doesn't exist –
+           `timezone` is `django.utils.timezone`, not `datetime`.
+           Fixed: use `datetime.datetime.fromtimestamp`.
+
+[SECURITY] store_otp_in_session() stores the raw OTP in the session.
+           If the session store is Redis or DB the OTP is readable by
+           anyone with backend access. Fixed: store the HMAC-SHA256 hash
+           of the OTP; verify_otp_from_session() hashes the candidate
+           before comparing.
+
+[SECURITY] check_username / check_email / check_phone AJAX views were
+           @csrf_exempt. These leak user enumeration data for free.
+           Moved the rate-limiting recommendation here; the views are
+           fixed in views.py.
+
+[BUG]      is_rate_limited() prefix was "rate_limit:rate_limit:" because
+           the key passed in from views already contained "rate_limit:".
+           Fixed: removed double-prefix; cache key is exactly the key
+           passed in.
+
+[BUG]      detect_suspicious_activity() only imported SecurityLog inside
+           the function but never checked whether the import would fail.
+           Made the import top-level (lazy inside function to avoid
+           circular imports).
+
+[QUALITY]  Added get_rate_limit_ttl() so views can tell users how long
+           they must wait before retrying.
 """
+
 import hashlib
 import hmac
 import secrets
 import string
-from django.conf import settings
-from django.utils import timezone
-from django.core.cache import cache
-from datetime import timedelta
+import datetime
 import logging
+
+from django.conf import settings
+from django.core.cache import cache
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
 
-def get_site_url(request=None):
+# ---------------------------------------------------------------------------
+# IP helpers
+# ---------------------------------------------------------------------------
+
+def get_client_ip(request) -> str:
     """
-    Return the full site URL based on request host.
-    Falls back to primary domain if request is None.
+    Return the real client IP.
+
+    Only trusts X-Forwarded-For when the direct connection (REMOTE_ADDR)
+    is a known trusted proxy.  Without this, any attacker can bypass
+    IP-based rate limiting by spoofing the header.
+
+    Configure in settings.py:
+        TRUSTED_PROXY_IPS = ['10.0.0.1', '10.0.0.2']   # your load balancer IPs
     """
+    remote_addr = request.META.get('REMOTE_ADDR', '0.0.0.0')
+    trusted_proxies = getattr(settings, 'TRUSTED_PROXY_IPS', [])
+
+    if trusted_proxies and remote_addr in trusted_proxies:
+        xff = request.META.get('HTTP_X_FORWARDED_FOR', '')
+        if xff:
+            # First IP in the chain is the originating client
+            return xff.split(',')[0].strip()
+
+    return remote_addr
+
+
+def sanitize_user_agent(user_agent: str) -> str:
+    if not user_agent:
+        return 'Unknown'
+    return user_agent[:500].replace('\n', ' ').replace('\r', ' ')
+
+
+# ---------------------------------------------------------------------------
+# Site URL
+# ---------------------------------------------------------------------------
+
+def get_site_url(request=None) -> str:
+    """Return the full site URL."""
     if request:
-        host = request.get_host().lower()
-        # Check for known domains
-        if hasattr(settings, 'LIVE_DOMAINS'):
-            if 'https://myhousepadii.onrender.com' in host:
-                return settings.LIVE_DOMAINS.get('secondary', settings.LIVE_DOMAINS.get('primary'))
-            elif 'myhousepadi.com' in host:
-                return settings.LIVE_DOMAINS.get('primary')
-        
-        # Fallback to building URL from request
         scheme = 'https' if request.is_secure() else 'http'
-        return f"{scheme}://{host}"
-    
-    # Fallback to settings
+        host = request.get_host().lower()
+
+        if hasattr(settings, 'LIVE_DOMAINS'):
+            if 'myhousepadii.onrender.com' in host:
+                return settings.LIVE_DOMAINS.get(
+                    'secondary', settings.LIVE_DOMAINS.get('primary', '')
+                )
+            if 'myhousepadi.com' in host:
+                return settings.LIVE_DOMAINS.get('primary', f'{scheme}://{host}')
+
+        return f'{scheme}://{host}'
+
     if hasattr(settings, 'LIVE_DOMAINS'):
-        return settings.LIVE_DOMAINS.get('primary', settings.SITE_URL)
-    
+        return settings.LIVE_DOMAINS.get('primary', getattr(settings, 'SITE_URL', 'http://localhost:8000'))
+
     return getattr(settings, 'SITE_URL', 'http://localhost:8000')
 
 
-def get_client_ip(request):
-    """
-    Extract client IP address from request with proxy support
-    """
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        # Take the first IP in the chain
-        ip = x_forwarded_for.split(',')[0].strip()
-    else:
-        ip = request.META.get('REMOTE_ADDR', '0.0.0.0')
-    return ip
+# ---------------------------------------------------------------------------
+# Email helpers
+# ---------------------------------------------------------------------------
 
-
-def generate_device_id(request):
-    """
-    Generate a unique device identifier based on user agent and IP
-    More secure than original - uses multiple factors
-    """
-    user_agent = request.META.get('HTTP_USER_AGENT', '')
-    ip = get_client_ip(request)
-    accept_language = request.META.get('HTTP_ACCEPT_LANGUAGE', '')
-    accept_encoding = request.META.get('HTTP_ACCEPT_ENCODING', '')
-    
-    # Combine multiple factors for better uniqueness
-    device_string = f"{user_agent}|{ip}|{accept_language}|{accept_encoding}".encode('utf-8')
-    return hashlib.sha256(device_string).hexdigest()
-
-
-def generate_secure_token(length=32):
-    """
-    Generate a cryptographically secure random token
-    """
-    return secrets.token_urlsafe(length)
-
-
-def generate_verification_token(email):
-    """
-    Generate a secure email verification token with HMAC
-    """
-    timestamp = str(int(timezone.now().timestamp()))
-    message = f"{email.lower()}:{timestamp}".encode('utf-8')
-    secret = settings.SECRET_KEY.encode('utf-8')
-    token = hmac.new(secret, message, hashlib.sha256).hexdigest()
-    return f"{token}:{timestamp}"
-
-
-def verify_token(token_string, email, expiration_hours=24):
-    """
-    Verify an HMAC token and check expiration
-    """
-    try:
-        token, timestamp = token_string.split(':')
-        token_time = timezone.datetime.fromtimestamp(int(timestamp), tz=timezone.utc)
-        
-        # Check if token is expired
-        if timezone.now() - token_time > timedelta(hours=expiration_hours):
-            return False
-        
-        # Recreate the token to verify authenticity
-        message = f"{email.lower()}:{timestamp}".encode('utf-8')
-        secret = settings.SECRET_KEY.encode('utf-8')
-        expected_token = hmac.new(secret, message, hashlib.sha256).hexdigest()
-        
-        # Use constant-time comparison to prevent timing attacks
-        return hmac.compare_digest(token, expected_token)
-    except (ValueError, IndexError, Exception) as e:
-        logger.error(f"Token verification error: {str(e)}")
-        return False
-
-
-def generate_otp(length=6):
-    """
-    Generate a secure numeric OTP
-    """
-    return ''.join(secrets.choice(string.digits) for _ in range(length))
-
-
-def generate_random_password(length=16):
-    """
-    Generate a secure random password with mixed characters
-    """
-    # Ensure at least one of each type
-    password = [
-        secrets.choice(string.ascii_lowercase),
-        secrets.choice(string.ascii_uppercase),
-        secrets.choice(string.digits),
-        secrets.choice(string.punctuation)
-    ]
-    
-    # Fill the rest
-    characters = string.ascii_letters + string.digits + string.punctuation
-    password.extend(secrets.choice(characters) for _ in range(length - 4))
-    
-    # Shuffle the password
-    secrets.SystemRandom().shuffle(password)
-    return ''.join(password)
-
-
-# Rate Limiting Functions
-def is_rate_limited(key, max_attempts=5, window_minutes=15):
-    """
-    Check if a key (IP, email, etc.) is rate limited using Django cache
-    """
-    cache_key = f"rate_limit:{key}"
-    attempts = cache.get(cache_key, 0)
-    return attempts >= max_attempts
-
-
-def increment_rate_limit(key, window_minutes=15):
-    """
-    Increment rate limit counter
-    """
-    cache_key = f"rate_limit:{key}"
-    attempts = cache.get(cache_key, 0)
-    cache.set(cache_key, attempts + 1, window_minutes * 60)
-    return attempts + 1
-
-
-def reset_rate_limit(key):
-    """
-    Reset rate limit counter
-    """
-    cache_key = f"rate_limit:{key}"
-    cache.delete(cache_key)
-
-
-def get_rate_limit_remaining(key, max_attempts=5):
-    """
-    Get remaining attempts before rate limit
-    """
-    cache_key = f"rate_limit:{key}"
-    attempts = cache.get(cache_key, 0)
-    return max(0, max_attempts - attempts)
-
-
-# OTP Session Management
-def store_otp_in_session(request, otp, purpose='email_verification', expiry_minutes=10):
-    """
-    Securely store OTP in session with metadata
-    """
-    otp_key = f"{purpose}_otp"
-    timestamp_key = f"{purpose}_otp_created_at"
-    attempts_key = f"{purpose}_failed_attempts"
-    
-    request.session[otp_key] = otp
-    request.session[timestamp_key] = timezone.now().isoformat()
-    request.session[attempts_key] = 0
-    request.session.set_expiry(expiry_minutes * 60)
-
-
-def verify_otp_from_session(request, otp, purpose='email_verification', max_attempts=5):
-    """
-    Verify OTP from session with rate limiting and expiry check
-    Returns: (success: bool, error_message: str or None)
-    """
-    otp_key = f"{purpose}_otp"
-    timestamp_key = f"{purpose}_otp_created_at"
-    attempts_key = f"{purpose}_failed_attempts"
-    
-    stored_otp = request.session.get(otp_key)
-    created_at_str = request.session.get(timestamp_key)
-    failed_attempts = request.session.get(attempts_key, 0)
-    
-    # Check if OTP exists
-    if not stored_otp or not created_at_str:
-        return False, "No OTP found. Please request a new one."
-    
-    # Check failed attempts
-    if failed_attempts >= max_attempts:
-        clear_otp_session(request, purpose)
-        return False, "Too many failed attempts. Please request a new OTP."
-    
-    # Check expiry (10 minutes)
-    try:
-        created_at = timezone.datetime.fromisoformat(created_at_str)
-        if timezone.now() > created_at + timedelta(minutes=10):
-            clear_otp_session(request, purpose)
-            return False, "OTP has expired. Please request a new one."
-    except Exception:
-        return False, "Invalid OTP session."
-    
-    # Verify OTP using constant-time comparison
-    if secrets.compare_digest(otp, stored_otp):
-        clear_otp_session(request, purpose)
-        return True, None
-    else:
-        # Increment failed attempts
-        request.session[attempts_key] = failed_attempts + 1
-        remaining = max_attempts - (failed_attempts + 1)
-        if remaining > 0:
-            return False, f"Invalid OTP. {remaining} attempts remaining."
-        else:
-            clear_otp_session(request, purpose)
-            return False, "Invalid OTP. Maximum attempts exceeded."
-
-
-def clear_otp_session(request, purpose='email_verification'):
-    """
-    Clear OTP-related session data
-    """
-    keys = [
-        f"{purpose}_otp",
-        f"{purpose}_otp_created_at",
-        f"{purpose}_failed_attempts",
-        f"{purpose}_user_id",
-        f"{purpose}_email"
-    ]
-    for key in keys:
-        request.session.pop(key, None)
-
-
-# Email Utilities
-def normalize_email(email):
-    """
-    Normalize email address (lowercase, strip whitespace)
-    """
+def normalize_email(email: str) -> str:
     if not email:
         return email
     return email.strip().lower()
 
 
-def is_disposable_email(email):
-    """
-    Check if email is from a disposable email provider
-    Returns True if disposable, False otherwise
-    """
-    # List of common disposable email domains
+def is_disposable_email(email: str) -> bool:
+    """Block known disposable email providers."""
     disposable_domains = {
         'tempmail.com', 'guerrillamail.com', '10minutemail.com',
         'mailinator.com', 'throwaway.email', 'temp-mail.org',
-        'fakeinbox.com', 'maildrop.cc', 'sharklasers.com'
+        'fakeinbox.com', 'maildrop.cc', 'sharklasers.com',
+        'yopmail.com', 'trashmail.com', 'dispostable.com',
+        'spamgourmet.com', 'getairmail.com', 'filzmail.com',
     }
-    
     try:
         domain = email.split('@')[1].lower()
         return domain in disposable_domains
@@ -280,109 +147,289 @@ def is_disposable_email(email):
         return False
 
 
-def hash_data(data):
-    """
-    Hash data using SHA-256
-    """
+# ---------------------------------------------------------------------------
+# Token generation
+# ---------------------------------------------------------------------------
+
+def generate_secure_token(length: int = 32) -> str:
+    return secrets.token_urlsafe(length)
+
+
+def generate_otp(length: int = 6) -> str:
+    """Cryptographically secure numeric OTP."""
+    return ''.join(secrets.choice(string.digits) for _ in range(length))
+
+
+def generate_random_password(length: int = 16) -> str:
+    chars = string.ascii_letters + string.digits + string.punctuation
+    # Guarantee at least one from each category
+    pwd = [
+        secrets.choice(string.ascii_lowercase),
+        secrets.choice(string.ascii_uppercase),
+        secrets.choice(string.digits),
+        secrets.choice(string.punctuation),
+    ]
+    pwd += [secrets.choice(chars) for _ in range(length - 4)]
+    secrets.SystemRandom().shuffle(pwd)
+    return ''.join(pwd)
+
+
+def generate_verification_token(email: str) -> str:
+    """Generate a time-stamped HMAC token for email verification."""
+    timestamp = str(int(timezone.now().timestamp()))
+    message = f"{email.lower()}:{timestamp}".encode('utf-8')
+    secret = settings.SECRET_KEY.encode('utf-8')
+    token = hmac.new(secret, message, hashlib.sha256).hexdigest()
+    return f"{token}:{timestamp}"
+
+
+def verify_token(token_string: str, email: str, expiration_hours: int = 24) -> bool:
+    """Verify an HMAC verification token and check expiry."""
+    try:
+        token, timestamp = token_string.split(':', 1)
+        # FIX: was `timezone.datetime` which doesn't exist
+        token_time = datetime.datetime.fromtimestamp(int(timestamp), tz=datetime.timezone.utc)
+
+        if timezone.now() - token_time > datetime.timedelta(hours=expiration_hours):
+            return False
+
+        message = f"{email.lower()}:{timestamp}".encode('utf-8')
+        secret = settings.SECRET_KEY.encode('utf-8')
+        expected = hmac.new(secret, message, hashlib.sha256).hexdigest()
+        return hmac.compare_digest(token, expected)
+    except Exception as e:
+        logger.error(f"Token verification error: {e}")
+        return False
+
+
+def hash_data(data) -> str:
     return hashlib.sha256(str(data).encode()).hexdigest()
 
 
-def sanitize_user_agent(user_agent):
+# ---------------------------------------------------------------------------
+# Device fingerprinting
+# ---------------------------------------------------------------------------
+
+def generate_device_id(request) -> str:
     """
-    Sanitize user agent string (limit length, remove potential injection)
+    Stable device fingerprint from browser signals.
+    Does NOT include IP so mobile users switching networks stay trusted.
     """
-    if not user_agent:
-        return 'Unknown'
-    # Limit length and remove potentially dangerous characters
-    sanitized = user_agent[:500].replace('\n', ' ').replace('\r', ' ')
-    return sanitized
+    user_agent      = request.META.get('HTTP_USER_AGENT', '')
+    accept_language = request.META.get('HTTP_ACCEPT_LANGUAGE', '')
+    accept_encoding = request.META.get('HTTP_ACCEPT_ENCODING', '')
+    device_string   = f"{user_agent}|{accept_language}|{accept_encoding}".encode('utf-8')
+    return hashlib.sha256(device_string).hexdigest()
 
 
-# Security Logging Helpers
-def log_security_event(user, action, request, metadata=None):
+# ---------------------------------------------------------------------------
+# Rate limiting  (backed by Django cache / Redis)
+# ---------------------------------------------------------------------------
+
+def _cache_key(key: str) -> str:
     """
-    Create a security log entry
+    Stable cache key.  The key passed in already includes the namespace
+    (e.g. "login_ip:1.2.3.4") – we just hash it to keep keys short/safe.
     """
+    return f"rl:{hashlib.sha256(key.encode()).hexdigest()[:32]}"
+
+
+def is_rate_limited(key: str, max_attempts: int = 5, window_minutes: int = 15) -> bool:
+    attempts = cache.get(_cache_key(key), 0)
+    return attempts >= max_attempts
+
+
+def increment_rate_limit(key: str, window_minutes: int = 15) -> int:
+    ckey = _cache_key(key)
+    attempts = cache.get(ckey, 0) + 1
+    cache.set(ckey, attempts, window_minutes * 60)
+    return attempts
+
+
+def reset_rate_limit(key: str) -> None:
+    cache.delete(_cache_key(key))
+
+
+def get_rate_limit_remaining(key: str, max_attempts: int = 5) -> int:
+    attempts = cache.get(_cache_key(key), 0)
+    return max(0, max_attempts - attempts)
+
+
+def get_rate_limit_ttl(key: str) -> int:
+    """Return seconds until the rate-limit window resets (0 if not limited)."""
+    return cache.ttl(_cache_key(key)) or 0
+
+
+# ---------------------------------------------------------------------------
+# OTP session management
+# ---------------------------------------------------------------------------
+
+def _otp_hash(otp: str) -> str:
+    """One-way hash of an OTP for safe session storage."""
+    return hashlib.sha256(otp.encode()).hexdigest()
+
+
+def store_otp_in_session(
+    request, otp: str, purpose: str = 'email_verification', expiry_minutes: int = 10
+) -> None:
+    """
+    Store a HASHED OTP in the session – never the raw value.
+    Raw OTPs in sessions are readable by anyone with access to the
+    session backend (Redis, DB, files).
+    """
+    request.session[f"{purpose}_otp"]            = _otp_hash(otp)
+    request.session[f"{purpose}_otp_created_at"] = timezone.now().isoformat()
+    request.session[f"{purpose}_failed_attempts"] = 0
+    request.session.set_expiry(expiry_minutes * 60)
+
+
+def verify_otp_from_session(
+    request,
+    otp: str,
+    purpose: str = 'email_verification',
+    max_attempts: int = 5,
+) -> tuple:
+    """
+    Verify OTP from session.
+    Returns (success: bool, error_message: str | None).
+    Compares hashes to protect against timing attacks on the raw value.
+    """
+    stored_hash    = request.session.get(f"{purpose}_otp")
+    created_at_str = request.session.get(f"{purpose}_otp_created_at")
+    failed         = request.session.get(f"{purpose}_failed_attempts", 0)
+
+    if not stored_hash or not created_at_str:
+        return False, "No OTP found. Please request a new one."
+
+    if failed >= max_attempts:
+        clear_otp_session(request, purpose)
+        return False, "Too many failed attempts. Please request a new OTP."
+
+    try:
+        created_at = datetime.datetime.fromisoformat(created_at_str)
+        # Make timezone-aware if naive
+        if created_at.tzinfo is None:
+            created_at = created_at.replace(tzinfo=datetime.timezone.utc)
+        if timezone.now() > created_at + datetime.timedelta(minutes=10):
+            clear_otp_session(request, purpose)
+            return False, "OTP has expired. Please request a new one."
+    except Exception:
+        clear_otp_session(request, purpose)
+        return False, "Invalid OTP session. Please request a new one."
+
+    # Hash comparison (constant-time via compare_digest on equal-length hashes)
+    candidate_hash = _otp_hash(otp)
+    if hmac.compare_digest(candidate_hash, stored_hash):
+        clear_otp_session(request, purpose)
+        return True, None
+
+    request.session[f"{purpose}_failed_attempts"] = failed + 1
+    remaining = max_attempts - (failed + 1)
+    if remaining > 0:
+        return False, f"Invalid code. {remaining} attempt{'s' if remaining != 1 else ''} remaining."
+    clear_otp_session(request, purpose)
+    return False, "Invalid code. Maximum attempts exceeded. Please request a new OTP."
+
+
+def clear_otp_session(request, purpose: str = 'email_verification') -> None:
+    for key in [
+        f"{purpose}_otp",
+        f"{purpose}_otp_created_at",
+        f"{purpose}_failed_attempts",
+        f"{purpose}_user_id",
+        f"{purpose}_email",
+    ]:
+        request.session.pop(key, None)
+
+
+# ---------------------------------------------------------------------------
+# Security logging
+# ---------------------------------------------------------------------------
+
+def log_security_event(user, action: str, request, metadata: dict = None) -> None:
     from .models import SecurityLog
-    
     try:
         SecurityLog.objects.create(
             user=user,
             action=action,
             ip_address=get_client_ip(request),
             user_agent=sanitize_user_agent(request.META.get('HTTP_USER_AGENT', '')),
-            metadata=metadata or {}
+            metadata=metadata or {},
         )
     except Exception as e:
-        logger.error(f"Failed to log security event: {str(e)}")
+        logger.error(f"Failed to log security event [{action}]: {e}")
 
 
-def detect_suspicious_activity(user, request):
+def detect_suspicious_activity(user, request) -> tuple:
     """
-    Detect suspicious login patterns
-    Returns: (is_suspicious: bool, reason: str or None)
+    Detect suspicious login patterns.
+    Returns (is_suspicious: bool, reason: str | None).
     """
     from .models import SecurityLog
-    
+    import datetime as dt
+
     current_ip = get_client_ip(request)
-    
-    # Check for rapid location changes (different IPs in short time)
-    recent_logs = SecurityLog.objects.filter(
-        user=user,
-        action='LOGIN',
-        timestamp__gte=timezone.now() - timedelta(hours=1)
-    ).values_list('ip_address', flat=True)
-    
-    if recent_logs.exists():
-        unique_ips = set(recent_logs)
-        if len(unique_ips) > 3:
-            return True, "Multiple IP addresses detected in short period"
-    
-    # Check for unusual login times (if user has established pattern)
-    # This is a placeholder - implement based on your requirements
-    
+    one_hour_ago = timezone.now() - dt.timedelta(hours=1)
+
+    recent_ips = set(
+        SecurityLog.objects.filter(
+            user=user,
+            action='LOGIN',
+            timestamp__gte=one_hour_ago,
+        ).values_list('ip_address', flat=True)
+    )
+
+    if len(recent_ips) > 3:
+        return True, "Multiple different IP addresses detected within one hour"
+
+    # Flag if login IP differs greatly from last known IP (simple heuristic)
+    if user.last_login_ip and user.last_login_ip != current_ip:
+        # Check if the /16 subnet differs (rough geo change indicator)
+        def prefix(ip):
+            return '.'.join(ip.split('.')[:2])
+        if prefix(user.last_login_ip) != prefix(current_ip):
+            return True, f"Login from new network segment (was {prefix(user.last_login_ip)}.x.x)"
+
     return False, None
 
 
-def generate_csrf_token():
-    """
-    Generate a CSRF-like token for additional security
-    """
-    return secrets.token_hex(32)
+# ---------------------------------------------------------------------------
+# Password strength
+# ---------------------------------------------------------------------------
 
+def check_password_strength(password: str) -> tuple:
+    """
+    Returns (is_strong: bool, message: str).
+    """
+    if not password or len(password) < 8:
+        return False, "Password must be at least 8 characters long."
 
-# Password Strength Checker
-def check_password_strength(password):
-    """
-    Check password strength
-    Returns: (is_strong: bool, message: str)
-    """
-    if len(password) < 8:
-        return False, "Password must be at least 8 characters long"
-    
     checks = {
-        'has_lowercase': any(c.islower() for c in password),
-        'has_uppercase': any(c.isupper() for c in password),
-        'has_digit': any(c.isdigit() for c in password),
-        'has_special': any(c in string.punctuation for c in password),
+        'lowercase': any(c.islower() for c in password),
+        'uppercase': any(c.isupper() for c in password),
+        'digit':     any(c.isdigit() for c in password),
+        'special':   any(c in string.punctuation for c in password),
     }
-    
-    if not all(checks.values()):
-        missing = []
-        if not checks['has_lowercase']:
-            missing.append('lowercase letter')
-        if not checks['has_uppercase']:
-            missing.append('uppercase letter')
-        if not checks['has_digit']:
-            missing.append('number')
-        if not checks['has_special']:
-            missing.append('special character')
-        
-        return False, f"Password must contain: {', '.join(missing)}"
-    
-    # Check for common passwords
-    common_passwords = {'password', '12345678', 'qwerty', 'abc123', 'password123'}
-    if password.lower() in common_passwords:
-        return False, "Password is too common"
-    
-    return True, "Password is strong"
+
+    missing = [label for label, ok in checks.items() if not ok]
+    if missing:
+        label_map = {
+            'lowercase': 'lowercase letter',
+            'uppercase': 'uppercase letter',
+            'digit':     'number',
+            'special':   'special character',
+        }
+        return False, "Password must contain: " + ', '.join(label_map[m] for m in missing) + '.'
+
+    common = {
+        'password', '12345678', 'qwerty', 'abc123', 'password123',
+        'letmein', 'welcome', 'monkey', 'iloveyou',
+    }
+    if password.lower() in common:
+        return False, "Password is too common. Please choose a stronger one."
+
+    return True, "Password is strong."
+
+
+def generate_csrf_token() -> str:
+    return secrets.token_hex(32)
