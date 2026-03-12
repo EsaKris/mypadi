@@ -2,15 +2,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-9L194DZGNR"></script>
-        <script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9L194DZGNR"></script>
+    <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-
         gtag('config', 'G-9L194DZGNR');
-        </script>
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MyHousePadi - Landlord Dashboard{% endblock %}</title>
@@ -18,429 +16,364 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <meta name="google-site-verification" content="QZ6tNBeQWZ2UXwDCV8YnXG0D7HAUk568dU5lwiy4Q1c" />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        montserrat: ['Montserrat', 'sans-serif'],
-                    },
+                    fontFamily: { montserrat: ['Montserrat', 'sans-serif'] },
                     colors: {
                         'primary-800': '#376B24',
                         'primary-600': '#569340',
                         'primary-400': '#98CF84',
-                        'white': '#FFFFFF',
-                        'cream': '#FBF5F1',
+                        'cream':      '#FBF5F1',
                         'gray-light': '#F4F2F0',
-                        'black': '#000000',
                     },
-                    backdropBlur: {
-                        'xs': '2px',
-                    }
                 }
             }
         }
     </script>
-    
     <style>
+        /*
+         * LAYOUT FIX
+         * ----------
+         * Original problem: the sidebar <aside> was inside the same flex row
+         * as the main content. The top header (inside that same flex row) used
+         * `md:ml-60` which sometimes overlapped the sidebar, and `sticky` had
+         * no well-defined scroll container, causing the header to drift.
+         *
+         * Solution: sidebar is a FIXED element completely outside normal flow.
+         * Main column is a simple block that gets left-padding equal to the
+         * sidebar width on md+ screens. The header is sticky inside that column
+         * and never fights with the sidebar for space.
+         */
+
+        :root { --sidebar-w: 256px; /* = w-64 in Tailwind */ }
+
+        /* On desktop, push main column right so it clears the fixed sidebar */
+        @media (min-width: 768px) {
+            .with-sidebar { padding-left: var(--sidebar-w); }
+        }
+
         .glass-nav {
-            background: rgba(251, 245, 241, 0.9);
+            background: rgba(251,245,241,0.95);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
         }
-        .landlord-glass-nav {
-            background: rgba(55, 107, 36, 0.9);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-        }
-        .extra-black {
-            font-weight: 900;
-        }
-        .filter-btn.active {
-            box-shadow: 0 4px 6px -1px rgba(55, 107, 36, 0.2);
-        }
-        .property-card:hover {
-            transform: translateY(-5px);
-        }
-        .save-btn.active {
-            color: #EF4444;
-        }
-        .quick-view-btn {
-            transition: all 0.3s ease;
-        }
-        .quick-view-btn:hover {
-            background-color: #F3F4F6;
-        }
-        .amenity-chip i {
-            width: 14px;
-            text-align: center;
-        }
-        .search-modal {
-            transition: all 0.3s ease-out;
-        }
-        .search-icon-btn:hover {
-            transform: scale(1.1);
-        }
-        select {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            background: transparent;
-        }
-        .sidebar-nav {
-            transition: all 0.3s ease;
-        }
-        .sidebar-nav-item:hover {
-            background-color: rgba(86, 147, 64, 0.1);
-        }
+        .sidebar-nav-item:hover { background-color: rgba(86,147,64,0.1); }
         .sidebar-nav-item.active {
-            background-color: rgba(86, 147, 64, 0.2);
+            background-color: rgba(86,147,64,0.2);
             border-left: 4px solid #569340;
         }
-        .notification-dot {
-            width: 8px;
-            height: 8px;
-            top: 12px;
-            right: 12px;
-        }
-        .badge-premium {
-            background: linear-gradient(135deg, #F59E0B, #EF4444);
-        }
-        .user-dropdown {
-            transition: all 0.2s ease;
-            transform-origin: top right;
-        }
+        .badge-premium { background: linear-gradient(135deg,#F59E0B,#EF4444); }
+        .extra-black { font-weight: 900; }
+        .property-card:hover { transform: translateY(-5px); }
+        select { -webkit-appearance:none; -moz-appearance:none; appearance:none; background:transparent; }
+
+        /* Keep all profile pics a perfect circle with full coverage */
+        .nav-avatar { display:block; width:100%; height:100%; object-fit:cover; border-radius:9999px; }
     </style>
-    
     {% block extra_head %}{% endblock %}
 </head>
 <body class="font-montserrat bg-cream">
-    <div class="flex pb-20 md:pb-4">
-        <!-- Sidebar Navigation (Desktop) -->
-        <aside class="hidden md:flex md:flex-shrink-0 fixed top-0 h-screen ">
-            <div class="flex flex-col w-64 border-r border-gray-light bg-white">
-                <!-- Logo -->
-                <div class="flex items-center justify-center h-16 px-4 border-b border-gray-light">
-                    <img src="{% static 'img/logo.png' %}" alt="MyHousePadi" class="h-10">
-                </div>
-                
-                <!-- User Profile Summary -->
-                <div class="flex items-center p-4 border-b border-gray-light">
-                    <div class="relative">
-                        <img src="{% if request.user.profile_picture %}{{ request.user.profile_picture.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}" 
-                             alt="Profile" class="w-10 h-10 rounded-full object-cover">
-                        <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm font-medium text-gray-900">{{ request.user.get_full_name }}</p>
-                        <p class="text-xs text-gray-500">Property Owner</p>
-                        {% if request.user.is_premium %}
-                        <span class="badge-premium text-white text-xs px-2 py-0.5 rounded-full mt-1 inline-block">PREMIUM</span>
-                        {% endif %}
-                    </div>
-                </div>
-                
-                <!-- Navigation -->
-                <nav class="flex-1 overflow-y-auto">
-                    <div class="space-y-1 px-2 py-4">
-                        <!-- Dashboard -->
-                        <a href="{% url 'landlords:dashboard' %}" 
-                           class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-                            <i class="fas fa-tachometer-alt text-primary-600 mr-3"></i>
-                            Dashboard
-                        </a>
-                        
-                        <!-- Properties -->
-                        <a href="{% url 'landlords:properties' %}" 
-                           class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if 'properties' in request.resolver_match.url_name %}active{% endif %}">
-                            <i class="fas fa-home text-primary-600 mr-3"></i>
-                            My Properties
-                            <span class="ml-auto bg-primary-100 text-primary-800 text-xs font-medium px-2 py-0.5 rounded-full">{{ request.user.properties.count }}</span>
-                        </a>
-                        
-                        <!-- Tenants -->
-                        <a href="{% url 'landlords:tenants' %}" 
-                           class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if 'tenants' in request.resolver_match.url_name %}active{% endif %}">
-                            <i class="fas fa-users text-primary-600 mr-3"></i>
-                            Tenants
-                            <span class="ml-auto bg-primary-100 text-primary-800 text-xs font-medium px-2 py-0.5 rounded-full">{{ request.user.tenant_count }}</span>
-                        </a>
-                        <a href="{% url 'landlords:community' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
-                            <i class="fas fa-users text-primary-600 mr-3"></i>
-                            Community
-                        </a>
-                        <!-- Analytics -->
-                        <a href="{}" 
-                           class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if 'analytics' in request.resolver_match.url_name %}active{% endif %}">
-                            <i class="fas fa-chart-line text-primary-600 mr-3"></i>
-                            Analytics
-                        </a>
-                        
-                        <!-- Messages -->
-                        <a href="{% url 'landlords:messages' %}" 
-                           class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if 'messages' in request.resolver_match.url_name %}active{% endif %}">
-                            <i class="fas fa-comments text-primary-600 mr-3"></i>
-                            Messages
-                            <span class="ml-auto relative">
-                                <i class="fas fa-bell text-gray-400"></i>
-                                <span class="notification-dot absolute bg-red-500 rounded-full"></span>
-                            </span>
-                        </a>
-                    </div>
-                    
-                    <!-- Account Section -->
-                    <div class="border-t border-gray-light px-2 py-4">
-                        <a href="{% url 'landlords:profile' %}" 
-                           class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if 'profile' in request.resolver_match.url_name %}active{% endif %}">
-                            <i class="fas fa-user text-primary-600 mr-3"></i>
-                            My Profile
-                        </a>
-                        <a href="{% url 'landlords:settings' %}" 
-                           class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if 'settings' in request.resolver_match.url_name %}active{% endif %}">
-                            <i class="fas fa-cog text-primary-600 mr-3"></i>
-                            Settings
-                        </a>
-                        <a href="#" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
-                            <i class="fas fa-question-circle text-primary-600 mr-3"></i>
-                            Help Center
-                        </a>
-                        <!-- Logout Link -->
-                        <a href="{% url 'accounts:logout' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md text-red-600">
-                            <i class="fas fa-sign-out-alt text-red-600 mr-3"></i>
-                            Logout
-                        </a>
-                    </div>
-                </nav>
-            </div>
-        </aside>
-        
-        <!-- Mobile Sidebar (Hidden by default) -->
-        <div class="mobile-menu hidden md:hidden fixed inset-0 z-50">
-            <div class="fixed inset-0 bg-black bg-opacity-50" aria-hidden="true"></div>
-            <div class="relative flex flex-col w-80 max-w-xs h-full bg-white">
-                <!-- Close button -->
-                <button class="mobile-menu-close absolute top-3 right-3 p-2 text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-                
-                <!-- Mobile Menu Content -->
-                <div class="flex items-center justify-center h-16 px-4 border-b border-gray-light">
-                    <img src="{% static 'img/logo.png' %}" alt="MyHousePadi" class="h-10">
-                </div>
-                
-                <!-- User Profile -->
-                <div class="flex items-center p-4 border-b border-gray-light">
-                    <div class="relative">
-                        <img src="{% if request.user.profile_picture %}{{ request.user.profile_picture.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}" 
-                            alt="Profile" class="w-10 h-10 rounded-full object-cover">
-                        <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm font-medium text-gray-900">{{ request.user.get_full_name }}</p>
-                        <p class="text-xs text-gray-500">Property Owner</p>
-                    </div>
-                </div>
-                
-                <!-- Mobile Navigation -->
-                <nav class="flex-1 overflow-y-auto px-2 py-4">
-                    <div class="space-y-1">
-                        <a href="{% url 'landlords:dashboard' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
-                            <i class="fas fa-tachometer-alt text-primary-600 mr-3"></i>
-                            Dashboard
-                        </a>
-                        <a href="{% url 'landlords:properties' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
-                            <i class="fas fa-home text-primary-600 mr-3"></i>
-                            My Properties
-                        </a>
-                        <a href="{% url 'landlords:tenants' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
-                            <i class="fas fa-users text-primary-600 mr-3"></i>
-                            Tenants
-                        </a>
-                        <a href="{% url 'landlords:community' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
-                            <i class="fas fa-users text-primary-600 mr-3"></i>
-                            Community
-                        </a>
-                        <a href="{}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
-                            <i class="fas fa-chart-line text-primary-600 mr-3"></i>
-                            Analytics
-                        </a>
-                        <a href="{% url 'landlords:messages' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
-                            <i class="fas fa-comments text-primary-600 mr-3"></i>
-                            Messages
-                        </a>
-                        
-                        <a href="{% url 'landlords:profile' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
-                            <i class="fas fa-user text-primary-600 mr-3"></i>
-                            My Profile
-                        </a>
-                        <a href="{% url 'landlords:settings' %}" 
-                           class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if 'settings' in request.resolver_match.url_name %}active{% endif %}">
-                            <i class="fas fa-cog text-primary-600 mr-3"></i>
-                            Settings
-                        </a>
-                    </div>
-                    <div class="border-t border-gray-light mt-4 pt-4">
-                        <a href="{% url 'accounts:logout' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md text-red-600">
-                            <i class="fas fa-sign-out-alt text-red-600 mr-3"></i>
-                            Logout
-                        </a>
-                    </div>
-                </nav>
-            </div>
+
+{% if request.user.landlord_profile and request.user.landlord_profile.profile_picture %}
+    {% with nav_pic=request.user.landlord_profile.profile_picture.url %}
+    {% endwith %}
+{% else %}
+    {% with nav_pic="" %}
+    
+    {% endwith %}
+{% endif %}
+
+
+<!-- =====================================================================
+     FIXED DESKTOP SIDEBAR
+     outside normal flow so it never interferes with sticky header
+     ==================================================================== -->
+<aside class="hidden md:flex fixed inset-y-0 left-0 flex-col w-64 bg-white border-r border-gray-light z-30">
+
+    <!-- Logo -->
+    <div class="flex items-center justify-center h-16 px-4 border-b border-gray-light flex-shrink-0">
+        <img src="{% static 'img/logo.png' %}" alt="MyHousePadi" class="h-10">
+    </div>
+
+    <!-- User profile mini-card -->
+    <div class="flex items-center p-4 border-b border-gray-light flex-shrink-0">
+        <div class="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+            {% if request.user.landlord_profile.profile_picture %}
+        <img src="{{ request.user.landlord_profile.profile_picture.url }}"
+                    alt="{{ user.get_full_name|default:'User' }}"
+                    class="nav-avatar"
+                    id="sidebar-avatar">
+            {% else %}
+                <img src="{% static 'img/default-profile.png' %}"
+                    alt="Default profile"
+                    class="nav-avatar"
+                    id="sidebar-avatar">
+            {% endif %}
+            <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
         </div>
-        
-        <!-- Mobile Navigation (Hidden on desktop) -->
-        <div class="md:hidden fixed bottom-0 w-full bg-white border-t border-gray-light z-50">
-            <div class="flex justify-around">
-                <a href="{% url 'landlords:dashboard' %}" class="p-3 text-center text-primary-600">
-                    <i class="fas fa-tachometer-alt block mx-auto mb-1"></i>
-                    <span class="text-xs">Home</span>
-                </a>
-                <a href="{% url 'landlords:properties' %}" class="p-3 text-center text-gray-500">
-                    <i class="fas fa-home block mx-auto mb-1"></i>
-                    <span class="text-xs">Properties</span>
-                </a>
-                <a href="{% url 'landlords:tenants' %}" class="p-3 text-center text-gray-500">
-                    <i class="fas fa-users block mx-auto mb-1"></i>
-                    <span class="text-xs">Tenants</span>
-                </a>
-                <a href="{% url 'landlords:profile' %}" class="p-3 text-center text-gray-500">
-                    <i class="fas fa-user block mx-auto mb-1"></i>
-                    <span class="text-xs">Profile</span>
-                </a>
-            </div>
-        </div>
-        
-        <!-- Main Content Area -->
-        <div class="flex-1 overflow-auto">
-            <!-- Top Navigation -->
-            <header class="glass-nav sticky md:ml-60 top-0 z-40 border-b border-gray-light">
-                <div class="flex items-center justify-between px-4 py-3">
-                    <!-- Mobile menu button -->
-                    <button class="mobile-menu-button md:hidden text-primary-800 focus:outline-none">
-                        <i class="fas fa-bars text-xl"></i>
-                    </button>
-                    
-                    <!-- Search Bar -->
-                    <div class="flex-1 max-w-md mx-4">
-                        <div class="relative">
-                            <input type="text" placeholder="Search properties, tenants..." 
-                                   class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-primary-400 focus:border-primary-400">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-search text-gray-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- User Menu -->
-                    <div class="flex items-center">
-                        <button class="p-2 text-gray-500 hover:text-primary-600 focus:outline-none relative">
-                            <i class="fas fa-bell text-xl"></i>
-                            <span class="notification-dot absolute top-1 right-1 bg-red-500 rounded-full"></span>
-                        </button>
-                        <div class="ml-3 relative">
-                            <button id="user-menu-button" class="flex items-center focus:outline-none">
-                                <img src="{% if request.user.profile_picture %}{{ request.user.profile_picture.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}" 
-                                     alt="Profile" class="w-8 h-8 rounded-full object-cover">
-                                <span class="ml-2 text-sm font-medium text-gray-700 hidden md:inline">{{ request.user.first_name }}</span>
-                                <i class="fas fa-chevron-down ml-1 text-gray-400 hidden md:inline"></i>
-                            </button>
-                            
-                            <!-- Dropdown menu -->
-                            <div id="user-menu-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-light">
-                                <a href="{% url 'landlords:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-light">
-                                    <i class="fas fa-user mr-2 text-primary-600"></i> My Profile
-                                </a>
-                                <a href="{% url 'landlords:settings' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-light">
-                                    <i class="fas fa-cog mr-2 text-primary-600"></i> Settings
-                                </a>
-                                <div class="border-t border-gray-light"></div>
-                                <a href="{% url 'accounts:logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-light">
-                                    <i class="fas fa-sign-out-alt mr-2 text-red-600"></i> Logout
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </header>
-            
-            <!-- Main Content -->
-            <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-cream md:ml-60">
-                {% block content %}{% endblock %}
-            </main>
+        <div class="ml-3 min-w-0">
+            <p class="text-sm font-semibold text-gray-900 truncate">{{ request.user.get_full_name }}</p>
+            <p class="text-xs text-gray-500">Property Owner</p>
+            {% if request.user.is_premium %}
+            <span class="badge-premium text-white text-xs px-2 py-0.5 rounded-full mt-1 inline-block">PREMIUM</span>
+            {% endif %}
         </div>
     </div>
-    
-    <!-- Scripts -->
-    <script>
-        // Mobile menu toggle
-        document.addEventListener('DOMContentLoaded', function() {
-            const mobileMenuButton = document.querySelector('.mobile-menu-button');
-            const mobileMenu = document.querySelector('.mobile-menu');
-            const mobileMenuClose = document.querySelector('.mobile-menu-close');
-            
-            if (mobileMenuButton) {
-                mobileMenuButton.addEventListener('click', function() {
-                    mobileMenu.classList.remove('hidden');
-                });
-            }
-            
-            if (mobileMenuClose) {
-                mobileMenuClose.addEventListener('click', function() {
-                    mobileMenu.classList.add('hidden');
-                });
-            }
-            
-            // Close menu when clicking outside
-            mobileMenu?.addEventListener('click', function(e) {
-                if (e.target === mobileMenu) {
-                    mobileMenu.classList.add('hidden');
-                }
-            });
-            
-            // User dropdown toggle
-            const userMenuButton = document.getElementById('user-menu-button');
-            const userMenuDropdown = document.getElementById('user-menu-dropdown');
 
-            if (userMenuButton) {
-                userMenuButton.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    userMenuDropdown.classList.toggle('hidden');
-                });
-            }
+    <!-- Nav -->
+    <nav class="flex-1 overflow-y-auto px-2 py-4">
+        <div class="space-y-1">
+            <a href="{% url 'landlords:dashboard' %}"
+               class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md
+                      {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <i class="fas fa-tachometer-alt text-primary-600 mr-3 w-4 text-center"></i>Dashboard
+            </a>
+            <a href="{% url 'landlords:properties' %}"
+               class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md
+                      {% if 'propert' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-home text-primary-600 mr-3 w-4 text-center"></i>My Properties
+                <span class="ml-auto bg-primary-100 text-primary-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                    {{ request.user.owned_properties.count }}
+                </span>
+            </a>
+            <a href="{% url 'landlords:tenants' %}"
+               class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md
+                      {% if 'tenant' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-users text-primary-600 mr-3 w-4 text-center"></i>Tenants
+            </a>
+            <a href="{% url 'landlords:community' %}"
+               class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md
+                      {% if 'community' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-comments text-primary-600 mr-3 w-4 text-center"></i>Community
+            </a>
+            <!-- Analytics: not yet implemented – shown as disabled so no broken link -->
+            <span class="flex items-center px-4 py-3 text-sm font-medium rounded-md text-gray-400 cursor-not-allowed select-none" title="Coming soon">
+                <i class="fas fa-chart-line text-gray-300 mr-3 w-4 text-center"></i>Analytics
+            </span>
+            <a href="{% url 'landlords:messages' %}"
+               class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md
+                      {% if 'message' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-comment-dots text-primary-600 mr-3 w-4 text-center"></i>Messages
+            </a>
+        </div>
 
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function() {
-                if (userMenuDropdown && !userMenuDropdown.classList.contains('hidden')) {
-                    userMenuDropdown.classList.add('hidden');
-                }
-            });
+        <div class="border-t border-gray-light mt-4 pt-4 space-y-1">
+            <a href="{% url 'landlords:profile' %}"
+               class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md
+                      {% if 'profile' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-user text-primary-600 mr-3 w-4 text-center"></i>My Profile
+            </a>
+            <a href="{% url 'landlords:settings' %}"
+               class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md
+                      {% if 'settings' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-cog text-primary-600 mr-3 w-4 text-center"></i>Settings
+            </a>
+            <a href="#" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
+                <i class="fas fa-question-circle text-primary-600 mr-3 w-4 text-center"></i>Help Center
+            </a>
+            <a href="{% url 'accounts:logout' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md text-red-600">
+                <i class="fas fa-sign-out-alt text-red-600 mr-3 w-4 text-center"></i>Logout
+            </a>
+        </div>
+    </nav>
+</aside>
 
-            // Prevent dropdown from closing when clicking inside it
-            if (userMenuDropdown) {
-                userMenuDropdown.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                });
-            }
-            
-            // Toggle password visibility
-            function togglePassword(fieldId) {
-                const field = document.getElementById(fieldId);
-                const eyeIcon = document.getElementById(`${fieldId}-eye`);
-                if (field.type === 'password') {
-                    field.type = 'text';
-                    eyeIcon.classList.remove('fa-eye');
-                    eyeIcon.classList.add('fa-eye-slash');
-                } else {
-                    field.type = 'password';
-                    eyeIcon.classList.remove('fa-eye-slash');
-                    eyeIcon.classList.add('fa-eye');
-                }
-            }
-        });
-    </script>
-    
-    {% block extra_js %}{% endblock %}
+
+<!-- =====================================================================
+     MOBILE SLIDE-IN MENU  (z-50, above everything)
+     ==================================================================== -->
+<div class="mobile-menu hidden fixed inset-0 z-50 md:hidden">
+    <div class="absolute inset-0 bg-black/50 mobile-backdrop"></div>
+    <div class="relative flex flex-col w-80 max-w-xs h-full bg-white shadow-xl">
+        <button class="mobile-menu-close absolute top-3 right-3 p-2 text-gray-500 hover:text-gray-700">
+            <i class="fas fa-times text-xl"></i>
+        </button>
+        <div class="flex items-center justify-center h-16 px-4 border-b border-gray-light">
+            <img src="{% static 'img/logo.png' %}" alt="MyHousePadi" class="h-10">
+        </div>
+        <div class="flex items-center p-4 border-b border-gray-light">
+            <div class="relative w-10 h-10 flex-shrink-0">
+                <!-- FIX: same source as desktop sidebar -->
+                <img src="{% if request.user.landlord_profile.profile_picture %}{{ request.user.landlord_profile.profile_picture.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}"
+                     alt="Profile" class="nav-avatar">
+                <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm font-medium text-gray-900">{{ request.user.get_full_name }}</p>
+                <p class="text-xs text-gray-500">Property Owner</p>
+            </div>
+        </div>
+        <nav class="flex-1 overflow-y-auto px-2 py-4 space-y-1">
+            <a href="{% url 'landlords:dashboard' %}"  class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md"><i class="fas fa-tachometer-alt  text-primary-600 mr-3 w-4 text-center"></i>Dashboard</a>
+            <a href="{% url 'landlords:properties' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md"><i class="fas fa-home           text-primary-600 mr-3 w-4 text-center"></i>My Properties</a>
+            <a href="{% url 'landlords:tenants' %}"    class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md"><i class="fas fa-users          text-primary-600 mr-3 w-4 text-center"></i>Tenants</a>
+            <a href="{% url 'landlords:community' %}"  class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md"><i class="fas fa-comments       text-primary-600 mr-3 w-4 text-center"></i>Community</a>
+            <a href="{% url 'landlords:messages' %}"   class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md"><i class="fas fa-comment-dots  text-primary-600 mr-3 w-4 text-center"></i>Messages</a>
+            <a href="{% url 'landlords:profile' %}"    class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md"><i class="fas fa-user          text-primary-600 mr-3 w-4 text-center"></i>My Profile</a>
+            <a href="{% url 'landlords:settings' %}"   class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md"><i class="fas fa-cog           text-primary-600 mr-3 w-4 text-center"></i>Settings</a>
+        </nav>
+        <div class="border-t border-gray-light px-2 py-4">
+            <a href="{% url 'accounts:logout' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md text-red-600">
+                <i class="fas fa-sign-out-alt text-red-600 mr-3 w-4 text-center"></i>Logout
+            </a>
+        </div>
+    </div>
+</div>
+
+
+<!-- =====================================================================
+     MAIN COLUMN
+     `with-sidebar` adds padding-left = sidebar width on md+ so content
+     is never hidden under the fixed sidebar. No flex or ml hacks.
+     ==================================================================== -->
+<div class="with-sidebar flex flex-col min-h-screen">
+
+    <!--
+      STICKY TOP HEADER FIX
+      ---------------------
+      Original problem: header was inside a flex row alongside the sidebar,
+      so `sticky top-0` had nothing stable to stick to, and it was fighting
+      the sidebar for horizontal space.
+
+      Fix: header is now the FIRST child of .with-sidebar (a normal block
+      flow). `sticky top-0` works correctly here because the scroll
+      container is the viewport, not a nested flex item.
+    -->
+    <header class="glass-nav sticky top-0 z-20 border-b border-gray-light">
+        <div class="flex items-center justify-between px-4 py-3">
+
+            <!-- Hamburger (mobile only) -->
+            <button class="mobile-menu-button md:hidden text-primary-800 focus:outline-none">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+
+            <!-- Search -->
+            <div class="flex-1 max-w-md mx-4">
+                <div class="relative">
+                    <input type="text" placeholder="Search properties, tenants..."
+                           class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300
+                                  focus:ring-2 focus:ring-primary-400 focus:border-primary-400 text-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User controls -->
+            <div class="flex items-center gap-2">
+                <button class="p-2 text-gray-500 hover:text-primary-600 relative">
+                    <i class="fas fa-bell text-xl"></i>
+                    <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                </button>
+
+                <div class="relative">
+                    <button id="user-menu-button" class="flex items-center gap-2 focus:outline-none">
+                        <!-- FIX: uses nav_pic (landlord_profile) not request.user.profile_picture -->
+                            <div class="w-9 h-9 rounded-full overflow-hidden">
+                                {% if request.user.landlord_profile.profile_picture %}
+                                    <img src="{{ request.user.landlord_profile.profile_picture.url }}"
+                                        alt="{{ request.user.get_full_name|default:'User' }}"
+                                        class="nav-avatar"
+                                        id="topnav-avatar">
+                                {% else %}
+                                    <img src="{% static 'img/default-profile.png' %}"
+                                        alt="Default profile"
+                                        class="nav-avatar"
+                                        id="topnav-avatar">
+                                {% endif %}
+                            </div>
+                        <span class="hidden md:inline text-sm font-medium text-gray-700">{{ request.user.first_name }}</span>
+                        <i class="fas fa-chevron-down hidden md:inline text-gray-400 text-xs"></i>
+                    </button>
+
+                    <div id="user-menu-dropdown"
+                         class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-light">
+                        <a href="{% url 'landlords:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-light">
+                            <i class="fas fa-user mr-2 text-primary-600"></i>My Profile
+                        </a>
+                        <a href="{% url 'landlords:settings' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-light">
+                            <i class="fas fa-cog mr-2 text-primary-600"></i>Settings
+                        </a>
+                        <div class="border-t border-gray-light my-1"></div>
+                        <a href="{% url 'accounts:logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-light">
+                            <i class="fas fa-sign-out-alt mr-2 text-red-600"></i>Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- Page content -->
+    <main class="flex-1 p-4 md:p-6 pb-20 md:pb-6">
+        {% block content %}{% endblock %}
+    </main>
+</div>
+
+
+<!-- =====================================================================
+     MOBILE BOTTOM NAV BAR
+     ==================================================================== -->
+<div class="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-gray-light z-20 flex justify-around">
+    <a href="{% url 'landlords:dashboard' %}" class="p-3 text-center text-primary-600 flex flex-col items-center">
+        <i class="fas fa-tachometer-alt"></i><span class="text-xs mt-1">Home</span>
+    </a>
+    <a href="{% url 'landlords:properties' %}" class="p-3 text-center text-gray-500 flex flex-col items-center">
+        <i class="fas fa-home"></i><span class="text-xs mt-1">Properties</span>
+    </a>
+    <a href="{% url 'landlords:tenants' %}" class="p-3 text-center text-gray-500 flex flex-col items-center">
+        <i class="fas fa-users"></i><span class="text-xs mt-1">Tenants</span>
+    </a>
+    <a href="{% url 'landlords:profile' %}" class="p-3 text-center text-gray-500 flex flex-col items-center">
+        <i class="fas fa-user"></i><span class="text-xs mt-1">Profile</span>
+    </a>
+</div>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // ── Mobile slide-in menu ─────────────────────────────────────────
+    const mobileMenuBtn   = document.querySelector('.mobile-menu-button');
+    const mobileMenu      = document.querySelector('.mobile-menu');
+    const mobileMenuClose = document.querySelector('.mobile-menu-close');
+    const mobileBackdrop  = document.querySelector('.mobile-backdrop');
+
+    const openMenu  = () => mobileMenu.classList.remove('hidden');
+    const closeMenu = () => mobileMenu.classList.add('hidden');
+
+    mobileMenuBtn?.addEventListener('click', openMenu);
+    mobileMenuClose?.addEventListener('click', closeMenu);
+    mobileBackdrop?.addEventListener('click', closeMenu);
+
+    // ── Top-right dropdown ───────────────────────────────────────────
+    const userBtn  = document.getElementById('user-menu-button');
+    const userDrop = document.getElementById('user-menu-dropdown');
+
+    userBtn?.addEventListener('click', e => {
+        e.stopPropagation();
+        userDrop.classList.toggle('hidden');
+    });
+    document.addEventListener('click', () => userDrop?.classList.add('hidden'));
+    userDrop?.addEventListener('click', e => e.stopPropagation());
+
+    // ── Cache-bust nav avatars ───────────────────────────────────────
+    // After a profile picture upload the browser may serve the old
+    // cached image. We append ?v=<timestamp> to force a fresh fetch.
+    // Only applied to non-default images (the default never changes).
+    const ts = Date.now();
+    ['sidebar-avatar', 'topnav-avatar'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.src && !el.src.includes('default-profile')) {
+            el.src += (el.src.includes('?') ? '&' : '?') + 'v=' + ts;
+        }
+    });
+});
+</script>
+
+{% block extra_js %}{% endblock %}
 </body>
 </html>
