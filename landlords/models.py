@@ -215,7 +215,7 @@ class Property(models.Model):
         return f"{self.name} - {self.city}"
 
     def get_absolute_url(self):
-        return reverse('property_detail', kwargs={'slug': self.slug})
+        return reverse('landing:property_detail', kwargs={'slug': self.slug})
 
     # ------------------------------------------------------------------
     # Properties

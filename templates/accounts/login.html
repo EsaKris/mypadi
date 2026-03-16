@@ -1,62 +1,829 @@
 {% extends "accounts/base.html" %}
 {% load static %}
 {% block content %}
-<section class="min-h-screen bg-cream flex items-center justify-center p-4">
-  <div class="w-full max-w-md">
+
+<!-- Page Title for Django Admin -->
+
+
+<!-- Font imports - refined selection -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  /* Modern CSS Reset & Variables */
+  :root {
+    --primary-dark: #376B24;
+    --primary: #569340;
+    --primary-light: #98CF84;
+    --bg-cream: #FBF5F1;
+    --text-dark: #1A2A1A;
+    --text-soft: #4A5A4A;
+    --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Base typography */
+  body {
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .display-text {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  /* Enhanced animations */
+  @keyframes floatIn {
+    0% { opacity: 0; transform: translateY(20px) scale(0.98); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @keyframes slideInRight {
+    0% { opacity: 0; transform: translateX(30px); }
+    100% { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes slideInLeft {
+    0% { opacity: 0; transform: translateX(-30px); }
+    100% { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes scaleIn {
+    0% { opacity: 0; transform: scale(0.9); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes kenBurns {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.05); }
+  }
+
+  /* Panel animations */
+  .brand-panel {
+    animation: slideInLeft 0.8s var(--ease-smooth) forwards;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Background image with subtle blur - more visible now */
+  .panel-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('{% static "img/housebg.jpg" %}');
+    background-size: cover;
+    background-position: center;
+    /* Reduced blur and brightness to make image more visible */
+    filter: blur(2px) brightness(0.7);
+    transform: scale(1.02);
+    animation: kenBurns 25s infinite alternate var(--ease-smooth);
+    z-index: 1;
+  }
+
+  /* Green gradient overlay - more transparent to show image */
+  .panel-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      135deg,
+      rgba(55, 107, 36, 0.75) 0%,
+      rgba(55, 107, 36, 0.65) 50%,
+      rgba(86, 147, 64, 0.7) 100%
+    );
+    backdrop-filter: blur(0.5px);
+    z-index: 2;
+  }
+
+  /* Content to appear above overlay */
+  .panel-content {
+    position: relative;
+    z-index: 3;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .form-side {
+    animation: slideInRight 0.8s 0.1s var(--ease-smooth) forwards;
+    opacity: 0;
+  }
+
+  /* Enhanced input styling */
+  .auth-input-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+
+  .auth-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-soft);
+    margin-bottom: 0.5rem;
+    transition: color 0.2s ease;
+  }
+
+  .auth-input {
+    width: 100%;
+    padding: 1rem 3rem 1rem 1.25rem;
+    font-size: 0.9375rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    color: var(--text-dark);
+    background: white;
+    border: 2px solid #E8EDE8;
+    border-radius: 16px;
+    transition: all 0.3s var(--ease-smooth);
+    outline: none;
+  }
+
+  .auth-input:hover {
+    border-color: var(--primary-light);
+    background: #FFFFFF;
+  }
+
+  .auth-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 8px 20px -8px rgba(55, 107, 36, 0.2);
+    background: #FFFFFF;
+  }
+
+  .auth-input-icon {
+    position: absolute;
+    right: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #A0B8A0;
+    transition: all 0.2s ease;
+    pointer-events: none;
+  }
+
+  .auth-input:focus + .auth-input-icon {
+    color: var(--primary);
+  }
+
+  /* Password visibility toggle */
+  .password-toggle {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #A0B8A0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+    background: white;
+    padding: 0.25rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .password-toggle:hover {
+    color: var(--primary);
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  /* Enhanced testimonial cards */
+  .testimonial-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.6s var(--ease-bounce);
+    pointer-events: none;
+    width: 100%;
+  }
+
+  .testimonial-slide.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .testimonial-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 24px;
+    padding: 1.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.4);
+  }
+
+  .testimonial-quote {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 400;
+    margin-bottom: 1.25rem;
+    font-family: 'Inter', sans-serif;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .testimonial-quote::before {
+    content: '"';
+    font-size: 2.5rem;
+    color: var(--primary-light);
+    font-family: 'Georgia', serif;
+    opacity: 0.9;
+    margin-right: 0.25rem;
+    line-height: 1;
+  }
+
+  /* User-friendly carousel navigation */
+  .carousel-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 2rem;
+    gap: 1rem;
+  }
+
+  .dot-container {
+    display: flex;
+    gap: 0.75rem;
+    flex: 1;
+  }
+
+  .dot {
+    height: 10px;
+    width: 10px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.4s var(--ease-bounce);
+    border: none;
+    padding: 0;
+    backdrop-filter: blur(4px);
+    flex-shrink: 0;
+  }
+
+  .dot.active {
+    width: 40px;
+    background: var(--primary-light);
+    box-shadow: 0 0 20px var(--primary-light);
+  }
+
+  .dot:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: scale(1.2);
+  }
+
+  /* Navigation arrows */
+  .carousel-arrow {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: white;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .carousel-arrow:hover {
+    background: rgba(255, 255, 255, 0.35);
+    transform: scale(1.1);
+    border-color: var(--primary-light);
+    color: var(--primary-light);
+  }
+
+  .carousel-arrow:active {
+    transform: scale(0.95);
+  }
+
+  /* Slide indicator */
+  .slide-indicator {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 0.25rem 0.75rem;
+    border-radius: 30px;
+    backdrop-filter: blur(4px);
+  }
+
+  /* Enhanced button */
+  .auth-button {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    background: var(--primary-dark);
+    color: white;
+    font-weight: 700;
+    font-size: 0.9375rem;
+    letter-spacing: 0.02em;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s var(--ease-bounce);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .auth-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  .auth-button:hover {
+    background: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 20px 30px -10px rgba(55, 107, 36, 0.3);
+  }
+
+  .auth-button:hover::before {
+    width: 300px;
+    height: 300px;
+  }
+
+  .auth-button:active {
+    transform: translateY(0);
+  }
+
+  /* Stats cards - enhanced for overlay */
+  .stat-item {
+    animation: scaleIn 0.5s var(--ease-bounce) forwards;
+    animation-delay: calc(0.1s * var(--index));
+    opacity: 0;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 1rem 1.25rem;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .stat-number {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 1.75rem;
+    color: white;
+    line-height: 1.2;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  }
+
+  .stat-label {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+  }
+
+  /* Logo enhancement for overlay */
+  .logo-container {
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 0.75rem 1.5rem;
+    border-radius: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  /* Error styling */
+  .error-message {
+    font-size: 0.75rem;
+    color: #DC2626;
+    margin-top: 0.5rem;
+    padding-left: 1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .auth-input {
+      padding: 0.875rem 2.5rem 0.875rem 1rem;
+    }
     
-    <!-- Header -->
-    <div class="text-center mb-8">
-      <img src="{% static 'img/logo.png' %}" alt="My House Padi" class="h-12 mx-auto mb-4">
-      <h1 class="text-3xl font-bold text-primary-800">Welcome back</h1>
-      <p class="text-gray-600">Sign in to manage your properties or continue searching</p>
-    </div>
+    .carousel-controls {
+      flex-wrap: wrap;
+    }
+  }
+</style>
 
-    <!-- Divider (Optional: can remove if no social logins) -->
-    <!-- <div class="flex items-center my-6">
-      <div class="flex-grow border-t border-gray-300"></div>
-      <span class="mx-4 text-gray-500">OR</span>
-      <div class="flex-grow border-t border-gray-300"></div>
-    </div> -->
-
-    <!-- Email/Username Form -->
-    <form method="post" class="space-y-4">
-      {% csrf_token %}
-      {% if form.non_field_errors %}
-        <div class="text-red-500 text-sm">
-          {{ form.non_field_errors }}
-        </div>
-      {% endif %}
+<!-- Main container -->
+<div class="min-h-screen flex overflow-hidden bg-white" id="authWrap">
+  
+  <!-- LEFT PANEL - With House Background (more visible) -->
+  <div class="brand-panel hidden md:flex md:w-[55%] lg:w-[52%] flex-col relative overflow-hidden">
+    
+    <!-- House Background Image with subtle blur -->
+    <div class="panel-background"></div>
+    
+    <!-- Green Gradient Overlay - more transparent -->
+    <div class="panel-overlay"></div>
+    
+    <!-- Content (appears above overlay) -->
+    <div class="panel-content p-8 lg:p-12">
       
-      <div>
-        {{ form.username.label_tag }}
-        {{ form.username }}
-        {% if form.username.errors %}
-          <div class="text-red-500 text-sm">{{ form.username.errors }}</div>
-        {% endif %}
-      </div>
-
-      <div>
-        {{ form.password.label_tag }}
-        {{ form.password }}
-        <div class="flex justify-end mt-2">
-          <a href="{% url 'accounts:password_reset' %}" class="text-sm text-primary-600 hover:text-primary-800">Forgot password?</a>
+      <!-- Logo section with glass effect -->
+      <div class="relative z-10 animate-float" style="animation: floatIn 0.6s ease;">
+        <div class="logo-container">
+          <img src="{% static 'img/logo.png' %}" alt="MyHousePadi" class="h-10 w-auto brightness-0 invert">
+          <span class="text-xs font-semibold tracking-[0.2em] uppercase" style="color: rgba(255,255,255,0.95);"> || My House Padi</span>
         </div>
-        {% if form.password.errors %}
-          <div class="text-red-500 text-sm">{{ form.password.errors }}</div>
-        {% endif %}
       </div>
 
-      <button type="submit" class="w-full bg-primary-800 hover:bg-primary-700 text-white py-3 px-4 rounded-lg font-medium transition flex items-center justify-center">
-        <i class="fas fa-sign-in-alt mr-2"></i> Sign In
-      </button>
-    </form>
+      <!-- Main content -->
+      <div class="relative z-10 max-w-lg">
+        <div class="mb-6 animate-float" style="animation: floatIn 0.6s 0.1s both;">
+          <span class="inline-block px-4 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-full bg-white/20 backdrop-blur-md text-primary-light border border-white/30">
+            ✦ Trusted by thousands
+          </span>
+        </div>
+        
+        <h2 class="display-text text-4xl lg:text-5xl text-white mb-8 leading-[1.2]" style="animation: floatIn 0.6s 0.2s both; text-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+          Find your dream<br>
+          <span style="color: var(--primary-light); text-shadow: 0 2px 15px rgba(152,207,132,0.6);">home today</span>
+        </h2>
 
-    <!-- Sign Up Link -->
-    <div class="text-center mt-6">
-      <p class="text-gray-600">Don't have an account? 
-        <a href="{% url 'accounts:register' %}" class="text-primary-600 hover:text-primary-800 font-medium">Sign up</a>
-      </p>
+        <!-- Testimonials carousel with user-friendly controls -->
+        <div class="relative min-h-[220px] mb-4" style="animation: floatIn 0.6s 0.3s both;">
+          <!-- Testimonial 1 -->
+          <div class="testimonial-slide active" id="slide-0">
+            <div class="testimonial-card">
+              <p class="testimonial-quote">
+                I found my apartment in Abuja within 48 hours. No agent, no wahala — just me and my landlord talking directly.
+              </p>
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm backdrop-blur-md"
+                     style="background: rgba(86, 147, 64, 0.7); border: 2px solid var(--primary-light);">
+                  AN
+                </div>
+                <div>
+                  <p class="text-white font-bold text-sm">Amaka Nwosu</p>
+                  <p class="text-xs" style="color: rgba(255,255,255,0.8);">Tenant · Abuja</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Testimonial 2 -->
+          <div class="testimonial-slide" id="slide-1">
+            <div class="testimonial-card">
+              <p class="testimonial-quote">
+                I listed my 3 properties and got genuine tenants fast. The platform keeps everything organized and professional.
+              </p>
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm backdrop-blur-md"
+                     style="background: rgba(86, 147, 64, 0.7); border: 2px solid var(--primary-light);">
+                  FK
+                </div>
+                <div>
+                  <p class="text-white font-bold text-sm">Femi Kuforiji</p>
+                  <p class="text-xs" style="color: rgba(255,255,255,0.8);">Landlord · Lagos</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Testimonial 3 -->
+          <div class="testimonial-slide" id="slide-2">
+            <div class="testimonial-card">
+              <p class="testimonial-quote">
+                Moving to a new city felt easy. I filtered exactly what I needed and moved in within a week.
+              </p>
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm backdrop-blur-md"
+                     style="background: rgba(86, 147, 64, 0.7); border: 2px solid var(--primary-light);">
+                  CS
+                </div>
+                <div>
+                  <p class="text-white font-bold text-sm">Chiamaka Stella</p>
+                  <p class="text-xs" style="color: rgba(255,255,255,0.8);">Tenant · PH</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- User-friendly carousel controls -->
+          <div class="carousel-controls">
+            <!-- Previous arrow -->
+            <button class="carousel-arrow" onclick="prevSlide()" aria-label="Previous testimonial">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            
+            <!-- Dots -->
+            <div class="dot-container">
+              <button class="dot active" onclick="goToSlide(0)" aria-label="Go to testimonial 1"></button>
+              <button class="dot" onclick="goToSlide(1)" aria-label="Go to testimonial 2"></button>
+              <button class="dot" onclick="goToSlide(2)" aria-label="Go to testimonial 3"></button>
+            </div>
+            
+            <!-- Next arrow -->
+            <button class="carousel-arrow" onclick="nextSlide()" aria-label="Next testimonial">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+          
+          <!-- Slide counter -->
+          <div class="text-center mt-3">
+            <span class="slide-indicator">
+              <span id="current-slide-display">1</span> / 3
+            </span>
+          </div>
+        </div>
+
+        <!-- Stats with glass effect -->
+        <div class="grid grid-cols-3 gap-4 pt-2" style="animation: floatIn 0.6s 0.4s both;">
+          <div class="stat-item" style="--index: 1;">
+            <p class="stat-number">12k+</p>
+            <p class="stat-label">Properties</p>
+          </div>
+          <div class="stat-item" style="--index: 2;">
+            <p class="stat-number">8k+</p>
+            <p class="stat-label">Happy Tenants</p>
+          </div>
+          <div class="stat-item" style="--index: 3;">
+            <p class="stat-number">98%</p>
+            <p class="stat-label">Satisfaction</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-</section>
+
+  <!-- RIGHT PANEL - Enhanced Form Side -->
+  <div class="form-side flex-1 flex items-center justify-center p-6 lg:p-12 overflow-y-auto"
+       style="background: var(--bg-cream);">
+    <div class="w-full max-w-md">
+
+      <!-- Mobile header -->
+      <div class="md:hidden text-center mb-8">
+        <img src="{% static 'img/logo.png' %}" alt="MyHousePadi" class="h-12 mx-auto mb-4">
+        <h1 class="display-text text-3xl font-bold" style="color: var(--primary-dark);">Welcome back</h1>
+        <p class="text-sm mt-2" style="color: var(--text-soft);">Continue your housing journey</p>
+      </div>
+
+      <!-- Desktop header -->
+      <div class="hidden md:block mb-10">
+        <div class="mb-2">
+          <span class="text-xs font-semibold tracking-wider uppercase" style="color: var(--primary);">
+            ✦ Secure login
+          </span>
+        </div>
+        <h1 class="display-text text-4xl font-bold mb-3" style="color: var(--primary-dark);">
+          Welcome back
+        </h1>
+        <p class="text-base" style="color: var(--text-soft);">
+          Sign in to manage properties or continue your search
+        </p>
+      </div>
+
+      <!-- Login form -->
+      <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="bg-red-50 border border-red-200 rounded-2xl px-6 py-4 text-sm text-red-600 flex items-start gap-3 animate-float" style="animation: scaleIn 0.3s ease;">
+            <i class="fas fa-exclamation-circle mt-0.5"></i>
+            <span>{{ form.non_field_errors }}</span>
+          </div>
+        {% endif %}
+
+        <!-- Username field -->
+        <div class="auth-input-group">
+          <label for="id_username" class="auth-label">
+            Username or Email
+          </label>
+          <div class="relative">
+            <input type="text" 
+                   name="username" 
+                   id="id_username"
+                   class="auth-input"
+                   placeholder="Enter your email or username"
+                   value="{{ form.username.value|default:'' }}"
+                   required>
+            <i class="far fa-user auth-input-icon"></i>
+          </div>
+          {% if form.username.errors %}
+            <p class="error-message">
+              <i class="fas fa-exclamation-circle"></i>
+              {{ form.username.errors.0 }}
+            </p>
+          {% endif %}
+        </div>
+
+        <!-- Password field -->
+        <div class="auth-input-group">
+          <label for="id_password" class="auth-label">
+            Password
+          </label>
+          <div class="relative">
+            <input type="password" 
+                   name="password" 
+                   id="id_password"
+                   class="auth-input"
+                   placeholder="Enter your password"
+                   required>
+            <i class="far fa-eye password-toggle" id="togglePassword" onclick="togglePassword()"></i>
+          </div>
+          
+          <!-- Forgot password -->
+          <div class="flex justify-end mt-2">
+            <a href="{% url 'accounts:password_reset' %}" 
+               class="text-xs font-semibold hover:underline inline-flex items-center gap-1 transition-all hover:gap-2"
+               style="color: var(--primary);">
+              Forgot password?
+              <i class="fas fa-arrow-right text-xs"></i>
+            </a>
+          </div>
+          
+          {% if form.password.errors %}
+            <p class="error-message">
+              <i class="fas fa-exclamation-circle"></i>
+              {{ form.password.errors.0 }}
+            </p>
+          {% endif %}
+        </div>
+
+        <!-- Submit button -->
+        <button type="submit" class="auth-button group">
+          <i class="fas fa-sign-in-alt transition-transform group-hover:translate-x-1"></i>
+          Sign In
+        </button>
+      </form>
+
+      <!-- Registration link -->
+      <div class="text-center mt-8 pt-6 border-t border-gray-200/60">
+        <p class="text-sm" style="color: var(--text-soft);">
+          Don't have an account?
+          <a href="{% url 'accounts:register' %}" 
+             id="to-register"
+             class="font-bold inline-flex items-center gap-1 transition-all hover:gap-2 group"
+             style="color: var(--primary-dark);">
+            Sign up
+            <i class="fas fa-arrow-right text-xs transition-transform group-hover:translate-x-1"></i>
+          </a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // Enhanced testimonial carousel with user-friendly controls
+  let currentSlide = 0;
+  const slides = document.querySelectorAll('.testimonial-slide');
+  const dots = document.querySelectorAll('.dot');
+  const currentSlideDisplay = document.getElementById('current-slide-display');
+  let autoPlayInterval;
+
+  function goToSlide(index) {
+    if (index < 0) index = slides.length - 1;
+    if (index >= slides.length) index = 0;
+    if (index === currentSlide) return;
+    
+    // Remove active class from current slide and dot
+    slides[currentSlide].classList.remove('active');
+    dots[currentSlide].classList.remove('active');
+    
+    // Update current slide
+    currentSlide = index;
+    
+    // Add active class to new slide and dot
+    slides[currentSlide].classList.add('active');
+    dots[currentSlide].classList.add('active');
+    
+    // Update slide counter
+    if (currentSlideDisplay) {
+      currentSlideDisplay.textContent = currentSlide + 1;
+    }
+    
+    // Reset autoplay
+    resetAutoPlay();
+  }
+
+  function nextSlide() {
+    goToSlide(currentSlide + 1);
+  }
+
+  function prevSlide() {
+    goToSlide(currentSlide - 1);
+  }
+
+  function resetAutoPlay() {
+    clearInterval(autoPlayInterval);
+    startAutoPlay();
+  }
+
+  function startAutoPlay() {
+    autoPlayInterval = setInterval(nextSlide, 6000);
+  }
+
+  // Start autoplay
+  startAutoPlay();
+
+  // Pause autoplay on hover
+  const carouselContainer = document.querySelector('.testimonial-slide').parentElement;
+  carouselContainer.addEventListener('mouseenter', () => {
+    clearInterval(autoPlayInterval);
+  });
+  
+  carouselContainer.addEventListener('mouseleave', () => {
+    startAutoPlay();
+  });
+
+  // Enhanced password toggle
+  function togglePassword() {
+    const passwordInput = document.getElementById('id_password');
+    const toggleIcon = document.getElementById('togglePassword');
+    
+    if (passwordInput.type === 'password') {
+      passwordInput.type = 'text';
+      toggleIcon.classList.remove('fa-eye');
+      toggleIcon.classList.add('fa-eye-slash');
+    } else {
+      passwordInput.type = 'password';
+      toggleIcon.classList.remove('fa-eye-slash');
+      toggleIcon.classList.add('fa-eye');
+    }
+  }
+
+  // Smooth navigation with animation
+  document.getElementById('to-register')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    const href = this.href;
+    const authWrap = document.getElementById('authWrap');
+    
+    authWrap.style.opacity = '0';
+    authWrap.style.transform = 'scale(0.98)';
+    authWrap.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+    
+    setTimeout(() => {
+      window.location.href = href;
+    }, 400);
+  });
+
+  // Input focus effects
+  document.querySelectorAll('.auth-input').forEach(input => {
+    input.addEventListener('focus', function() {
+      this.parentElement.parentElement.querySelector('.auth-label')?.style.color = 'var(--primary)';
+    });
+    
+    input.addEventListener('blur', function() {
+      this.parentElement.parentElement.querySelector('.auth-label')?.style.color = 'var(--text-soft)';
+    });
+  });
+
+  // Prevent form double submission
+  document.querySelector('form')?.addEventListener('submit', function(e) {
+    const button = this.querySelector('button[type="submit"]');
+    if (button.disabled) {
+      e.preventDefault();
+      return;
+    }
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+  });
+
+  // Keyboard navigation for carousel
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') {
+      prevSlide();
+    } else if (e.key === 'ArrowRight') {
+      nextSlide();
+    }
+  });
+</script>
+
 {% endblock %}

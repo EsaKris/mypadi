@@ -1,143 +1,809 @@
 {% extends "accounts/base.html" %}
 {% load static %}
 {% block content %}
-<section class="min-h-screen bg-cream flex items-center justify-center p-4">
-  <div class="w-full max-w-md">
+
+<!-- Page Title for Django Admin -->
+{% block title %}Register | MyHousePadi{% endblock %}
+
+<!-- Font imports - matching login page -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root { 
+    --ease: cubic-bezier(.77,0,.175,1);
+    --primary-dark: #376B24;
+    --primary: #569340;
+    --primary-light: #98CF84;
+    --bg-cream: #FBF5F1;
+    --text-dark: #1A2A1A;
+    --text-soft: #4A5A4A;
+  }
+  
+  /* Base typography - matching login */
+  body {
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .display-text {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  
+  /* Panel animations */
+  .brand-panel { animation: slideInRight .7s var(--ease) both; position: relative; overflow: hidden; }
+  .form-side { animation: fadeUp .6s .15s var(--ease) both; }
+  
+  @keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .leaving .brand-panel { animation: slideOutRight .5s var(--ease) forwards; }
+  .leaving .form-side { animation: fadeOut .4s ease forwards; }
+  @keyframes slideOutRight { to { transform: translateX(100%); opacity: 0; } }
+  @keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
+
+  /* Background image with blur - more visible */
+  .panel-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('{% static "img/housebg.jpg" %}');
+    background-size: cover;
+    background-position: center;
+    filter: blur(2px) brightness(0.7);
+    transform: scale(1.02);
+    animation: kenBurns 25s infinite alternate var(--ease);
+    z-index: 1;
+  }
+
+  @keyframes kenBurns {
+    0% { transform: scale(1.02); }
+    100% { transform: scale(1.08); }
+  }
+
+  /* Green gradient overlay - more transparent */
+  .panel-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      135deg,
+      rgba(55, 107, 36, 0.78) 0%,
+      rgba(55, 107, 36, 0.68) 50%,
+      rgba(86, 147, 64, 0.72) 100%
+    );
+    backdrop-filter: blur(0.5px);
+    z-index: 2;
+  }
+
+  /* Content above overlay */
+  .panel-content {
+    position: relative;
+    z-index: 3;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  /* Feature carousel */
+  .feature-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.6s var(--ease);
+    pointer-events: none;
+    width: 100%;
+  }
+
+  .feature-slide.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .feature-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 24px;
+    padding: 1.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.4);
+  }
+
+  .feature-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(152, 207, 132, 0.25);
+    border: 1px solid rgba(152, 207, 132, 0.4);
+    color: var(--primary-light);
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .feature-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: white;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+
+  .feature-description {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.6;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+
+  /* User-friendly carousel controls */
+  .carousel-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 2rem;
+    gap: 1rem;
+  }
+
+  .dot-container {
+    display: flex;
+    gap: 0.75rem;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .dot {
+    height: 10px;
+    width: 10px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.4s var(--ease);
+    border: none;
+    padding: 0;
+    backdrop-filter: blur(4px);
+    flex-shrink: 0;
+  }
+
+  .dot.active {
+    width: 40px;
+    background: var(--primary-light);
+    box-shadow: 0 0 20px var(--primary-light);
+  }
+
+  .dot:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: scale(1.2);
+  }
+
+  .carousel-arrow {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: white;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .carousel-arrow:hover {
+    background: rgba(255, 255, 255, 0.35);
+    transform: scale(1.1);
+    border-color: var(--primary-light);
+    color: var(--primary-light);
+  }
+
+  .carousel-arrow:active {
+    transform: scale(0.95);
+  }
+
+  .slide-indicator {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 0.25rem 0.75rem;
+    border-radius: 30px;
+    backdrop-filter: blur(4px);
+    display: inline-block;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Form input styling - matching login page */
+  .auth-input {
+    display:block; width:100%;
+    padding:.75rem 2.6rem .75rem 1rem;
+    border:1.5px solid #e5e7eb; border-radius:16px;
+    font-family:'Inter', sans-serif; font-size:.875rem;
+    color: var(--text-dark); background:#fff; outline:none;
+    transition:border-color .2s, box-shadow .2s;
+    -webkit-appearance:none;
+    font-weight: 500;
+  }
+  .auth-input:hover { border-color: var(--primary-light); }
+  .auth-input:focus { border-color: var(--primary); box-shadow:0 0 0 3px rgba(86,147,64,.12); }
+  
+  /* Headline font - matching login */
+  .headline-text {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  
+  /* Logo enhancement */
+  .logo-container {
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 0.75rem 1.5rem;
+    border-radius: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .logo-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.95);
+  }
+
+  /* Stats cards */
+  .stat-item {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 1rem 1.25rem;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .stat-number {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800;
+    font-size: 1.75rem;
+    color: white;
+    line-height: 1.2;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  }
+
+  .stat-label {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Badge styling */
+  .trust-badge {
+    display: inline-block;
+    padding: 0.5rem 1.25rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    border-radius: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: var(--primary-light);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Form labels */
+  .form-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-soft);
+    margin-bottom: 0.5rem;
+    transition: color 0.2s ease;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Error styling */
+  .error-message {
+    font-size: 0.75rem;
+    color: #DC2626;
+    margin-top: 0.5rem;
+    padding-left: 1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Helper text */
+  .helper-text {
+    font-size: 0.75rem;
+    color: #6B7A6B;
+    margin-top: 0.25rem;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Button styling - matching login */
+  .auth-button {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    background: var(--primary-dark);
+    color: white;
+    font-weight: 700;
+    font-size: 0.9375rem;
+    letter-spacing: 0.02em;
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s var(--ease);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    position: relative;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .auth-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  .auth-button:hover {
+    background: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 20px 30px -10px rgba(55, 107, 36, 0.3);
+  }
+
+  .auth-button:hover::before {
+    width: 300px;
+    height: 300px;
+  }
+
+  .auth-button:active {
+    transform: translateY(0);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .auth-input { padding: 0.875rem 2.5rem 0.875rem 1rem; }
+  }
+</style>
+
+<!-- Full-viewport split layout — form left, brand right -->
+<div class="fixed inset-0 flex flex-row-reverse overflow-hidden" id="authWrap">
+
+  <!-- ══ RIGHT — BRAND PANEL with House Background ═══════════════════════════ -->
+  <div class="brand-panel hidden md:flex flex-col relative overflow-hidden flex-shrink-0"
+       style="width:48%;">
     
-    <!-- Header -->
-    <div class="text-center mb-8">
-      <img src="{% static 'img/logo.png' %}" alt="My House Padi" class="h-12 mx-auto mb-4">
-      <h1 class="text-3xl font-bold text-primary-800">Join My House Padi</h1>
-      <p class="text-gray-600">Find or list properties without agent stress</p>
-    </div>
+    <!-- House Background Image -->
+    <div class="panel-background"></div>
+    
+    <!-- Green Overlay -->
+    <div class="panel-overlay"></div>
+    
+    <!-- Content -->
+    <div class="panel-content p-8 lg:p-12">
 
-    <!-- Registration Form -->
-    <form method="post" class="space-y-4">
-      {% csrf_token %}
-      
-      {% if form.non_field_errors %}
-        <div class="text-red-500 text-sm">
-          {{ form.non_field_errors }}
-        </div>
-      {% endif %}
-
-      <!-- Name Fields -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          {{ form.first_name.label_tag }}
-          {{ form.first_name }}
-          {% if form.first_name.errors %}
-            <div class="text-red-500 text-sm">{{ form.first_name.errors }}</div>
-          {% endif %}
-        </div>
-        <div>
-          {{ form.last_name.label_tag }}
-          {{ form.last_name }}
-          {% if form.last_name.errors %}
-            <div class="text-red-500 text-sm">{{ form.last_name.errors }}</div>
-          {% endif %}
+      <!-- Logo -->
+      <div class="relative z-10">
+        <div class="logo-container">
+          <img src="{% static 'img/logo.png' %}" alt="MyHousePadi" class="h-9 w-auto brightness-0 invert">
+          <span class="logo-text">MyHousePadi</span>
         </div>
       </div>
 
-      <!-- Username Field -->
-      <div>
-        {{ form.username.label_tag }}
-        {{ form.username }}
-        <p class="text-xs text-gray-500 mt-1">This will be your unique profile link</p>
-        {% if form.username.errors %}
-          <div class="text-red-500 text-sm">{{ form.username.errors }}</div>
-        {% endif %}
-      </div>
-
-      <!-- Email -->
-      <div>
-        {{ form.email.label_tag }}
-        {{ form.email }}
-        {% if form.email.errors %}
-          <div class="text-red-500 text-sm">{{ form.email.errors }}</div>
-        {% endif %}
-      </div>
-
-      <!-- Phone Number -->
-      <div>
-        <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-        <div class="flex">
-          <select class="w-20 px-2 py-3 rounded-l-lg border border-gray-300 bg-gray-50">
-            <option>+234</option>
-            <option>+1</option>
-          </select>
-          {{ form.phone_number }}
+      <!-- Headline + Feature Carousel -->
+      <div class="relative z-10">
+        <div class="mb-4">
+          <span class="trust-badge">✨ Trusted by thousands</span>
         </div>
-        {% if form.phone_number.errors %}
-          <div class="text-red-500 text-sm">{{ form.phone_number.errors }}</div>
-        {% endif %}
-      </div>
+        
+        <h2 class="headline-text text-4xl lg:text-4xl text-white mb-6 leading-[1.2]" style="text-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+          Join Nigeria's <br><span style="color: var(--primary-light);">#1 housing platform</span>
+        </h2>
 
-      <!-- User Type Dropdown -->
-      <div class="mb-4">
-        <label for="{{ form.user_type.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
-          {{ form.user_type.label }}
-        </label>
-        <div class="relative">
-          {{ form.user_type }}
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
+        <!-- Feature Carousel -->
+        <div class="relative min-h-[240px] mb-4">
+          <!-- Feature 1: Zero agent fees -->
+          <div class="feature-slide active" id="feature-0">
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-ban"></i>
+              </div>
+              <h3 class="feature-title">Zero agent fees</h3>
+              <p class="feature-description">Connect directly with landlords and tenants — no middlemen, no commissions, no stress.</p>
+            </div>
+          </div>
+
+          <!-- Feature 2: Smart search & filters -->
+          <div class="feature-slide" id="feature-1">
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-search"></i>
+              </div>
+              <h3 class="feature-title">Smart search & filters</h3>
+              <p class="feature-description">Find exactly what you need by location, price, property type, number of rooms and more.</p>
+            </div>
+          </div>
+
+          <!-- Feature 3: Verified listings -->
+          <div class="feature-slide" id="feature-2">
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-shield-alt"></i>
+              </div>
+              <h3 class="feature-title">Verified listings</h3>
+              <p class="feature-description">Every property is reviewed by our team so you always see what's real and available.</p>
+            </div>
+          </div>
+
+          <!-- Feature 4: Direct messaging -->
+          <div class="feature-slide" id="feature-3">
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-comment-dots"></i>
+              </div>
+              <h3 class="feature-title">Direct messaging</h3>
+              <p class="feature-description">Chat with landlords or tenants instantly from the listing — no phone calls needed.</p>
+            </div>
+          </div>
+
+          <!-- Carousel Controls -->
+          <div class="carousel-controls">
+            <button class="carousel-arrow" onclick="prevFeature()" aria-label="Previous feature">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            
+            <div class="dot-container">
+              <button class="dot active" onclick="goToFeature(0)" aria-label="Feature 1"></button>
+              <button class="dot" onclick="goToFeature(1)" aria-label="Feature 2"></button>
+              <button class="dot" onclick="goToFeature(2)" aria-label="Feature 3"></button>
+              <button class="dot" onclick="goToFeature(3)" aria-label="Feature 4"></button>
+            </div>
+            
+            <button class="carousel-arrow" onclick="nextFeature()" aria-label="Next feature">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+          
+          <div class="text-center mt-3">
+            <span class="slide-indicator">
+              <span id="current-feature">1</span> / 4
+            </span>
           </div>
         </div>
-        {% if form.user_type.errors %}
-          <div class="text-red-500 text-sm">{{ form.user_type.errors }}</div>
-        {% endif %}
       </div>
 
-      <!-- Password -->
-      <div>
-        {{ form.password1.label_tag }}
-        <div class="relative">
-          {{ form.password1 }}
-          <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center" onclick="togglePassword('id_password1')">
-            <i class="far fa-eye text-gray-400 hover:text-primary-600" id="id_password1-eye"></i>
-          </button>
+      <!-- Stats -->
+      <div class="relative z-10 grid grid-cols-3 gap-4 pt-2">
+        <div class="stat-item">
+          <p class="stat-number">12k+</p>
+          <p class="stat-label">Properties</p>
         </div>
-        <p class="text-xs text-gray-500 mt-1">At least 8 characters with 1 number</p>
-        {% if form.password1.errors %}
-          <div class="text-red-500 text-sm">{{ form.password1.errors }}</div>
-        {% endif %}
-      </div>
-
-      <div>
-        {{ form.password2.label_tag }}
-        <div class="relative">
-          {{ form.password2 }}
-          <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center" onclick="togglePassword('id_password2')">
-            <i class="far fa-eye text-gray-400 hover:text-primary-600" id="id_password2-eye"></i>
-          </button>
+        <div class="stat-item">
+          <p class="stat-number">8k+</p>
+          <p class="stat-label">Happy Tenants</p>
         </div>
-        {% if form.password2.errors %}
-          <div class="text-red-500 text-sm">{{ form.password2.errors }}</div>
-        {% endif %}
+        <div class="stat-item">
+          <p class="stat-number">98%</p>
+          <p class="stat-label">Satisfaction</p>
+        </div>
       </div>
 
-      <!-- Terms Checkbox -->
-      <div class="flex items-start">
-        {{ form.terms }}
-        <label for="id_terms" class="text-sm text-gray-700">
-          I agree to My House Padi's <a href="#" class="text-primary-600 hover:text-primary-800">Terms</a> and <a href="#" class="text-primary-600 hover:text-primary-800">Privacy Policy</a>
-        </label>
-      </div>
-
-      <button type="submit" class="w-full bg-primary-800 hover:bg-primary-700 text-white py-3 px-4 rounded-lg font-medium transition flex items-center justify-center">
-        <i class="fas fa-user-plus mr-2"></i> Create Account
-      </button>
-    </form>
-
-    <!-- Sign In Link -->
-    <div class="text-center mt-6">
-      <p class="text-gray-600">Already have an account? 
-        <a href="{% url 'accounts:login' %}" class="text-primary-600 hover:text-primary-800 font-medium">Sign in</a>
-      </p>
     </div>
   </div>
-</section>
+
+  <!-- ══ LEFT — FORM SIDE ═══════════════════════════════════════════ -->
+  <div class="form-side flex-1 flex items-center justify-center overflow-y-auto py-8 px-8" style="background: var(--bg-cream);">
+    <div class="w-full max-w-md">
+
+      <!-- Mobile header -->
+      <div class="text-center mb-6 md:hidden">
+        <img src="{% static 'img/logo.png' %}" alt="MyHousePadi" class="h-12 mx-auto mb-3">
+        <h1 class="headline-text text-3xl font-bold" style="color: var(--primary-dark);">Join My House Padi</h1>
+        <p class="text-gray-600 text-sm mt-1" style="font-family: 'Inter', sans-serif;">Find or list properties without agent stress</p>
+      </div>
+
+      <!-- Desktop header -->
+      <div class="hidden md:block mb-6">
+        <div class="mb-2">
+          <span class="text-xs font-semibold tracking-wider uppercase" style="color: var(--primary); font-family: 'Inter', sans-serif;"> Get started free</span>
+        </div>
+        <h1 class="headline-text text-4xl font-bold mb-1" style="color: var(--primary-dark);">Create your account</h1>
+        <p class="text-sm" style="color: var(--text-soft); font-family: 'Inter', sans-serif;">Join thousands finding and listing homes without agent fees.</p>
+      </div>
+
+      <!-- Register form -->
+      <form method="post" class="space-y-4">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="text-sm text-red-600 bg-red-50 border border-red-200 rounded-2xl px-4 py-3" style="font-family: 'Inter', sans-serif;">
+            {{ form.non_field_errors }}
+          </div>
+        {% endif %}
+
+        <!-- Name row -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="id_first_name" class="form-label">First Name</label>
+            {{ form.first_name }}
+            {% if form.first_name.errors %}<p class="error-message">{{ form.first_name.errors.0 }}</p>{% endif %}
+          </div>
+          <div>
+            <label for="id_last_name" class="form-label">Last Name</label>
+            {{ form.last_name }}
+            {% if form.last_name.errors %}<p class="error-message">{{ form.last_name.errors.0 }}</p>{% endif %}
+          </div>
+        </div>
+
+        <!-- Username -->
+        <div>
+          <label for="id_username" class="form-label">Username</label>
+          <div class="relative">
+            {{ form.username }}
+            <i class="fas fa-at absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 text-sm pointer-events-none"></i>
+          </div>
+          <p class="helper-text">This will be your unique profile link</p>
+          {% if form.username.errors %}<p class="error-message">{{ form.username.errors.0 }}</p>{% endif %}
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label for="id_email" class="form-label">Email Address</label>
+          <div class="relative">
+            {{ form.email }}
+            <i class="fas fa-envelope absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 text-sm pointer-events-none"></i>
+          </div>
+          {% if form.email.errors %}<p class="error-message">{{ form.email.errors.0 }}</p>{% endif %}
+        </div>
+
+        <!-- Phone -->
+        <div>
+          <label class="form-label">Phone Number</label>
+          <div class="flex">
+            <select class="flex-shrink-0 px-2 py-3 border border-gray-200 border-r-0 rounded-l-xl text-xs text-gray-600 outline-none" 
+                    style="width:72px;background:#F0E8E2; font-family: 'Inter', sans-serif;">
+              <option>+234</option>
+              <option>+1</option>
+              <option>+44</option>
+            </select>
+            {{ form.phone_number }}
+          </div>
+          {% if form.phone_number.errors %}<p class="error-message">{{ form.phone_number.errors.0 }}</p>{% endif %}
+        </div>
+
+        <!-- User type -->
+        <div>
+          <label for="{{ form.user_type.id_for_label }}" class="form-label">I am a</label>
+          <div class="relative">
+            {{ form.user_type }}
+            <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 text-xs pointer-events-none"></i>
+          </div>
+          {% if form.user_type.errors %}<p class="error-message">{{ form.user_type.errors.0 }}</p>{% endif %}
+        </div>
+
+        <!-- Password row -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="id_password1" class="form-label">Password</label>
+            <div class="relative">
+              {{ form.password1 }}
+              <i class="far fa-eye absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 text-sm cursor-pointer hover:text-green-600 transition"
+                 id="eye1" onclick="togglePass('id_password1','eye1')"></i>
+            </div>
+            {% if form.password1.errors %}<p class="error-message">{{ form.password1.errors.0 }}</p>{% endif %}
+          </div>
+          <div>
+            <label for="id_password2" class="form-label">Confirm</label>
+            <div class="relative">
+              {{ form.password2 }}
+              <i class="far fa-eye absolute right-3 top-1/2 -translate-y-1/2 text-gray-300 text-sm cursor-pointer hover:text-green-600 transition"
+                 id="eye2" onclick="togglePass('id_password2','eye2')"></i>
+            </div>
+            {% if form.password2.errors %}<p class="error-message">{{ form.password2.errors.0 }}</p>{% endif %}
+          </div>
+        </div>
+
+        <!-- Terms -->
+        <div class="flex items-start gap-2">
+          {{ form.terms }}
+          <label for="id_terms" class="text-xs" style="color: var(--text-soft); font-family: 'Inter', sans-serif; line-height: 1.5;">
+            I agree to My House Padi's
+            <a href="{% url 'landing:terms' %}" class="font-semibold hover:underline" style="color: var(--primary);">Terms</a> and
+            <a href="{% url 'landing:policy' %}" class="font-semibold hover:underline" style="color: var(--primary);">Privacy Policy</a>
+          </label>
+        </div>
+        {% if form.terms.errors %}<p class="error-message">{{ form.terms.errors.0 }}</p>{% endif %}
+
+        <button type="submit" class="auth-button">
+          <i class="fas fa-user-plus"></i> Create Account
+        </button>
+      </form>
+
+      <!-- Switch link -->
+      <div class="text-center mt-5">
+        <p class="text-sm" style="color: var(--text-soft); font-family: 'Inter', sans-serif;">
+          Already have an account?
+          <a href="{% url 'accounts:login' %}" id="to-login"
+             class="font-bold transition hover:opacity-80 inline-flex items-center gap-1"
+             style="color: var(--primary-dark); border-bottom:1.5px solid var(--primary-light); padding-bottom:1px; font-family: 'Inter', sans-serif;">
+            Sign in <i class="fas fa-arrow-right text-xs"></i>
+          </a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /authWrap -->
+
+<script>
+  // Feature carousel
+  let currentFeature = 0;
+  const features = document.querySelectorAll('.feature-slide');
+  const dots = document.querySelectorAll('.dot');
+  const currentFeatureDisplay = document.getElementById('current-feature');
+  let autoPlayInterval;
+
+  function goToFeature(index) {
+    if (index < 0) index = features.length - 1;
+    if (index >= features.length) index = 0;
+    if (index === currentFeature) return;
+    
+    features[currentFeature].classList.remove('active');
+    dots[currentFeature].classList.remove('active');
+    
+    currentFeature = index;
+    
+    features[currentFeature].classList.add('active');
+    dots[currentFeature].classList.add('active');
+    
+    if (currentFeatureDisplay) {
+      currentFeatureDisplay.textContent = currentFeature + 1;
+    }
+    
+    resetAutoPlay();
+  }
+
+  function nextFeature() {
+    goToFeature(currentFeature + 1);
+  }
+
+  function prevFeature() {
+    goToFeature(currentFeature - 1);
+  }
+
+  function resetAutoPlay() {
+    clearInterval(autoPlayInterval);
+    startAutoPlay();
+  }
+
+  function startAutoPlay() {
+    autoPlayInterval = setInterval(nextFeature, 6000);
+  }
+
+  // Start autoplay
+  startAutoPlay();
+
+  // Pause on hover
+  const carouselContainer = document.querySelector('.feature-slide').parentElement;
+  carouselContainer.addEventListener('mouseenter', () => {
+    clearInterval(autoPlayInterval);
+  });
+  
+  carouselContainer.addEventListener('mouseleave', () => {
+    startAutoPlay();
+  });
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') {
+      prevFeature();
+    } else if (e.key === 'ArrowRight') {
+      nextFeature();
+    }
+  });
+
+  // Password toggle
+  function togglePass(id, eyeId) {
+    const inp = document.getElementById(id);
+    const eye = document.getElementById(eyeId);
+    if (!inp) return;
+    const show = inp.type === 'text';
+    inp.type = show ? 'password' : 'text';
+    eye.classList.toggle('fa-eye', show);
+    eye.classList.toggle('fa-eye-slash', !show);
+  }
+
+  // Exit animation before going back to login
+  document.getElementById('to-login').addEventListener('click', function(e) {
+    e.preventDefault();
+    const href = this.href;
+    const authWrap = document.getElementById('authWrap');
+    
+    authWrap.classList.add('leaving');
+    setTimeout(() => { window.location.href = href; }, 480);
+  });
+
+  // Apply auth-input class to all Django-rendered inputs + selects
+  document.querySelectorAll('input[type="text"], input[type="password"], input[type="email"], input[type="tel"]').forEach(el => {
+    el.classList.add('auth-input');
+  });
+
+  // Phone input gets left-joined border
+  const phoneInput = document.querySelector('input[name="phone_number"]');
+  if (phoneInput) {
+    phoneInput.style.borderRadius = '0 16px 16px 0';
+    phoneInput.style.borderLeft = 'none';
+  }
+
+  document.querySelectorAll('select:not([style*="width:72px"])').forEach(el => {
+    el.classList.add('auth-input');
+  });
+
+  // Input focus effects
+  document.querySelectorAll('.auth-input').forEach(input => {
+    input.addEventListener('focus', function() {
+      const label = this.closest('div')?.previousElementSibling;
+      if (label && label.classList.contains('form-label')) {
+        label.style.color = 'var(--primary)';
+      }
+    });
+    
+    input.addEventListener('blur', function() {
+      const label = this.closest('div')?.previousElementSibling;
+      if (label && label.classList.contains('form-label')) {
+        label.style.color = 'var(--text-soft)';
+      }
+    });
+  });
+</script>
+
 {% endblock %}

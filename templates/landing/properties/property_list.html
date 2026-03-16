@@ -45,8 +45,24 @@
             {% for property in page_obj %}
             <div class="property-card bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100" data-property-id="{{ property.id }}">
                 <div class="relative">
-                    {% if property.images.all %}
-                    <img src="{{ property.images.first.image.url }}" 
+                    <!-- {#
+                      FIX: was `property.images.all` / `property.images.first`
+                      -------------------------------------------------------
+                      Calling .all or .first directly in a template fires a
+                      fresh SQL query PER CARD, bypassing the prefetch cache
+                      completely. Even though the view does
+                      .prefetch_related('images'), Django only caches the
+                      result of the initial .all() call on the related
+                      manager — any subsequent .first() or .filter() goes
+                      back to the database.
+
+                      The Property model already has a `primary_image`
+                      @property that returns the first image from the cached
+                      queryset. Using it here means zero extra queries — the
+                      prefetch in the view does all the work.
+                    #} -->
+                    {% if property.primary_image %}
+                    <img src="{{ property.primary_image.image.url }}" 
                         alt="{{ property.name }}" 
                         class="w-full h-72 object-cover transition-transform duration-500 hover:scale-105">
                     {% else %}
@@ -55,12 +71,12 @@
                     </div>
                     {% endif %}
                     
-                    <!-- View Count - Top right corner -->
+                    <!-- View Count -->
                     <div class="absolute top-4 right-4 bg-white/90 text-primary-800 px-3 py-1 rounded-full text-xs flex items-center shadow-sm">
                         <i class="fas fa-eye mr-1"></i> {{ property.views }} views
                     </div>
                     
-                    <!-- Price - Bottom left corner -->
+                    <!-- Price -->
                     <div class="absolute bottom-3 left-3 text-primary-800 drop-shadow-md">
                         <div class="text-lg md:text-xl font-bold">{{ property.display_price }}</div>
                     </div>
@@ -92,7 +108,6 @@
                         <h3 class="text-xl font-bold text-primary-800">
                             <i class="fas fa-home text-primary-600 mr-2"></i>{{ property.name }}
                         </h3>
-                        <!-- Save Button -->
                         <button class="save-btn text-gray-400 hover:text-primary-600 transition"
                                 data-property-id="{{ property.id }}"
                                 aria-label="Save property">
@@ -169,36 +184,29 @@
     </div>
 </section>
 
-<!-- JavaScript for Save Functionality -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Save Property Functionality
     const saveButtons = document.querySelectorAll('.save-btn');
     
     saveButtons.forEach(button => {
-        // Check if property is already saved (from localStorage)
         const propertyId = button.getAttribute('data-property-id');
         const isSaved = localStorage.getItem(`saved_property_${propertyId}`) === 'true';
         
-        // Set initial state
         if (isSaved) {
             button.innerHTML = '<i class="fas fa-heart text-red-500 text-xl"></i>';
             button.classList.add('saved');
         }
         
-        // Add click handler
         button.addEventListener('click', function(e) {
             e.preventDefault();
             const propertyId = this.getAttribute('data-property-id');
             const isCurrentlySaved = this.classList.contains('saved');
             
             if (isCurrentlySaved) {
-                // Unsaving
                 this.innerHTML = '<i class="far fa-heart text-xl"></i>';
                 this.classList.remove('saved');
                 localStorage.removeItem(`saved_property_${propertyId}`);
             } else {
-                // Saving
                 this.innerHTML = '<i class="fas fa-heart text-red-500 text-xl"></i>';
                 this.classList.add('saved');
                 localStorage.setItem(`saved_property_${propertyId}`, 'true');
