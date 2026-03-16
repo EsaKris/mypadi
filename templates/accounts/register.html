@@ -656,8 +656,8 @@
           {{ form.terms }}
           <label for="id_terms" class="text-xs" style="color: var(--text-soft); font-family: 'Inter', sans-serif; line-height: 1.5;">
             I agree to My House Padi's
-            <a href="#" class="font-semibold hover:underline" style="color: var(--primary);">Terms</a> and
-            <a href="#" class="font-semibold hover:underline" style="color: var(--primary);">Privacy Policy</a>
+            <a href="{% url 'landing:terms' %}" class="font-semibold hover:underline" style="color: var(--primary);">Terms</a> and
+            <a href="{% url 'landing:policy' %}" class="font-semibold hover:underline" style="color: var(--primary);">Privacy Policy</a>
           </label>
         </div>
         {% if form.terms.errors %}<p class="error-message">{{ form.terms.errors.0 }}</p>{% endif %}
