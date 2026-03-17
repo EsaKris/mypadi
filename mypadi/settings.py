@@ -85,23 +85,23 @@ TEMPLATES = [
 WSGI_APPLICATION = "mypadi.wsgi.application"
 
 # Database - Production MySQL
-DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
 # DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': os.environ.get('DB_NAME'),
-#         'USER': os.environ.get('DB_USER'),
-#         'PASSWORD': os.environ.get('DB_PASSWORD'),
-#         'HOST': os.environ.get('DB_HOST', 'localhost'),
-#         'PORT': os.environ.get('DB_PORT', '3306'),
-#         'OPTIONS': {'charset': 'utf8mb4'},
+#         'default': {
+#             'ENGINE': 'django.db.backends.sqlite3',
+#             'NAME': BASE_DIR / 'db.sqlite3',
+#         }
 #     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+                'PASSWORD': os.environ.get('DB_PASSWORD'),
+                        'HOST': os.environ.get('DB_HOST', 'localhost'),
+                                'PORT': os.environ.get('DB_PORT', '3306'),
+                                        'OPTIONS': {'charset': 'utf8mb4'},
+                                            }
+                                            }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
