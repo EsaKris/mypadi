@@ -18,9 +18,8 @@ def home(request):
             return redirect('/admin/')
         
     # Get 6 featured properties for the homepage
-    featured_properties = Property.objects.filter(
-        is_published=True,
-        is_active=True
+    featured_properties = Property.objects.exclude(
+        is_published=False,
     ).select_related('landlord').prefetch_related('images', 'amenities')[:6]
     
     context = {
@@ -36,10 +35,7 @@ class PropertyListView(ListView):
 
     def get_queryset(self):
         queryset = (
-            Property.objects.filter(
-                is_published=True,
-                is_active=True
-            )
+            Property.objects.all()
             .select_related('landlord')
             .prefetch_related('images', 'amenities')
         )
@@ -87,9 +83,8 @@ class PropertyDetailView(DetailView):
     slug_url_kwarg = 'slug'
 
     def get_queryset(self):
-        return Property.objects.filter(
-            is_published=True,
-            is_active=True
+        return Property.objects.exclude(
+            is_published=False,
         ).select_related('landlord').prefetch_related(
             'images',
             'amenities'
@@ -107,10 +102,9 @@ class PropertyDetailView(DetailView):
         context['images'] = property.images.all()
 
         context['related_properties'] = (
-            Property.objects.filter(
+            Property.objects.exclude(
                 property_type=property.property_type,
-                is_published=True,
-                is_active=True
+                is_published=False,
             )
             .exclude(id=property.id)
             .select_related('landlord')

@@ -157,25 +157,22 @@ class PropertyCreateView(LoginRequiredMixin, CreateView):
     form_class = PropertyForm
     template_name = 'landlords/properties/create.html'
     success_url = reverse_lazy('landlords:properties')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['amenities'] = Amenity.objects.all().order_by('name')
+        return context
     
     def form_valid(self, form):
         import logging
         _log = logging.getLogger(__name__)
 
         form.instance.landlord     = self.request.user
-        form.instance.is_published = form.cleaned_data.get('is_published', True)
+        form.instance.is_published = True
 
-        # Save the Property first so we have a PK to attach images to
         response          = super().form_valid(form)
         property_instance = self.object
 
-        # ── Save uploaded images as PropertyImage rows ──────────────
-        #
-        # CRITICAL: the file input in create.html is named "images".
-        # request.FILES.getlist('images') collects every file from that
-        # input. The first file uploaded is marked is_primary=True so it
-        # becomes the cover image shown in listings and the dashboard.
-        #
         images      = self.request.FILES.getlist('images')
         first_image = True
         for img_file in images:
@@ -227,7 +224,6 @@ class PropertyEditView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['amenities']       = Amenity.objects.all().order_by('name')
-        # Pass existing images so the template can show them with delete buttons
         context['existing_images'] = self.object.images.all()
         return context
 
@@ -296,9 +292,16 @@ class PropertyUpdateView(LoginRequiredMixin, UpdateView):
         return self.request.user.owned_properties.all()
     
     def form_valid(self, form):
+        # Only allow unpublishing if landlord explicitly toggled the checkbox.
+        # If is_published is missing from POST (unchecked = not submitted),
+        # default to keeping the current value instead of saving False.
+        if 'is_published' not in self.request.POST:
+            form.instance.is_published = self.get_object().is_published
+        
         if 'is_published' in form.changed_data:
             status = "published" if form.instance.is_published else "unpublished"
             messages.success(self.request, f'Property {status} from marketplace!')
+        
         return super().form_valid(form)
 
 # landlords/views.py

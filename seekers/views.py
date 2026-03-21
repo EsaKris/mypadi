@@ -1,68 +1,3 @@
-"""
-seekers/views.py  –  MyHousePadi
-
-FIXES vs original
-─────────────────
-[CRITICAL] MarketplaceView.get_queryset() ended with:
-               paginator = Paginator(Property, per_page=3)   # Paginator on the CLASS, not a queryset
-               return queryset | Property.objects.all()       # OR-merges filtered results with ALL properties
-           This discarded every single filter the user applied and
-           returned every property in the DB on every request.
-           Fixed: removed both lines; ListView handles pagination via paginate_by.
-
-[CRITICAL] Conversation import collision: both `core.models` and
-           `landlords.models` exported `Conversation`. The second import
-           silently overwrote the first, so `core.models.Conversation` was
-           never actually used. Removed the duplicate from landlords import.
-
-[CRITICAL] PropertyMessageView stored `self.conversation` in get_context_data()
-           then read it in form_valid(), but get_context_data() is NOT
-           called before form_valid() in a FormView. On POST,
-           self.conversation was unset → AttributeError in get_success_url().
-           Fixed: extracted a _get_or_create_conversation() helper called
-           by both methods.
-
-[CRITICAL] ConversationDetailView had a bare `except Exception as e: print(...)`
-           swallowing ALL errors silently. A DB error, permission issue, or
-           anything else would just show "Error loading conversation".
-           Fixed: log properly; only catch the cases we can handle.
-
-[BUG]      MessageThreadView.get_context_data() created a new Conversation
-           if one didn't exist – but FormView calls get_context_data() on
-           BOTH GET and POST, meaning every failed POST would try to create
-           another conversation. Fixed: conversation lookup/create moved
-           to a shared helper.
-
-[BUG]      PostDetailView.get_context_data() used
-           `post.replies.all()` but the related_name is 'seekers_replies'.
-           Fixed via the @property alias added in models.py; kept both names
-           working.
-
-[BUG]      ProfileEditView.form_valid() called user.save() (full save)
-           after the form already saved user fields in SeekerProfileForm.save().
-           This caused a double save on User and could race-condition overwrite
-           MFA/security fields. Fixed: ProfileEditView no longer saves user
-           directly – the form handles it with update_fields.
-
-[BUG]      SavePropertyView and UnsavePropertyView used GET requests for
-           state-changing operations. This violates HTTP semantics and allows
-           CSRF-free property saves/unsaves via a crafted link.
-           Fixed: changed to POST-only views with CSRF.
-
-[BUG]      DashboardView queried `Message.objects.filter(recipient=...)` but
-           Message lives in core.models and may use a different field name.
-           Added a try/except to gracefully degrade if the field differs.
-
-[SECURITY] DeactivateAccountView was a plain TemplateView with no POST
-           handler – but the deactivation form would POST to settings.
-           Added a real POST handler that requires password confirmation
-           before deactivating.
-
-[QUALITY]  select_related / prefetch_related added to eliminate N+1 queries
-           in MessageListView, CommunityView, PostDetailView.
-[QUALITY]  Removed all `print()` debugging statements.
-"""
-
 import logging
 
 from django.contrib import messages
@@ -144,7 +79,7 @@ class MarketplaceView(LoginRequiredMixin, ListView):
         # FIX: removed the broken `Paginator(Property, ...)` and `| Property.objects.all()`
         queryset = (
             Property.objects
-            .filter(landlord__landlord_profile__isnull=False, is_active=True)
+            .exclude(is_published=False)
             .select_related('landlord', 'landlord__landlord_profile')
             .prefetch_related('amenities', 'images')
             .distinct()

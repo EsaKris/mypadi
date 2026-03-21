@@ -1,21 +1,4 @@
-"""
-landlords/forms.py
-Production-ready forms for MyHousePadi landlord app.
 
-Key fixes & improvements:
-- Removed `from cProfile import Profile` (wrong import, had nothing to do with forms)
-- Fixed BaseFormStyle: moved to TOP of file so it can be subclassed below
-- Fixed PropertyForm.save(): deleted images now correctly call .delete() on each
-  instance instead of calling .delete() on the queryset (which skips file cleanup)
-- Added enctype="multipart/form-data" reminder in docstring (template must have it)
-- MultipleFileField.clean() now always returns a list, never a bare file object
-- Added per-image content_type guard that works even when content_type is absent
-- AdminCreationForm: hardcoded default password moved to a constant + comment
-- Fixed AdminProfileForm: profile_picture field now saves to LandlordProfile, not User
-- Fixed duplicate BaseFormStyle definition (it was defined twice at different places)
-- All forms that handle files explicitly documented so templates don't forget
-  enctype="multipart/form-data"
-"""
 
 from django import forms
 from django.contrib.auth import get_user_model

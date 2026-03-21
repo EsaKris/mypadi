@@ -7,7 +7,6 @@
 
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
 
-    <!-- Header -->
     <div class="mb-6 sm:mb-8">
         <div class="flex items-center sm:hidden mb-4">
             <a href="{% url 'landlords:property_detail' property.pk %}" class="text-primary-600 mr-2">
@@ -25,7 +24,7 @@
         <form method="post" enctype="multipart/form-data" class="p-4 sm:p-6 md:p-8">
             {% csrf_token %}
 
-            <!-- ── Basic Information ─────────────────────────────────────── -->
+            <!-- Basic Information -->
             <div class="mb-8">
                 <h2 class="text-lg sm:text-xl font-semibold text-primary-800 mb-4 sm:mb-6 flex items-center">
                     <span class="bg-primary-100 p-2 rounded-full mr-2 sm:mr-3">
@@ -33,7 +32,6 @@
                     </span>
                     Basic Information
                 </h2>
-
                 <div class="space-y-4 sm:space-y-6">
                     <div>
                         <label for="name" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
@@ -42,7 +40,6 @@
                         <input type="text" name="name" id="name" value="{{ form.name.value }}" required
                                class="block w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                     </div>
-
                     <div>
                         <label for="address" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                             <i class="fas fa-map-marker-alt text-primary-400 mr-1 text-xs sm:text-sm"></i>Full Address
@@ -50,7 +47,6 @@
                         <textarea id="address" name="address" rows="2"
                                   class="block w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500">{{ form.address.value }}</textarea>
                     </div>
-
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                         <div>
                             <label for="city" class="block text-sm font-medium text-gray-700 mb-1">City</label>
@@ -59,7 +55,6 @@
                         </div>
                         <div>
                             <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State</label>
-                            <!-- FIX: original was missing value="{{ form.state.value }}" so state was always blank on edit -->
                             <input type="text" name="state" id="state" value="{{ form.state.value }}" required
                                    class="block w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                         </div>
@@ -72,7 +67,7 @@
                 </div>
             </div>
 
-            <!-- ── Property Details ──────────────────────────────────────── -->
+            <!-- Property Details -->
             <div class="mb-8">
                 <h2 class="text-lg sm:text-xl font-semibold text-primary-800 mb-4 sm:mb-6 flex items-center">
                     <span class="bg-primary-100 p-2 rounded-full mr-2 sm:mr-3">
@@ -80,7 +75,6 @@
                     </span>
                     Property Details
                 </h2>
-
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
                     <div>
                         <label for="property_type" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">Property Type</label>
@@ -96,25 +90,22 @@
                             </div>
                         </div>
                     </div>
-
                     <div>
                         <label for="num_units" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">Number of Units</label>
                         <input type="number" name="num_units" id="num_units" min="1" value="{{ form.num_units.value }}" required
                                class="block w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
                     </div>
                 </div>
-
                 <div class="mt-4 sm:mt-6">
                     <label for="description" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                         <i class="fas fa-align-left text-primary-400 mr-1 text-xs sm:text-sm"></i>Description
                     </label>
                     <textarea id="description" name="description" rows="4"
                               class="block w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500">{{ form.description.value }}</textarea>
-                    <p class="mt-1 text-xs text-gray-500">Describe key features, nearby amenities, and unique aspects of your property</p>
                 </div>
             </div>
 
-            <!-- ── Property Images ───────────────────────────────────────── -->
+            <!-- Property Images -->
             <div class="mb-8">
                 <h2 class="text-lg sm:text-xl font-semibold text-primary-800 mb-4 sm:mb-6 flex items-center">
                     <span class="bg-primary-100 p-2 rounded-full mr-2 sm:mr-3">
@@ -123,7 +114,6 @@
                     Property Images
                 </h2>
 
-                <!-- Existing images with delete buttons -->
                 <div class="mb-4">
                     <h3 class="text-sm font-medium text-gray-700 mb-2">Current Images</h3>
                     <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4" id="current-images-container">
@@ -132,9 +122,7 @@
                             <img src="{{ image.image.url }}" alt="Property image"
                                  class="w-full h-24 sm:h-32 object-cover rounded-lg">
                             {% if image.is_primary %}
-                            <span class="absolute top-1 left-1 bg-primary-600 text-white text-xs px-2 py-0.5 rounded-full">
-                                Primary
-                            </span>
+                            <span class="absolute top-1 left-1 bg-primary-600 text-white text-xs px-2 py-0.5 rounded-full">Primary</span>
                             {% endif %}
                             <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
                                 <button type="button"
@@ -145,52 +133,29 @@
                             </div>
                         </div>
                         {% empty %}
-                        <p class="text-sm text-gray-500 col-span-3" id="no-images-msg">No images uploaded yet</p>
+                        <p class="text-sm text-gray-500 col-span-3">No images uploaded yet</p>
                         {% endfor %}
                     </div>
                 </div>
 
-                <!-- Upload new images -->
                 <div class="border-2 border-dashed border-gray-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center hover:border-primary-300 transition-all">
                     <div class="flex flex-col items-center space-y-2">
                         <i class="fas fa-cloud-upload-alt text-3xl sm:text-4xl text-primary-400"></i>
                         <h3 class="text-sm sm:text-lg font-medium text-gray-700">Add more images</h3>
-                        <p class="text-xs sm:text-sm text-gray-500">or</p>
                         <label for="property_images_input" class="cursor-pointer">
                             <span class="inline-flex items-center px-3 sm:px-4 py-1 sm:py-2 bg-primary-50 border border-transparent rounded-full text-xs sm:text-sm font-medium text-primary-700 hover:bg-primary-100 transition-all">
                                 <i class="fas fa-folder-open mr-1 sm:mr-2"></i>Browse Files
                             </span>
-                            <!--
-                                IMAGE INPUT NAME FIX
-                                --------------------
-                                ORIGINAL: name="property_images"
-                                The view does:  self.request.FILES.getlist('images')
-                                Mismatch → getlist returned an empty list → no images were ever saved.
-
-                                FIX: name="images"  (must match what the view reads)
-                            -->
-                            <input id="property_images_input"
-                                   name="images"
-                                   type="file"
-                                   class="sr-only"
-                                   multiple
-                                   accept="image/*">
+                            <!-- name="images" must match view's request.FILES.getlist('images') -->
+                            <input id="property_images_input" name="images" type="file" class="sr-only" multiple accept="image/*">
                         </label>
                         <p class="text-xs text-gray-500">JPEG or PNG, max 5 MB each</p>
                     </div>
                 </div>
-
-                <!-- New image preview grid -->
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-4" id="image-preview-container"></div>
-
-                <div class="sm:hidden mt-3 p-2 bg-blue-50 rounded-lg">
-                    <p class="text-xs text-blue-800 flex items-center">
-                        <i class="fas fa-info-circle mr-2"></i>Tip: Take photos directly from your phone for best quality
-                    </p>
-                </div>
             </div>
 
-            <!-- ── Pricing ───────────────────────────────────────────────── -->
+            <!-- Pricing -->
             <div class="mb-8">
                 <h2 class="text-lg sm:text-xl font-semibold text-primary-800 mb-4 sm:mb-6 flex items-center">
                     <span class="bg-primary-100 p-2 rounded-full mr-2 sm:mr-3">
@@ -198,7 +163,6 @@
                     </span>
                     Pricing Information
                 </h2>
-
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
                     <div>
                         <label for="price" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">Price (₦)</label>
@@ -225,22 +189,23 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="mt-3 p-2 bg-gray-50 rounded-lg">
-                    <p class="text-xs text-gray-600 flex items-start">
-                        <i class="fas fa-lightbulb text-yellow-500 mt-0.5 mr-2"></i>
-                        Competitive pricing attracts more tenants. Consider local market rates when setting your price.
-                    </p>
-                </div>
             </div>
 
-            <!-- ── Amenities ─────────────────────────────────────────────── -->
+            <!-- Amenities -->
+            <!-- FIX: use `amenities` context variable (from PropertyEditView.get_context_data)
+                 instead of `form.amenities.field.queryset` which bypasses the view context
+                 and can silently return nothing. -->
             <div class="mb-8">
                 <h2 class="text-lg sm:text-xl font-semibold text-primary-800 mb-4 sm:mb-6 flex items-center">
                     <span class="bg-primary-100 p-2 rounded-full mr-2 sm:mr-3">
                         <i class="fas fa-star text-primary-600 text-sm sm:text-base"></i>
                     </span>
                     Amenities &amp; Features
+                    {% if not amenities %}
+                    <span class="ml-3 text-xs text-orange-500 font-normal">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>No amenities — run Amenity.create_default_amenities() in Django shell
+                    </span>
+                    {% endif %}
                 </h2>
 
                 <div class="ml-0 sm:ml-11">
@@ -264,12 +229,14 @@
                         <div id="amenity-dropdown"
                              class="hidden absolute z-10 w-full mt-1 bg-white shadow-lg rounded-lg border border-gray-300 max-h-48 sm:max-h-60 overflow-auto">
                             <div class="py-1">
-                                {% for amenity in form.amenities.field.queryset %}
+                                {% for amenity in amenities %}
                                 <div class="amenity-option px-3 sm:px-4 py-1 sm:py-2 hover:bg-primary-50 cursor-pointer flex items-center text-xs sm:text-sm"
                                      data-id="{{ amenity.id }}" data-name="{{ amenity.name }}" data-icon="{{ amenity.icon }}">
                                     <i class="{{ amenity.icon }} mr-2 text-primary-600 text-xs sm:text-sm"></i>
                                     <span>{{ amenity.name }}</span>
                                 </div>
+                                {% empty %}
+                                <div class="px-4 py-3 text-sm text-gray-500">No amenities available.</div>
                                 {% endfor %}
                             </div>
                         </div>
@@ -282,7 +249,7 @@
                     <div class="mt-3 sm:mt-4">
                         <p class="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2">Popular choices:</p>
                         <div class="flex flex-wrap gap-1 sm:gap-2">
-                            {% for amenity in form.amenities.field.queryset|slice:":6" %}
+                            {% for amenity in amenities|slice:":6" %}
                             <button type="button"
                                     class="quick-amenity-btn text-xs sm:text-sm px-2 sm:px-3 py-0.5 sm:py-1 border border-gray-300 rounded-full hover:bg-primary-50 hover:border-primary-300 transition"
                                     data-id="{{ amenity.id }}" data-name="{{ amenity.name }}" data-icon="{{ amenity.icon }}">
@@ -292,7 +259,7 @@
                         </div>
                     </div>
 
-                    <!-- Hidden select that Django processes on POST -->
+                    <!-- Hidden select that Django reads on POST for amenity IDs -->
                     <select name="amenities" id="amenities-input" multiple class="hidden">
                         {% for amenity_id in form.amenities.value %}
                         <option value="{{ amenity_id }}" selected></option>
@@ -301,7 +268,7 @@
                 </div>
             </div>
 
-            <!-- ── Form actions ──────────────────────────────────────────── -->
+            <!-- Form Actions -->
             <div class="sticky sm:static bottom-0 bg-white border-t border-gray-200 -mx-4 sm:mx-0 -mb-4 sm:mb-0 px-4 sm:px-0 py-3 sm:py-0 sm:border-t-0">
                 <div class="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-0 sm:mt-6 pt-0 sm:pt-6">
                     <a href="{% url 'landlords:property_detail' property.pk %}"
@@ -320,10 +287,7 @@
 
 <style>
     #image-preview-container img, #current-images-container img {
-        border-radius: 0.5rem;
-        height: 100px;
-        width: 100%;
-        object-fit: cover;
+        border-radius: 0.5rem; height: 100px; width: 100%; object-fit: cover;
     }
     @media (min-width: 640px) {
         #image-preview-container img, #current-images-container img { height: 120px; border-radius: 0.75rem; }
@@ -338,9 +302,9 @@
 document.addEventListener('DOMContentLoaded', function () {
 
     // ── New image preview ────────────────────────────────────────────
-    const fileInput      = document.getElementById('property_images_input');
+    const fileInput        = document.getElementById('property_images_input');
     const previewContainer = document.getElementById('image-preview-container');
-    let   previewFiles   = [];  // track files user has selected
+    let previewFiles = [];
 
     fileInput.addEventListener('change', function () {
         previewFiles = Array.from(this.files).slice(0, 12);
@@ -349,8 +313,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderPreviews() {
         previewContainer.innerHTML = '';
-        if (!previewFiles.length) return;
-
         previewFiles.forEach((file, idx) => {
             if (!file.type.match('image.*')) return;
             const reader = new FileReader();
@@ -359,9 +321,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 div.className = 'relative';
                 div.innerHTML = `
                     <img src="${e.target.result}" alt="Preview" class="w-full object-cover rounded-lg">
-                    <button type="button"
-                            class="remove-preview absolute top-1 right-1 bg-white/80 text-red-500 p-1 rounded-full hover:bg-white"
-                            data-idx="${idx}">
+                    <button type="button" class="remove-preview absolute top-1 right-1 bg-white/80 text-red-500 p-1 rounded-full hover:bg-white" data-idx="${idx}">
                         <i class="fas fa-times text-xs"></i>
                     </button>
                     <div class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-0.5 truncate rounded-b-lg">${file.name}</div>`;
@@ -369,7 +329,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 div.querySelector('.remove-preview').addEventListener('click', function () {
                     previewFiles.splice(Number(this.dataset.idx), 1);
-                    // Rebuild the FileList on the input
                     const dt = new DataTransfer();
                     previewFiles.forEach(f => dt.items.add(f));
                     fileInput.files = dt.files;
@@ -381,26 +340,18 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // ── Delete existing images ───────────────────────────────────────
-    // Marks images for deletion by injecting hidden inputs the view reads
-    // via request.POST.getlist('delete_images').
     document.querySelectorAll('.delete-image-btn').forEach(btn => {
         btn.addEventListener('click', function () {
-            const imageId  = this.dataset.imageId;
-            const wrapper  = document.getElementById('img-wrapper-' + imageId);
-
-            // Inject hidden input so the view knows to delete this image
-            const hidden   = document.createElement('input');
-            hidden.type    = 'hidden';
-            hidden.name    = 'delete_images';
-            hidden.value   = imageId;
+            const imageId = this.dataset.imageId;
+            const hidden  = document.createElement('input');
+            hidden.type   = 'hidden';
+            hidden.name   = 'delete_images';
+            hidden.value  = imageId;
             document.querySelector('form').appendChild(hidden);
 
-            // Remove from the visual grid
-            wrapper?.remove();
+            document.getElementById('img-wrapper-' + imageId)?.remove();
 
-            // If the grid is now empty, show a "no images" message
-            const remaining = document.querySelectorAll('#current-images-container .relative.group');
-            if (remaining.length === 0) {
+            if (!document.querySelectorAll('#current-images-container .relative.group').length) {
                 document.getElementById('current-images-container').innerHTML =
                     '<p class="text-sm text-gray-500 col-span-3">No images remaining</p>';
             }
@@ -415,27 +366,19 @@ document.addEventListener('DOMContentLoaded', function () {
     const hiddenSelect = document.getElementById('amenities-input');
     const limitMsg     = document.getElementById('amenity-limit-message');
     const quickBtns    = document.querySelectorAll('.quick-amenity-btn');
-    const MAX          = 10;
-
-    // Initialise chips from any pre-selected amenities
-    function init() {
-        const preSelected = Array.from(hiddenSelect.querySelectorAll('option[selected]'));
-        preSelected.forEach(opt => {
-            const match = Array.from(options).find(o => o.dataset.id === opt.value);
-            if (match) addAmenity(match.dataset.id, match.dataset.name, match.dataset.icon, false);
-        });
-        if (!preSelected.length) {
-            selected.innerHTML = '<p class="text-xs sm:text-sm text-gray-500 self-center">No amenities selected yet</p>';
-        }
-    }
+    const MAX = 10;
 
     function addAmenity(id, name, icon, clearPlaceholder = true) {
-        if (hiddenSelect.querySelector(`option[value="${id}"]`)) return; // already added
+        if (hiddenSelect.querySelector(`option[value="${id}"]`)) return;
         if (hiddenSelect.querySelectorAll('option').length >= MAX) {
             limitMsg.classList.remove('hidden'); return;
         }
         limitMsg.classList.add('hidden');
-        if (clearPlaceholder && selected.querySelector('p.text-gray-500')) selected.innerHTML = '';
+
+        if (clearPlaceholder) {
+            const p = selected.querySelector('p.text-gray-500');
+            if (p) p.remove();
+        }
 
         const chip = document.createElement('span');
         chip.className = 'inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 bg-primary-600 text-white rounded-full text-xs sm:text-sm';
@@ -453,14 +396,26 @@ document.addEventListener('DOMContentLoaded', function () {
             chip.remove();
             hiddenSelect.querySelector(`option[value="${id}"]`)?.remove();
             limitMsg.classList.add('hidden');
-            if (!hiddenSelect.querySelectorAll('option').length)
+            if (!hiddenSelect.querySelectorAll('option').length) {
                 selected.innerHTML = '<p class="text-xs sm:text-sm text-gray-500 self-center">No amenities selected yet</p>';
+            }
         });
     }
 
-    searchInput.addEventListener('focus', () => {
-        filterOptions(); dropdown.classList.remove('hidden');
-    });
+    // Initialise pre-selected amenities (edit mode)
+    function init() {
+        const preSelected = Array.from(hiddenSelect.querySelectorAll('option[selected]'));
+        if (!preSelected.length) return;
+        // Clear placeholder first
+        const p = selected.querySelector('p.text-gray-500');
+        if (p) p.remove();
+        preSelected.forEach(opt => {
+            const match = Array.from(options).find(o => o.dataset.id === opt.value);
+            if (match) addAmenity(match.dataset.id, match.dataset.name, match.dataset.icon, false);
+        });
+    }
+
+    searchInput.addEventListener('focus', () => { filterOptions(); dropdown.classList.remove('hidden'); });
     document.addEventListener('click', e => {
         if (!e.target.closest('#amenity-search') && !e.target.closest('#amenity-dropdown'))
             dropdown.classList.add('hidden');
@@ -476,7 +431,6 @@ document.addEventListener('DOMContentLoaded', function () {
         addAmenity(o.dataset.id, o.dataset.name, o.dataset.icon);
         searchInput.value = ''; filterOptions(); dropdown.classList.add('hidden');
     }));
-
     quickBtns.forEach(b => b.addEventListener('click', () =>
         addAmenity(b.dataset.id, b.dataset.name, b.dataset.icon)));
 

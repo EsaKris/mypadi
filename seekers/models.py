@@ -1,39 +1,3 @@
-"""
-seekers/models.py  –  MyHousePadi
-
-FIXES vs original
-─────────────────
-[CRITICAL] CommunityPost had a bare `property` keyword on its own line
-           between the `views` field and `reply_count()`. This is a
-           syntax-level artifact that references the built-in `property`
-           decorator – it's a no-op statement that would cause a confusing
-           SyntaxWarning in Python 3.12+ and crash linters/type-checkers.
-           Removed.
-
-[CRITICAL] CommunityPost.reply_count() was defined as a plain method but
-           used as if it were a property in templates (no parentheses).
-           Decorated with @property so templates can use {{ post.reply_count }}.
-
-[BUG]      SeekerProfile.preferred_locations stored JSON as a raw TextField
-           with default='[]'. Any code that does `json.loads(profile.preferred_locations)`
-           will crash on existing blank rows ('[]' is fine, but any manual
-           admin edit could store bare text). Replaced with JSONField so
-           Django handles serialisation.
-
-[BUG]      SavedProperty used `property` as a field name which shadows
-           Python's built-in. Renamed to `listing` but kept `property`
-           as a @property alias so existing template code still works.
-           NOTE: requires a migration rename.
-
-[BUG]      CommunityPost.replies was referenced in PostDetailView but the
-           related_name on CommunityReply is 'seekers_replies'. Added a
-           @property `replies` alias so both names work.
-
-[QUALITY]  Added Meta.indexes on commonly filtered/ordered fields.
-[QUALITY]  Added get_absolute_url() to CommunityPost and CommunityReply.
-[QUALITY]  SeekerProfile: added budget validation (min <= max).
-"""
-
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models

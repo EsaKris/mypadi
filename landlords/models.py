@@ -1,20 +1,5 @@
 """
 landlords/models.py
-Production-ready, optimized models for MyHousePadi landlord app.
-
-Key fixes & improvements:
-- Removed unused LoginRequiredMixin import (belongs in views, not models)
-- Fixed Property.increment_views() race condition with F() expression
-- Added proper db_index on all ForeignKey/filter fields
-- Added select_related hints via Meta indexes
-- Added get_absolute_url() to models that were missing it (used in signals)
-- Fixed LandlordProfile.get_absolute_url() referenced in signals but never defined
-- Cleaned up commented-out dead code
-- Added file size validation directly on model ImageFields via clean()
-- Added __str__ to LeaseAgreement
-- Fixed Notification.mark_as_read() to use update_fields for efficiency
-- Added Amenity.Meta ordering so queries are consistent
-- PropertyImage: enforce max 1 primary per property at DB level via signal-safe save()
 """
 
 import logging
@@ -228,7 +213,14 @@ class Property(models.Model):
 
     @property
     def primary_image(self):
-        """Returns the primary image or falls back to the first available."""
+        # If images were prefetched, iterate the cache directly
+        if hasattr(self, '_prefetched_objects_cache') and 'images' in self._prefetched_objects_cache:
+            images = list(self._prefetched_objects_cache['images'])
+            for img in images:
+                if img.is_primary:
+                    return img
+            return images[0] if images else None
+        # Fallback for non-prefetched access (detail pages, etc.)
         return self.images.filter(is_primary=True).first() or self.images.first()
 
     @property
