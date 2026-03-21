@@ -21,7 +21,6 @@
         </div>
     </div>
 
-    <!-- Form errors summary -->
     {% if form.errors %}
     <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
         <div class="flex items-start">
@@ -40,12 +39,7 @@
     </div>
     {% endif %}
 
-    <!-- Form Card -->
     <div class="bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-        <!-- {# ─────────────────────────────────────────────────────────────────────
-           FIX 1: form action points to correct URL explicitly
-           FIX 2: enctype="multipart/form-data" was already present – KEPT
-           ───────────────────────────────────────────────────────────────────── #} -->
         <form method="post"
               action="{% url 'landlords:property_create' %}"
               enctype="multipart/form-data"
@@ -61,7 +55,6 @@
                     </span>
                     Basic Information
                 </h2>
-
                 <div class="space-y-4 sm:space-y-6">
                     <div class="form-group">
                         <label for="id_name" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
@@ -74,7 +67,6 @@
                                       focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300">
                         {% if form.name.errors %}<p class="mt-1 text-xs text-red-600">{{ form.name.errors.0 }}</p>{% endif %}
                     </div>
-
                     <div class="form-group">
                         <label for="id_address" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                             <i class="fas fa-map-marker-alt text-primary-400 mr-1 sm:mr-2 text-xs sm:text-sm"></i>Full Address
@@ -82,7 +74,6 @@
                         <textarea id="id_address" name="address" rows="2"
                                   class="block outline-none w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300">{{ form.address.value|default:'' }}</textarea>
                     </div>
-
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
                         <div class="form-group">
                             <label for="id_city" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">City</label>
@@ -114,7 +105,6 @@
                     </span>
                     Property Details
                 </h2>
-
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
                     <div class="form-group">
                         <label for="id_property_type" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">Property Type</label>
@@ -133,7 +123,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label for="id_num_units" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">Number of Units</label>
                         <input type="number" name="num_units" id="id_num_units" min="1"
@@ -141,18 +130,16 @@
                                class="block outline-none w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300">
                     </div>
                 </div>
-
                 <div class="form-group mt-4 sm:mt-6">
                     <label for="id_description" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">
                         <i class="fas fa-align-left text-primary-400 mr-1 sm:mr-2 text-xs sm:text-sm"></i>Description
                     </label>
                     <textarea id="id_description" name="description" rows="4"
                               class="block outline-none w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300">{{ form.description.value|default:'' }}</textarea>
-                    <p class="mt-1 text-xs text-gray-500">Describe key features, nearby amenities, and unique aspects of your property</p>
                 </div>
             </div>
 
-            <!-- Photo Upload Section -->
+            <!-- Photo Upload -->
             <div class="mb-8">
                 <h2 class="text-lg sm:text-xl font-semibold text-primary-800 mb-4 sm:mb-6 flex items-center">
                     <span class="bg-primary-100 p-2 rounded-full mr-2 sm:mr-3">
@@ -160,35 +147,7 @@
                     </span>
                     Property Images
                 </h2>
-
-                <!-- {# ─────────────────────────────────────────────────────────────
-                   FIX 3: The original template loaded a static JS file
-                   (createPropertyScript.js) which handled the file input –
-                   but the input name was "images" while the view/form field
-                   was also "images". The problem was the JS was either
-                   missing, broken, or silently re-assigning a new FileList
-                   without the files actually being submitted.
-
-                   Root cause of images not saving:
-                   The JS at the bottom of the page (now inline and fixed)
-                   was calling DataTransfer.items.add() to accumulate
-                   selected files, then setting fileInput.files = dataTransfer.files.
-                   This approach WORKS in modern browsers BUT only if the
-                   DataTransfer object is constructed correctly every time.
-
-                   The original had a bug where it was re-adding existing
-                   fileInput.files to a fresh DataTransfer on EVERY change
-                   event, meaning the loop `for fileInput.files` would read
-                   the OLD DataTransfer (before assignment) and double-add.
-
-                   Fixed: always build the merged list from the already-merged
-                   DataTransfer, not from fileInput.files.
-
-                   Also: the input name="images" must match the view's
-                   request.FILES key and the form field name exactly.
-                   ───────────────────────────────────────────────────────── #} -->
-                <div class="border-2 border-dashed border-gray-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center hover:border-primary-300 transition-all duration-300"
-                     id="drop-zone">
+                <div class="border-2 border-dashed border-gray-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center hover:border-primary-300 transition-all duration-300" id="drop-zone">
                     <div class="flex flex-col items-center justify-center space-y-2">
                         <i class="fas fa-cloud-upload-alt text-3xl sm:text-4xl text-primary-400"></i>
                         <h3 class="text-sm sm:text-lg font-medium text-gray-700">Drag and drop images here</h3>
@@ -197,22 +156,13 @@
                             <span class="inline-flex items-center px-3 sm:px-4 py-1 sm:py-2 bg-primary-50 border border-transparent rounded-full text-xs sm:text-sm font-medium text-primary-700 hover:bg-primary-100 transition-all">
                                 <i class="fas fa-folder-open mr-1 sm:mr-2 text-xs sm:text-sm"></i> Browse Files
                             </span>
-                            {# name="images" must match PropertyForm field and view handler #}
                             <input id="property_images" name="images" type="file" class="sr-only" multiple accept="image/jpeg,image/png,image/webp">
                         </label>
-                        <p class="text-xs text-gray-500">Upload up to 12 images (JPEG, PNG, WebP · max 5 MB each)</p>
+                        <p class="text-xs text-gray-500">Up to 12 images (JPEG, PNG, WebP · max 5 MB each)</p>
                     </div>
                 </div>
-
-                <!-- Image Preview Grid -->
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-4 sm:mt-6" id="image-preview-container">
                     <p class="text-sm text-gray-500 col-span-2 sm:col-span-3 text-center py-4" id="no-images-msg">No images selected</p>
-                </div>
-
-                <div class="sm:hidden mt-3 p-2 bg-blue-50 rounded-lg">
-                    <p class="text-xs text-blue-800 flex items-center">
-                        <i class="fas fa-info-circle mr-2"></i> Tip: Take photos directly from your phone for best quality
-                    </p>
                 </div>
             </div>
 
@@ -224,7 +174,6 @@
                     </span>
                     Pricing Information
                 </h2>
-
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
                     <div class="form-group">
                         <label for="id_price" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">Price (₦)</label>
@@ -237,7 +186,6 @@
                                    class="block outline-none w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 sm:py-3 text-sm sm:text-base rounded-lg border border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-300">
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label for="id_price_period" class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">Pricing Period</label>
                         <div class="relative">
@@ -253,22 +201,23 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="mt-3 p-2 bg-gray-50 rounded-lg">
-                    <p class="text-xs text-gray-600 flex items-start">
-                        <i class="fas fa-lightbulb text-yellow-500 mt-0.5 mr-2"></i>
-                        Competitive pricing attracts more tenants. Consider local market rates when setting your price.
-                    </p>
-                </div>
             </div>
 
             <!-- Amenities -->
+            <!-- FIX: use `amenities` from context (passed by PropertyCreateView.get_context_data)
+                 instead of `form.amenities.field.queryset` which can silently return nothing
+                 if the form field isn't configured exactly right. -->
             <div class="mb-8">
                 <h2 class="text-lg sm:text-xl font-semibold text-primary-800 mb-4 sm:mb-6 flex items-center">
                     <span class="bg-primary-100 p-2 rounded-full mr-2 sm:mr-3">
                         <i class="fas fa-star text-primary-600 text-sm sm:text-base"></i>
                     </span>
                     Amenities &amp; Features
+                    {% if not amenities %}
+                    <span class="ml-3 text-xs text-orange-500 font-normal">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>No amenities found — run Amenity.create_default_amenities() in shell
+                    </span>
+                    {% endif %}
                 </h2>
 
                 <div class="ml-0 sm:ml-11">
@@ -289,17 +238,20 @@
                                 <i class="fas fa-search text-gray-400 text-xs sm:text-sm"></i>
                             </div>
                         </div>
-
                         <div id="amenity-dropdown"
                              class="hidden absolute z-10 w-full mt-1 bg-white shadow-lg rounded-lg border border-gray-300 max-h-48 sm:max-h-60 overflow-auto">
                             <div class="py-1">
-                                {% for amenity in form.amenities.field.queryset %}
+                                {% for amenity in amenities %}
                                 <div class="amenity-option px-3 sm:px-4 py-1 sm:py-2 hover:bg-primary-50 cursor-pointer flex items-center text-xs sm:text-sm"
                                      data-id="{{ amenity.id }}"
                                      data-name="{{ amenity.name }}"
                                      data-icon="{{ amenity.icon }}">
                                     <i class="{{ amenity.icon }} mr-2 text-primary-600 text-xs sm:text-sm"></i>
                                     <span>{{ amenity.name }}</span>
+                                </div>
+                                {% empty %}
+                                <div class="px-4 py-3 text-sm text-gray-500">
+                                    No amenities available. Ask your admin to create default amenities.
                                 </div>
                                 {% endfor %}
                             </div>
@@ -313,7 +265,7 @@
                     <div class="mt-3 sm:mt-4">
                         <p class="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2">Popular choices:</p>
                         <div class="flex flex-wrap gap-1 sm:gap-2">
-                            {% for amenity in form.amenities.field.queryset|slice:":6" %}
+                            {% for amenity in amenities|slice:":6" %}
                             <button type="button" class="quick-amenity-btn text-xs sm:text-sm px-2 sm:px-3 py-0.5 sm:py-1 border border-gray-300 rounded-full hover:bg-primary-50 hover:border-primary-300 transition"
                                     data-id="{{ amenity.id }}"
                                     data-name="{{ amenity.name }}"
@@ -324,10 +276,6 @@
                         </div>
                     </div>
 
-                    <!-- {# FIX 4: This <select multiple> is what actually submits amenity IDs.
-                       The JS below manages its options. It must be INSIDE the <form>.
-                       In the original it was here but the JS that added <option> tags
-                       was missing (commented out). Now the JS is inline and active. #} -->
                     <select name="amenities" id="amenities-input" multiple class="hidden">
                         {% if form.amenities.value %}
                             {% for amenity_id in form.amenities.value %}
@@ -346,13 +294,10 @@
                     </span>
                     Listing Visibility
                 </h2>
-
                 <div class="ml-0 sm:ml-11 space-y-4">
                     <div class="flex items-center justify-between">
                         <div>
-                            <label for="id_is_published" class="block text-sm font-medium text-gray-700 mb-1">
-                                Publish on Marketplace
-                            </label>
+                            <label for="id_is_published" class="block text-sm font-medium text-gray-700 mb-1">Publish on Marketplace</label>
                             <p class="text-xs text-gray-500">Make this property visible to all seekers</p>
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
@@ -360,12 +305,9 @@
                             <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
                         </label>
                     </div>
-
                     <div class="flex items-center justify-between">
                         <div>
-                            <label for="id_is_featured" class="block text-sm font-medium text-gray-700 mb-1">
-                                Feature this Property
-                            </label>
+                            <label for="id_is_featured" class="block text-sm font-medium text-gray-700 mb-1">Feature this Property</label>
                             <p class="text-xs text-gray-500">Highlight for more visibility</p>
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
@@ -373,12 +315,9 @@
                             <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
                         </label>
                     </div>
-
                     <div class="flex items-center justify-between">
                         <div>
-                            <label for="id_is_active" class="block text-sm font-medium text-gray-700 mb-1">
-                                Active Listing
-                            </label>
+                            <label for="id_is_active" class="block text-sm font-medium text-gray-700 mb-1">Active Listing</label>
                             <p class="text-xs text-gray-500">Keep property available for applications</p>
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
@@ -413,43 +352,22 @@
     #amenity-dropdown { scrollbar-width: thin; scrollbar-color: #3b82f6 #f0f0f0; }
     .form-group { margin-bottom: 1rem; }
     @media (min-width: 640px) { .form-group { margin-bottom: 1.5rem; } }
-    #image-preview-container img {
-        border-radius: 0.5rem;
-        height: 100px;
-        width: 100%;
-        object-fit: cover;
-    }
+    #image-preview-container img { border-radius: 0.5rem; height: 100px; width: 100%; object-fit: cover; }
     @media (min-width: 640px) { #image-preview-container img { border-radius: 0.75rem; height: 120px; } }
-    #amenity-dropdown::-webkit-scrollbar { width: 6px; }
-    #amenity-dropdown::-webkit-scrollbar-track { background: #f0f0f0; }
-    #amenity-dropdown::-webkit-scrollbar-thumb { background-color: #3b82f6; border-radius: 3px; }
     .drop-zone-highlight { border-color: #3b82f6 !important; background-color: #f0f7ff !important; }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    /* =====================================================================
-       IMAGE UPLOAD
-       FIX: The original createPropertyScript.js was re-creating a DataTransfer
-       from fileInput.files on every change event. Because fileInput.files
-       was set from a DataTransfer, Chrome returns a frozen FileList that
-       can't be iterated correctly when constructing a new DataTransfer in
-       some versions. The fix: maintain a separate JS array as the source
-       of truth; only write to fileInput.files once, just before submit.
-       ===================================================================== */
-    const dropZone        = document.getElementById('drop-zone');
-    const fileInput       = document.getElementById('property_images');
+    // ── IMAGE UPLOAD ────────────────────────────────────────────────────
+    const dropZone         = document.getElementById('drop-zone');
+    const fileInput        = document.getElementById('property_images');
     const previewContainer = document.getElementById('image-preview-container');
-    const noImagesMsg     = document.getElementById('no-images-msg');
-    const MAX_FILES       = 12;
-    const MAX_MB          = 5;
-
-    // Maintained JS array of File objects – the single source of truth
+    const MAX_FILES = 12, MAX_MB = 5;
     let selectedFiles = [];
 
     function syncFilesToInput() {
-        // Write the current selectedFiles array back to the <input type="file">
         const dt = new DataTransfer();
         selectedFiles.forEach(f => dt.items.add(f));
         fileInput.files = dt.files;
@@ -457,97 +375,59 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderPreviews() {
         previewContainer.innerHTML = '';
-        if (selectedFiles.length === 0) {
-            previewContainer.appendChild(noImagesMsg || Object.assign(document.createElement('p'), {
-                className: 'text-sm text-gray-500 col-span-2 sm:col-span-3 text-center py-4',
-                textContent: 'No images selected'
-            }));
+        if (!selectedFiles.length) {
+            previewContainer.innerHTML = '<p class="text-sm text-gray-500 col-span-2 sm:col-span-3 text-center py-4">No images selected</p>';
             return;
         }
         selectedFiles.forEach((file, idx) => {
             const reader = new FileReader();
-            reader.onload = function (e) {
+            reader.onload = e => {
                 const div = document.createElement('div');
                 div.className = 'relative group';
                 div.innerHTML = `
                     <img src="${e.target.result}" alt="Preview" class="w-full h-32 object-cover rounded-lg">
-                    <button type="button"
-                            class="remove-img absolute top-1 right-1 bg-white/80 text-red-500 p-1 rounded-full hover:bg-white transition"
-                            data-index="${idx}"
-                            aria-label="Remove image">
+                    <button type="button" class="remove-img absolute top-1 right-1 bg-white/80 text-red-500 p-1 rounded-full hover:bg-white transition" data-index="${idx}">
                         <i class="fas fa-times text-xs"></i>
                     </button>
-                    <div class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-1 truncate rounded-b-lg">
-                        ${file.name}
-                    </div>`;
+                    <div class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-1 truncate rounded-b-lg">${file.name}</div>`;
                 previewContainer.appendChild(div);
             };
             reader.readAsDataURL(file);
         });
     }
 
+    previewContainer.addEventListener('click', function(e) {
+        const btn = e.target.closest('.remove-img');
+        if (!btn) return;
+        selectedFiles.splice(parseInt(btn.dataset.index, 10), 1);
+        syncFilesToInput();
+        renderPreviews();
+    });
+
     function addFiles(newFiles) {
         for (const file of newFiles) {
             if (selectedFiles.length >= MAX_FILES) break;
             if (!file.type.startsWith('image/')) continue;
-            if (file.size > MAX_MB * 1024 * 1024) {
-                alert(`"${file.name}" is larger than ${MAX_MB} MB and was skipped.`);
-                continue;
-            }
-            // Avoid duplicates by name+size
-            if (!selectedFiles.find(f => f.name === file.name && f.size === file.size)) {
-                selectedFiles.push(file);
-            }
+            if (file.size > MAX_MB * 1024 * 1024) { alert(`"${file.name}" exceeds ${MAX_MB} MB`); continue; }
+            if (!selectedFiles.find(f => f.name === file.name && f.size === file.size)) selectedFiles.push(file);
         }
         syncFilesToInput();
         renderPreviews();
     }
 
-    // Remove a file by index (event-delegation on the preview container)
-    previewContainer.addEventListener('click', function (e) {
-        const btn = e.target.closest('.remove-img');
-        if (!btn) return;
-        const idx = parseInt(btn.dataset.index, 10);
-        selectedFiles.splice(idx, 1);
-        syncFilesToInput();
-        renderPreviews();
-    });
-
-    // Drag-and-drop
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev =>
-        dropZone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); })
-    );
-    ['dragenter', 'dragover'].forEach(ev =>
-        dropZone.addEventListener(ev, () => dropZone.classList.add('drop-zone-highlight'))
-    );
-    ['dragleave', 'drop'].forEach(ev =>
-        dropZone.addEventListener(ev, () => dropZone.classList.remove('drop-zone-highlight'))
-    );
+    ['dragenter','dragover','dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
+    ['dragenter','dragover'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.add('drop-zone-highlight')));
+    ['dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.remove('drop-zone-highlight')));
     dropZone.addEventListener('drop', e => addFiles(e.dataTransfer.files));
+    fileInput.addEventListener('change', function() { addFiles(this.files); this.value = ''; });
 
-    // File picker
-    fileInput.addEventListener('change', function () {
-        addFiles(this.files);
-        // Reset the input value so the same file can be re-selected if removed
-        this.value = '';
-    });
-
-    // Prevent accidental navigation when files are selected
-    document.getElementById('property-form').addEventListener('submit', function () {
-        const btn  = document.getElementById('submit-btn');
-        const text = document.getElementById('submit-text');
+    document.getElementById('property-form').addEventListener('submit', function() {
+        const btn = document.getElementById('submit-btn');
+        document.getElementById('submit-text').textContent = 'Saving…';
         btn.disabled = true;
-        text.textContent = 'Saving…';
     });
 
-
-    /* =====================================================================
-       AMENITIES
-       FIX: The original JS was entirely commented out. The amenity <select>
-       existed in the HTML but had no JS to populate it, so amenities were
-       never submitted. This code manages the hidden <select #amenities-input>
-       and the UI chips.
-       ===================================================================== */
+    // ── AMENITIES ───────────────────────────────────────────────────────
     const searchInput       = document.getElementById('amenity-search');
     const dropdown          = document.getElementById('amenity-dropdown');
     const options           = document.querySelectorAll('.amenity-option');
@@ -555,19 +435,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const hiddenSelect      = document.getElementById('amenities-input');
     const limitMessage      = document.getElementById('amenity-limit-message');
     const quickBtns         = document.querySelectorAll('.quick-amenity-btn');
-    const MAX_AMENITIES     = 10;
+    const MAX_AMENITIES = 10;
 
     function getSelectedIds() {
         return Array.from(hiddenSelect.options).filter(o => o.selected).map(o => o.value);
     }
 
     function addAmenity(id, name, icon) {
-        if (getSelectedIds().includes(id)) return;   // already selected
+        if (getSelectedIds().includes(String(id))) return;
         if (getSelectedIds().length >= MAX_AMENITIES) {
             limitMessage.classList.remove('hidden');
             return;
         }
         limitMessage.classList.add('hidden');
+
+        // Remove placeholder text
+        const placeholder = selectedContainer.querySelector('p');
+        if (placeholder) placeholder.remove();
 
         // Add to hidden select
         const opt = document.createElement('option');
@@ -575,11 +459,7 @@ document.addEventListener('DOMContentLoaded', function () {
         opt.selected = true;
         hiddenSelect.appendChild(opt);
 
-        // Remove placeholder if present
-        const placeholder = selectedContainer.querySelector('p');
-        if (placeholder) placeholder.remove();
-
-        // Add chip
+        // Add chip UI
         const chip = document.createElement('span');
         chip.className = 'inline-flex items-center px-2 sm:px-3 py-0.5 sm:py-1 bg-primary-600 text-white rounded-full text-xs sm:text-sm';
         chip.dataset.id = id;
@@ -589,9 +469,8 @@ document.addEventListener('DOMContentLoaded', function () {
             </button>`;
         selectedContainer.appendChild(chip);
 
-        chip.querySelector('.remove-amenity').addEventListener('click', function () {
-            // Remove from select
-            const optToRemove = Array.from(hiddenSelect.options).find(o => o.value === id);
+        chip.querySelector('.remove-amenity').addEventListener('click', function() {
+            const optToRemove = Array.from(hiddenSelect.options).find(o => o.value === String(id));
             if (optToRemove) optToRemove.remove();
             chip.remove();
             limitMessage.classList.add('hidden');
@@ -608,31 +487,23 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    searchInput.addEventListener('focus', () => {
-        dropdown.classList.remove('hidden');
-        filterOptions();
-    });
+    searchInput.addEventListener('focus', () => { dropdown.classList.remove('hidden'); filterOptions(); });
     searchInput.addEventListener('input', filterOptions);
     document.addEventListener('click', e => {
-        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
-            dropdown.classList.add('hidden');
-        }
+        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) dropdown.classList.add('hidden');
     });
-    options.forEach(opt => {
-        opt.addEventListener('click', () => {
-            addAmenity(opt.dataset.id, opt.dataset.name, opt.dataset.icon);
-            searchInput.value = '';
-            filterOptions();
-            dropdown.classList.add('hidden');
-        });
-    });
-    quickBtns.forEach(btn => {
-        btn.addEventListener('click', () => addAmenity(btn.dataset.id, btn.dataset.name, btn.dataset.icon));
-    });
+    options.forEach(opt => opt.addEventListener('click', () => {
+        addAmenity(opt.dataset.id, opt.dataset.name, opt.dataset.icon);
+        searchInput.value = '';
+        filterOptions();
+        dropdown.classList.add('hidden');
+    }));
+    quickBtns.forEach(btn => btn.addEventListener('click', () =>
+        addAmenity(btn.dataset.id, btn.dataset.name, btn.dataset.icon)));
 
-    // Re-render any pre-selected amenities on form re-render (validation failure)
+    // Re-populate chips on validation failure
     getSelectedIds().forEach(id => {
-        const opt = Array.from(options).find(o => o.dataset.id === id);
+        const opt = Array.from(options).find(o => o.dataset.id === String(id));
         if (opt) addAmenity(opt.dataset.id, opt.dataset.name, opt.dataset.icon);
     });
 });
