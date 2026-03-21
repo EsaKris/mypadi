@@ -35,7 +35,9 @@ class PropertyListView(ListView):
 
     def get_queryset(self):
         queryset = (
-            Property.objects.all()
+            Property.objects.exclude(
+                is_published=False,
+            )
             .select_related('landlord')
             .prefetch_related('images', 'amenities')
         )
