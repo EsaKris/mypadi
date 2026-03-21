@@ -2,16 +2,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-    <!-- Google tag (gtag.js) -->
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-9L194DZGNR"></script>
-        <script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9L194DZGNR"></script>
+    <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-
         gtag('config', 'G-9L194DZGNR');
-        </script>
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}My House Padi - Seeker Dashboard{% endblock %}</title>
@@ -24,409 +21,333 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        montserrat: ['Montserrat', 'sans-serif'],
-                    },
+                    fontFamily: { montserrat: ['Montserrat', 'sans-serif'] },
                     colors: {
                         'primary-800': '#376B24',
                         'primary-600': '#569340',
                         'primary-400': '#98CF84',
-                        'white': '#FFFFFF',
-                        'cream': '#FBF5F1',
-                        'gray-light': '#F4F2F0',
-                        'black': '#000000',
+                        'cream':       '#FBF5F1',
+                        'gray-light':  '#F4F2F0',
                     },
-                    backdropBlur: {
-                        'xs': '2px',
-                    }
                 }
             }
         }
     </script>
-    
+
     <style>
+        /*
+         * LAYOUT FIX  (same approach as landlord_base.html)
+         * --------------------------------------------------
+         * Original problem: sidebar was inside the same flex row as main
+         * content, causing sticky header drift and sidebar/content overlap.
+         *
+         * Solution: sidebar is FIXED, completely outside normal flow.
+         * Main column gets left-padding equal to sidebar width on md+.
+         * Header is sticky inside that column and never fights the sidebar.
+         */
+
+        :root { --sidebar-w: 256px; /* = w-64 */ }
+
+        @media (min-width: 768px) {
+            .with-sidebar { padding-left: var(--sidebar-w); }
+        }
+
         .glass-nav {
-            background: rgba(251, 245, 241, 0.9);
+            background: rgba(251, 245, 241, 0.95);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
         }
-        .extra-black {
-            font-weight: 900;
+        .extra-black { font-weight: 900; }
+        .sidebar-nav-item:hover { background-color: rgba(86, 147, 64, 0.1); }
+        .sidebar-nav-item.active {
+            background-color: rgba(86, 147, 64, 0.2);
+            border-left: 4px solid #569340;
         }
-        .filter-btn.active {
-            box-shadow: 0 4px 6px -1px rgba(55, 107, 36, 0.2);
-        }
-        .property-card:hover {
-            transform: translateY(-5px);
-        }
-        .save-btn.active {
-            color: #EF4444;
-        }
-        .quick-view-btn {
-            transition: all 0.3s ease;
-        }
-        .quick-view-btn:hover {
-            background-color: #F3F4F6;
-        }
-        .amenity-chip i {
-            width: 14px;
-            text-align: center;
-        }
-        .search-modal {
-            transition: all 0.3s ease-out;
-        }
-        .search-icon-btn:hover {
-            transform: scale(1.1);
-        }
+        .property-card:hover { transform: translateY(-5px); }
+        .save-btn.active { color: #EF4444; }
+        .notification-dot { width: 8px; height: 8px; }
         select {
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
             background: transparent;
         }
-        .sidebar-nav {
-            transition: all 0.3s ease;
-        }
-        .sidebar-nav-item:hover {
-            background-color: rgba(86, 147, 64, 0.1);
-        }
-        .sidebar-nav-item.active {
-            background-color: rgba(86, 147, 64, 0.2);
-            border-left: 4px solid #569340;
-        }
-        .notification-dot {
-            width: 8px;
-            height: 8px;
-            top: 12px;
-            right: 12px;
-        }
-        .user-dropdown {
-            transition: all 0.2s ease;
-            transform-origin: top right;
+        .nav-avatar {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 9999px;
         }
     </style>
-    
+
     {% block extra_head %}{% endblock %}
 </head>
 <body class="font-montserrat bg-cream">
-    <div class="flex pb-20 md:pb-4">
-        <!-- Sidebar Navigation (Desktop) -->
-        <aside class="hidden md:flex md:flex-shrink-0 fixed top-0 h-screen">
-            <div class="flex flex-col w-64 border-r border-gray-light bg-white">
-                <!-- Logo -->
-                <div class="flex items-center justify-center h-16 px-4 border-b border-gray-light">
-                    <img src="{% static 'img/logo.png' %}" alt="My House Padi" class="h-10">
-                </div>
-                
-                <!-- User Profile Summary -->
-                <div class="flex items-center p-4 border-b border-gray-light">
-                    <div class="relative">
-                        <img src="{% if request.user.seeker_profile.profile_picture %}{{ request.user.seeker_profile.profile_picture.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}" 
-                            alt="Profile" class="w-10 h-10 rounded-full object-cover">
-                        <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm font-medium text-gray-900">{{ request.user.get_full_name }}</p>
-                        <p class="text-xs text-gray-500">House Seeker</p>
-                    </div>
-                </div>
-                
-                <!-- Navigation -->
-                <nav class="flex-1 overflow-y-auto">
-                    <div class="space-y-1 px-2 py-4">
-                        <!-- Dashboard -->
-                        <a href="{% url 'seekers:dashboard' %}" 
-                           class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-                            <i class="fas fa-tachometer-alt text-primary-600 mr-3"></i>
-                            Dashboard
-                        </a>
-                        
-                        <!-- Marketplace -->
-                        <a href="{% url 'seekers:marketplace' %}" 
-                           class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'marketplace' %}active{% endif %}">
-                            <i class="fas fa-store text-primary-600 mr-3"></i>
-                            Marketplace
-                            <span class="ml-auto bg-primary-100 text-primary-800 text-xs font-medium px-2 py-0.5 rounded-full">12 new</span>
-                        </a>
-                        
-                        <!-- Saved Properties -->
-                        <a href="{% url 'seekers:saved_properties' %}" 
-                           class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'saved_properties' %}active{% endif %}">
-                            <i class="fas fa-heart text-primary-600 mr-3"></i>
-                            Saved Properties
-                        </a>
-                        
-                        <!-- Messages -->
-                        <a href="{% url 'seekers:messages' %}" 
-                           class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'messages' %}active{% endif %}">
-                            <i class="fas fa-comments text-primary-600 mr-3"></i>
-                            Messages
-                            <span class="ml-auto relative">
-                                <i class="fas fa-bell text-gray-400"></i>
-                                <span class="notification-dot absolute bg-red-500 rounded-full"></span>
-                            </span>
-                        </a>
-                        
-                        <!-- Community -->
-                        <a href="{% url 'seekers:community' %}" 
-                           class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'community' %}active{% endif %}">
-                            <i class="fas fa-users text-primary-600 mr-3"></i>
-                            Community
-                        </a>
-                        
-                        <!-- My Profile -->
-                        <a href="{% url 'seekers:profile' %}" 
-                           class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-                            <i class="fas fa-user text-primary-600 mr-3"></i>
-                            My Profile
-                        </a>
-                        
-                        <!-- Settings -->
-                        <a href="{% url 'seekers:settings' %}" 
-                           class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
-                            <i class="fas fa-cog text-primary-600 mr-3"></i>
-                            Settings
-                        </a>
-                    </div>
-                    
-                    <!-- Help & Support -->
-                    <div class="border-t border-gray-light px-2 py-4">
-                        <a href="#" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
-                            <i class="fas fa-question-circle text-primary-600 mr-3"></i>
-                            Help & Support
-                        </a>
-                        <!-- Logout Link -->
-                        <a href="{% url 'accounts:logout' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md text-red-600">
-                            <i class="fas fa-sign-out-alt text-red-600 mr-3"></i>
-                            Logout
-                        </a>
-                    </div>
-                </nav>
+
+<!-- =====================================================================
+     FIXED DESKTOP SIDEBAR
+     Outside normal flow — never interferes with sticky header
+     ==================================================================== -->
+<aside class="hidden md:flex fixed inset-y-0 left-0 flex-col w-64 bg-white border-r border-gray-light z-30">
+
+    <!-- Logo -->
+    <div class="flex items-center justify-center h-16 px-4 border-b border-gray-light flex-shrink-0">
+        <img src="{% static 'img/logo.png' %}" alt="My House Padi" class="h-10">
+    </div>
+
+    <!-- User profile mini-card -->
+    <div class="flex items-center p-4 border-b border-gray-light flex-shrink-0">
+        <div class="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+            {% if request.user.seeker_profile.profile_picture %}
+                <img src="{{ request.user.seeker_profile.profile_picture.url }}"
+                     alt="{{ request.user.get_full_name|default:'User' }}"
+                     class="nav-avatar"
+                     id="sidebar-avatar">
+            {% else %}
+                <img src="{% static 'img/default-profile.png' %}"
+                     alt="Default profile"
+                     class="nav-avatar"
+                     id="sidebar-avatar">
+            {% endif %}
+            <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+        </div>
+        <div class="ml-3 min-w-0">
+            <p class="text-sm font-semibold text-gray-900 truncate">{{ request.user.get_full_name }}</p>
+            <p class="text-xs text-gray-500">House Seeker</p>
+        </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="flex-1 overflow-y-auto px-2 py-4">
+        <div class="space-y-1">
+            <a href="{% url 'seekers:dashboard' %}"
+               class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md
+                      {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                <i class="fas fa-tachometer-alt text-primary-600 mr-3 w-4 text-center"></i>Dashboard
+            </a>
+            <a href="{% url 'seekers:marketplace' %}"
+               class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md
+                      {% if request.resolver_match.url_name == 'marketplace' %}active{% endif %}">
+                <i class="fas fa-store text-primary-600 mr-3 w-4 text-center"></i>Marketplace
+                <span class="ml-auto bg-primary-100 text-primary-800 text-xs font-medium px-2 py-0.5 rounded-full">New</span>
+            </a>
+            <a href="{% url 'seekers:saved_properties' %}"
+               class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md
+                      {% if request.resolver_match.url_name == 'saved_properties' %}active{% endif %}">
+                <i class="fas fa-heart text-primary-600 mr-3 w-4 text-center"></i>Saved Properties
+            </a>
+            <a href="{% url 'seekers:messages' %}"
+               class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md
+                      {% if 'message' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-comments text-primary-600 mr-3 w-4 text-center"></i>Messages
+            </a>
+            <a href="{% url 'seekers:community' %}"
+               class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md
+                      {% if 'community' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-users text-primary-600 mr-3 w-4 text-center"></i>Community
+            </a>
+            <a href="{% url 'seekers:profile' %}"
+               class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md
+                      {% if 'profile' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-user text-primary-600 mr-3 w-4 text-center"></i>My Profile
+            </a>
+            <a href="{% url 'seekers:settings' %}"
+               class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md
+                      {% if 'settings' in request.resolver_match.url_name %}active{% endif %}">
+                <i class="fas fa-cog text-primary-600 mr-3 w-4 text-center"></i>Settings
+            </a>
+        </div>
+
+        <div class="border-t border-gray-light mt-4 pt-4 space-y-1">
+            <a href="#" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
+                <i class="fas fa-question-circle text-primary-600 mr-3 w-4 text-center"></i>Help &amp; Support
+            </a>
+            <a href="{% url 'accounts:logout' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md text-red-600">
+                <i class="fas fa-sign-out-alt text-red-600 mr-3 w-4 text-center"></i>Logout
+            </a>
+        </div>
+    </nav>
+</aside>
+
+
+<!-- =====================================================================
+     MOBILE SLIDE-IN MENU  (z-50, above everything)
+     ==================================================================== -->
+<div class="mobile-menu hidden fixed inset-0 z-50 md:hidden">
+    <div class="absolute inset-0 bg-black/50 mobile-backdrop"></div>
+    <div class="relative flex flex-col w-80 max-w-xs h-full bg-white shadow-xl">
+        <button class="mobile-menu-close absolute top-3 right-3 p-2 text-gray-500 hover:text-gray-700">
+            <i class="fas fa-times text-xl"></i>
+        </button>
+        <div class="flex items-center justify-center h-16 px-4 border-b border-gray-light">
+            <img src="{% static 'img/logo.png' %}" alt="My House Padi" class="h-10">
+        </div>
+        <div class="flex items-center p-4 border-b border-gray-light">
+            <div class="relative w-10 h-10 flex-shrink-0">
+                <img src="{% if request.user.seeker_profile.profile_picture %}{{ request.user.seeker_profile.profile_picture.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}"
+                     alt="Profile" class="nav-avatar">
+                <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
             </div>
-        </aside>
-        
-        <!-- Mobile Sidebar (Hidden by default) -->
-        <div class="mobile-menu hidden md:hidden fixed inset-0 z-50">
-            <div class="fixed inset-0 bg-black bg-opacity-50" aria-hidden="true"></div>
-            <div class="relative flex flex-col w-80 max-w-xs h-full bg-white">
-                <!-- Close button -->
-                <button class="mobile-menu-close absolute top-3 right-3 p-2 text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-xl"></i>
+            <div class="ml-3">
+                <p class="text-sm font-medium text-gray-900">{{ request.user.get_full_name }}</p>
+                <p class="text-xs text-gray-500">House Seeker</p>
+            </div>
+        </div>
+        <nav class="flex-1 overflow-y-auto px-2 py-4 space-y-1">
+            <a href="{% url 'seekers:dashboard' %}"       class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md"><i class="fas fa-tachometer-alt text-primary-600 mr-3 w-4 text-center"></i>Dashboard</a>
+            <a href="{% url 'seekers:marketplace' %}"     class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md"><i class="fas fa-store        text-primary-600 mr-3 w-4 text-center"></i>Marketplace</a>
+            <a href="{% url 'seekers:saved_properties' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md"><i class="fas fa-heart       text-primary-600 mr-3 w-4 text-center"></i>Saved Properties</a>
+            <a href="{% url 'seekers:messages' %}"        class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md"><i class="fas fa-comments     text-primary-600 mr-3 w-4 text-center"></i>Messages</a>
+            <a href="{% url 'seekers:community' %}"       class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md"><i class="fas fa-users        text-primary-600 mr-3 w-4 text-center"></i>Community</a>
+            <a href="{% url 'seekers:profile' %}"         class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md"><i class="fas fa-user         text-primary-600 mr-3 w-4 text-center"></i>My Profile</a>
+            <a href="{% url 'seekers:settings' %}"        class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md"><i class="fas fa-cog          text-primary-600 mr-3 w-4 text-center"></i>Settings</a>
+        </nav>
+        <div class="border-t border-gray-light px-2 py-4">
+            <a href="{% url 'accounts:logout' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md text-red-600">
+                <i class="fas fa-sign-out-alt text-red-600 mr-3 w-4 text-center"></i>Logout
+            </a>
+        </div>
+    </div>
+</div>
+
+
+<!-- =====================================================================
+     MAIN COLUMN
+     `with-sidebar` adds padding-left = sidebar width on md+
+     ==================================================================== -->
+<div class="with-sidebar flex flex-col min-h-screen">
+
+    <!-- STICKY TOP HEADER -->
+    <header class="glass-nav sticky top-0 z-20 border-b border-gray-light">
+        <div class="flex items-center justify-between px-4 py-3">
+
+            <!-- Hamburger (mobile only) -->
+            <button class="mobile-menu-button md:hidden text-primary-800 focus:outline-none">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+
+            <!-- Search -->
+            <div class="flex-1 max-w-md mx-4">
+                <div class="relative">
+                    <input type="text" placeholder="Search properties, locations..."
+                           class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300
+                                  focus:ring-2 focus:ring-primary-400 focus:border-primary-400 text-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User controls -->
+            <div class="flex items-center gap-2">
+                <button class="p-2 text-gray-500 hover:text-primary-600 relative">
+                    <i class="fas fa-bell text-xl"></i>
+                    <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                 </button>
-                
-                <!-- Mobile Menu Content -->
-                <div class="flex items-center justify-center h-16 px-4 border-b border-gray-light">
-                    <img src="{% static 'img/logo.png' %}" alt="My House Padi" class="h-10">
-                </div>
-                
-                <!-- User Profile -->
-                <div class="flex items-center p-4 border-b border-gray-light">
-                    <div class="relative">
-                        <img src="{% if request.user.seeker_profile.profile_picture %}{{ request.user.seeker_profile.profile_picture.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}" 
-                            alt="Profile" class="w-10 h-10 rounded-full object-cover">
-                        <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm font-medium text-gray-900">{{ request.user.get_full_name }}</p>
-                        <p class="text-xs text-gray-500">House Seeker</p>
-                    </div>
-                </div>
-                
-                <!-- Mobile Navigation -->
-                <nav class="flex-1 overflow-y-auto px-2 py-4">
-                    <div class="space-y-1">
-                        <a href="{% url 'seekers:dashboard' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
-                            <i class="fas fa-tachometer-alt text-primary-600 mr-3"></i>
-                            Dashboard
-                        </a>
-                        <a href="{% url 'seekers:marketplace' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
-                            <i class="fas fa-store text-primary-600 mr-3"></i>
-                            Marketplace
-                        </a>
-                        <a href="{% url 'seekers:saved_properties' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
-                            <i class="fas fa-heart text-primary-600 mr-3"></i>
-                            Saved Properties
-                        </a>
-                        <a href="{% url 'seekers:messages' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
-                            <i class="fas fa-comments text-primary-600 mr-3"></i>
-                            Messages
-                        </a>
-                        <a href="{% url 'seekers:community' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
-                            <i class="fas fa-users text-primary-600 mr-3"></i>
-                            Community
-                        </a>
-                        <a href="{% url 'seekers:profile' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
-                            <i class="fas fa-user text-primary-600 mr-3"></i>
-                            My Profile
-                        </a>
-                        <a href="{% url 'seekers:settings' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md">
-                            <i class="fas fa-cog text-primary-600 mr-3"></i>
-                            Settings
-                        </a>
-                    </div>
-                    <div class="border-t border-gray-light mt-4 pt-4">
-                        <a href="{% url 'accounts:logout' %}" class="sidebar-nav-item flex items-center px-4 py-3 text-sm font-medium rounded-md text-red-600">
-                            <i class="fas fa-sign-out-alt text-red-600 mr-3"></i>
-                            Logout
-                        </a>
-                    </div>
-                </nav>
-            </div>
-        </div>
-        
-            
-         <!-- Mobile Navigation (Hidden on desktop) -->
-        <div class="md:hidden fixed bottom-0 w-full bg-white border-t border-gray-light z-40">
-            <div class="flex justify-around">
-                <a href="{% url 'seekers:dashboard' %}" class="p-3 text-center text-primary-600">
-                    <i class="fas fa-tachometer-alt block mx-auto mb-1"></i>
-                    <span class="text-xs">Home</span>
-                </a>
-                <a href="{% url 'seekers:marketplace' %}" class="p-3 text-center text-gray-500">
-                    <i class="fas fa-store block mx-auto mb-1"></i>
-                    <span class="text-xs">Market</span>
-                </a>
-                <a href="{% url 'seekers:messages' %}" class="p-3 text-center text-gray-500 relative">
-                    <i class="fas fa-comments block mx-auto mb-1"></i>
-                    <span class="text-xs">Messages</span>
-                    <span class="notification-dot absolute top-1 right-6 bg-red-500 rounded-full"></span>
-                </a>
-                <a href="{% url 'seekers:profile' %}" class="p-3 text-center text-gray-500">
-                    <i class="fas fa-user block mx-auto mb-1"></i>
-                    <span class="text-xs">Profile</span>
-                </a>
-            </div>
-        </div>
-        
-        <!-- Main Content Area -->
-        <div class="flex-1 overflow-auto md:ml-60">
-            <!-- Top Navigation -->
-            <header class="glass-nav sticky top-0 z-40 border-b border-gray-light">
-                <div class="flex items-center justify-between px-4 py-3">
-                    <!-- Mobile menu button -->
-                    <button class="mobile-menu-button md:hidden text-primary-800 focus:outline-none">
-                        <i class="fas fa-bars text-xl"></i>
+
+                <div class="relative">
+                    <button id="user-menu-button" class="flex items-center gap-2 focus:outline-none">
+                        <div class="w-9 h-9 rounded-full overflow-hidden">
+                            {% if request.user.seeker_profile.profile_picture %}
+                                <img src="{{ request.user.seeker_profile.profile_picture.url }}"
+                                     alt="{{ request.user.get_full_name|default:'User' }}"
+                                     class="nav-avatar"
+                                     id="topnav-avatar">
+                            {% else %}
+                                <img src="{% static 'img/default-profile.png' %}"
+                                     alt="Default profile"
+                                     class="nav-avatar"
+                                     id="topnav-avatar">
+                            {% endif %}
+                        </div>
+                        <span class="hidden md:inline text-sm font-medium text-gray-700">{{ request.user.first_name }}</span>
+                        <i class="fas fa-chevron-down hidden md:inline text-gray-400 text-xs"></i>
                     </button>
-                    
-                    <!-- Search Bar -->
-                    <div class="flex-1 max-w-md mx-4">
-                        <div class="relative">
-                            <input type="text" placeholder="Search properties, locations..." 
-                                   class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-primary-400 focus:border-primary-400">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-search text-gray-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- User Menu -->
-                    <div class="flex items-center">
-                        <button class="p-2 text-gray-500 hover:text-primary-600 focus:outline-none relative">
-                            <i class="fas fa-bell text-xl"></i>
-                            <span class="notification-dot absolute top-1 right-1 bg-red-500 rounded-full"></span>
-                        </button>
-                        <div class="ml-3 relative">
-                            <button id="user-menu-button" class="flex items-center focus:outline-none">
-                                <img src="{% if request.user.seeker_profile.profile_picture %}{{ request.user.seeker_profile.profile_picture.url }}{% else %}{% static 'img/default-profile.png' %}{% endif %}" 
-                                    alt="Profile" class="w-8 h-8 rounded-full object-cover">
-                                <span class="ml-2 text-sm font-medium text-gray-700 hidden md:inline">{{ request.user.first_name }}</span>
-                                <i class="fas fa-chevron-down ml-1 text-gray-400 hidden md:inline"></i>
-                            </button>
-                            
-                            <!-- Dropdown menu -->
-                            <div id="user-menu-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-light">
-                                <a href="{% url 'seekers:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-light">
-                                    <i class="fas fa-user mr-2 text-primary-600"></i> My Profile
-                                </a>
-                                <a href="{% url 'seekers:settings' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-light">
-                                    <i class="fas fa-cog mr-2 text-primary-600"></i> Settings
-                                </a>
-                                <div class="border-t border-gray-light"></div>
-                                <a href="{% url 'accounts:logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-light">
-                                    <i class="fas fa-sign-out-alt mr-2 text-red-600"></i> Logout
-                                </a>
-                            </div>
-                        </div>
+
+                    <div id="user-menu-dropdown"
+                         class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-light">
+                        <a href="{% url 'seekers:profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-light">
+                            <i class="fas fa-user mr-2 text-primary-600"></i>My Profile
+                        </a>
+                        <a href="{% url 'seekers:settings' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-light">
+                            <i class="fas fa-cog mr-2 text-primary-600"></i>Settings
+                        </a>
+                        <div class="border-t border-gray-light my-1"></div>
+                        <a href="{% url 'accounts:logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-light">
+                            <i class="fas fa-sign-out-alt mr-2 text-red-600"></i>Logout
+                        </a>
                     </div>
                 </div>
-            </header>
-            
-            <!-- Main Content -->
-            <main class="flex-1 overflow-y-auto p-4 md:p-6">
-                {% block content %}{% endblock %}
-            </main>
+            </div>
+
         </div>
-    </div>  
-    
-    <!-- Scripts -->
-    <script>
-        // Mobile menu toggle
-        document.addEventListener('DOMContentLoaded', function() {
-            const mobileMenuButton = document.querySelector('.mobile-menu-button');
-            const mobileMenu = document.querySelector('.mobile-menu');
-            const mobileMenuClose = document.querySelector('.mobile-menu-close');
-            
-            if (mobileMenuButton) {
-                mobileMenuButton.addEventListener('click', function() {
-                    mobileMenu.classList.remove('hidden');
-                });
-            }
-            
-            if (mobileMenuClose) {
-                mobileMenuClose.addEventListener('click', function() {
-                    mobileMenu.classList.add('hidden');
-                });
-            }
-            
-            // Close menu when clicking outside
-            mobileMenu?.addEventListener('click', function(e) {
-                if (e.target === mobileMenu) {
-                    mobileMenu.classList.add('hidden');
-                }
-            });
-            
-            // User dropdown toggle
-            const userMenuButton = document.getElementById('user-menu-button');
-            const userMenuDropdown = document.getElementById('user-menu-dropdown');
+    </header>
 
-            if (userMenuButton) {
-                userMenuButton.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    userMenuDropdown.classList.toggle('hidden');
-                });
-            }
+    <!-- Page content -->
+    <main class="flex-1 p-4 md:p-6 pb-20 md:pb-6">
+        {% block content %}{% endblock %}
+    </main>
+</div>
 
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function() {
-                if (userMenuDropdown && !userMenuDropdown.classList.contains('hidden')) {
-                    userMenuDropdown.classList.add('hidden');
-                }
-            });
 
-            // Prevent dropdown from closing when clicking inside it
-            if (userMenuDropdown) {
-                userMenuDropdown.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                });
-            }
-            
-            // Toggle password visibility
-            function togglePassword(fieldId) {
-                const field = document.getElementById(fieldId);
-                const eyeIcon = document.getElementById(`${fieldId}-eye`);
-                if (field.type === 'password') {
-                    field.type = 'text';
-                    eyeIcon.classList.remove('fa-eye');
-                    eyeIcon.classList.add('fa-eye-slash');
-                } else {
-                    field.type = 'password';
-                    eyeIcon.classList.remove('fa-eye-slash');
-                    eyeIcon.classList.add('fa-eye');
-                }
-            }
-        });
-    </script>
-    
-    {% block extra_js %}{% endblock %}
+<!-- =====================================================================
+     MOBILE BOTTOM NAV BAR
+     ==================================================================== -->
+<div class="md:hidden fixed bottom-0 inset-x-0 bg-white border-t border-gray-light z-20 flex justify-around">
+    <a href="{% url 'seekers:dashboard' %}" class="p-3 text-center text-primary-600 flex flex-col items-center">
+        <i class="fas fa-tachometer-alt"></i><span class="text-xs mt-1">Home</span>
+    </a>
+    <a href="{% url 'seekers:marketplace' %}" class="p-3 text-center text-gray-500 flex flex-col items-center">
+        <i class="fas fa-store"></i><span class="text-xs mt-1">Market</span>
+    </a>
+    <a href="{% url 'seekers:messages' %}" class="p-3 text-center text-gray-500 flex flex-col items-center relative">
+        <i class="fas fa-comments"></i><span class="text-xs mt-1">Messages</span>
+        <span class="absolute top-1 right-4 w-2 h-2 bg-red-500 rounded-full"></span>
+    </a>
+    <a href="{% url 'seekers:profile' %}" class="p-3 text-center text-gray-500 flex flex-col items-center">
+        <i class="fas fa-user"></i><span class="text-xs mt-1">Profile</span>
+    </a>
+</div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // ── Mobile slide-in menu ─────────────────────────────────────────
+    const mobileMenuBtn   = document.querySelector('.mobile-menu-button');
+    const mobileMenu      = document.querySelector('.mobile-menu');
+    const mobileMenuClose = document.querySelector('.mobile-menu-close');
+    const mobileBackdrop  = document.querySelector('.mobile-backdrop');
+
+    const openMenu  = () => mobileMenu.classList.remove('hidden');
+    const closeMenu = () => mobileMenu.classList.add('hidden');
+
+    mobileMenuBtn?.addEventListener('click', openMenu);
+    mobileMenuClose?.addEventListener('click', closeMenu);
+    mobileBackdrop?.addEventListener('click', closeMenu);
+
+    // ── Top-right dropdown ───────────────────────────────────────────
+    const userBtn  = document.getElementById('user-menu-button');
+    const userDrop = document.getElementById('user-menu-dropdown');
+
+    userBtn?.addEventListener('click', e => {
+        e.stopPropagation();
+        userDrop.classList.toggle('hidden');
+    });
+    document.addEventListener('click', () => userDrop?.classList.add('hidden'));
+    userDrop?.addEventListener('click', e => e.stopPropagation());
+
+    // ── Cache-bust nav avatars after profile picture upload ──────────
+    const ts = Date.now();
+    ['sidebar-avatar', 'topnav-avatar'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.src && !el.src.includes('default-profile')) {
+            el.src += (el.src.includes('?') ? '&' : '?') + 'v=' + ts;
+        }
+    });
+});
+</script>
+
+{% block extra_js %}{% endblock %}
 </body>
 </html>

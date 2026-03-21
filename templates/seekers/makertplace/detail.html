@@ -1,72 +1,124 @@
 {% extends "seekers/seekers_base.html" %}
 {% load humanize %}
 
-{% block title %}{{ property.title }} - Seeker{% endblock %}
+{% block title %}{{ property.name }} - My House Padi{% endblock %}
 
 {% block content %}
 <div class="container mx-auto px-4 py-8 max-w-6xl mb-20">
+
+    <!-- Back link -->
+    <div class="mb-4">
+        <a href="{% url 'seekers:marketplace' %}" class="text-primary-600 hover:text-primary-800 text-sm flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Marketplace
+        </a>
+    </div>
+
     <!-- Property Header -->
     <div class="mb-6">
-        <div class="flex justify-between items-center">
+        <div class="flex flex-col md:flex-row justify-between items-start gap-4">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">{{ property.title }}</h1>
+                <!-- FIX: property.name not property.title -->
+                <h1 class="text-3xl font-bold text-gray-900">{{ property.name }}</h1>
                 <div class="flex items-center mt-2 text-gray-600">
-                    <i class="fas fa-map-marker-alt mr-2"></i>
-                    <span>{{ property.location }}</span>
+                    <i class="fas fa-map-marker-alt mr-2 text-primary-400"></i>
+                    <!-- FIX: property.address, city, state — no `location` field -->
+                    <span>{{ property.address }}, {{ property.city }}, {{ property.state }}</span>
+                </div>
+                <div class="flex gap-2 mt-3">
+                    {% if property.is_verified %}
+                    <span class="bg-primary-600 text-white px-3 py-1 rounded-full text-xs flex items-center">
+                        <i class="fas fa-check-circle mr-1"></i> Verified
+                    </span>
+                    {% endif %}
+                    {% if property.is_featured %}
+                    <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs flex items-center">
+                        <i class="fas fa-star mr-1"></i> Featured
+                    </span>
+                    {% endif %}
                 </div>
             </div>
-            <div class="text-right">
-                <p class="text-3xl font-bold text-primary-600">₦{{ property.price|intcomma }}</p>
-                <p class="text-sm text-gray-500">{{ property.get_rental_period_display }}</p>
+            <div class="text-right flex-shrink-0">
+                <!-- FIX: use display_price property which includes period formatting -->
+                <p class="text-3xl font-bold text-primary-600">{{ property.display_price }}</p>
+                <!-- FIX: get_price_period_display not get_rental_period_display -->
+                <p class="text-sm text-gray-500">per {{ property.get_price_period_display|lower }}</p>
+                <div class="flex items-center justify-end mt-2 text-sm text-gray-400">
+                    <i class="fas fa-eye mr-1"></i> {{ property.views }} views
+                </div>
             </div>
         </div>
     </div>
 
     <div class="flex flex-col lg:flex-row gap-8">
+
         <!-- Main Content -->
         <div class="lg:w-2/3">
+
             <!-- Image Gallery -->
-            <div class="relative rounded-xl overflow-hidden bg-gray-100 h-96 mb-6">
-                <div class="absolute inset-0 flex items-center justify-center">
-                    <img src="{{ property.images.first.image.url }}" alt="{{ property.title }}" 
-                         class="max-h-full max-w-full object-cover transition-opacity duration-300">
+            <div class="rounded-xl overflow-hidden bg-gray-100 mb-6">
+                <!-- Main image -->
+                <div class="relative h-96">
+                    {% if property.primary_image %}
+                        <!-- FIX: use primary_image property, not images.first (bypasses prefetch) -->
+                        <img id="main-image"
+                             src="{{ property.primary_image.image.url }}"
+                             alt="{{ property.name }}"
+                             class="w-full h-full object-cover">
+                    {% else %}
+                        <div class="w-full h-full flex items-center justify-center bg-gray-200">
+                            <i class="fas fa-home text-gray-400 text-5xl"></i>
+                        </div>
+                    {% endif %}
+
+                    <!-- Save button overlay -->
+                    <div class="absolute top-4 right-4">
+                        <button class="p-2 bg-white/80 rounded-full backdrop-blur-sm hover:bg-white transition">
+                            <i class="{% if is_saved %}fas text-red-500{% else %}far text-primary-600{% endif %} fa-heart text-xl"></i>
+                        </button>
+                    </div>
                 </div>
-                <div class="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
-                    {% for image in property.images.all %}
-                    <button class="w-3 h-3 rounded-full bg-white opacity-50 hover:opacity-100 focus:outline-none transition-opacity"
-                            onclick="changeImage('{{ image.image.url }}')"></button>
+
+                <!-- Thumbnail strip -->
+                {% with all_images=property.images.all %}
+                {% if all_images|length > 1 %}
+                <div class="flex gap-2 p-3 bg-gray-50 overflow-x-auto">
+                    {% for image in all_images %}
+                    <button onclick="document.getElementById('main-image').src='{{ image.image.url }}'"
+                            class="flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2
+                                   {% if image.is_primary %}border-primary-600{% else %}border-transparent{% endif %}
+                                   hover:border-primary-400 transition">
+                        <img src="{{ image.image.url }}" alt="Image {{ forloop.counter }}"
+                             class="w-full h-full object-cover">
+                    </button>
                     {% endfor %}
                 </div>
-                <div class="absolute top-4 right-4">
-                    <button class="p-2 bg-white/80 rounded-full backdrop-blur-sm hover:bg-white transition">
-                        <i class="far fa-heart text-xl text-primary-600"></i>
-                    </button>
-                </div>
+                {% endif %}
+                {% endwith %}
             </div>
 
             <!-- Property Highlights -->
             <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Property Highlights</h2>
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Property Details</h2>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div class="flex flex-col items-center p-3 bg-gray-50 rounded-lg">
-                        <i class="fas fa-bed text-primary-600 text-2xl mb-2"></i>
-                        <span class="text-sm text-gray-500">Bedrooms</span>
-                        <span class="font-medium">{{ property.bedrooms }}</span>
-                    </div>
-                    <div class="flex flex-col items-center p-3 bg-gray-50 rounded-lg">
-                        <i class="fas fa-bath text-primary-600 text-2xl mb-2"></i>
-                        <span class="text-sm text-gray-500">Bathrooms</span>
-                        <span class="font-medium">{{ property.bathrooms }}</span>
-                    </div>
-                    <div class="flex flex-col items-center p-3 bg-gray-50 rounded-lg">
-                        <i class="fas fa-ruler-combined text-primary-600 text-2xl mb-2"></i>
-                        <span class="text-sm text-gray-500">Area</span>
-                        <span class="font-medium">{{ property.size|intcomma }} sq ft</span>
-                    </div>
                     <div class="flex flex-col items-center p-3 bg-gray-50 rounded-lg">
                         <i class="fas fa-home text-primary-600 text-2xl mb-2"></i>
                         <span class="text-sm text-gray-500">Type</span>
-                        <span class="font-medium">{{ property.get_property_type_display }}</span>
+                        <span class="font-medium text-center text-sm">{{ property.get_property_type_display }}</span>
+                    </div>
+                    <div class="flex flex-col items-center p-3 bg-gray-50 rounded-lg">
+                        <i class="fas fa-building text-primary-600 text-2xl mb-2"></i>
+                        <span class="text-sm text-gray-500">Units</span>
+                        <span class="font-medium">{{ property.num_units }}</span>
+                    </div>
+                    <div class="flex flex-col items-center p-3 bg-gray-50 rounded-lg">
+                        <i class="fas fa-map-marker-alt text-primary-600 text-2xl mb-2"></i>
+                        <span class="text-sm text-gray-500">City</span>
+                        <span class="font-medium text-center text-sm">{{ property.city }}</span>
+                    </div>
+                    <div class="flex flex-col items-center p-3 bg-gray-50 rounded-lg">
+                        <i class="fas fa-eye text-primary-600 text-2xl mb-2"></i>
+                        <span class="text-sm text-gray-500">Views</span>
+                        <span class="font-medium">{{ property.views|intcomma }}</span>
                     </div>
                 </div>
             </div>
@@ -74,83 +126,147 @@
             <!-- Description -->
             <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
                 <h2 class="text-xl font-semibold text-gray-900 mb-4">Description</h2>
-                <div class="prose max-w-none text-gray-700">
+                <div class="prose max-w-none text-gray-700 leading-relaxed">
                     {{ property.description|linebreaks }}
                 </div>
             </div>
 
             <!-- Amenities -->
-            <div class="bg-white rounded-xl shadow-sm p-6">
+            {% if property.amenities.all %}
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
                 <h2 class="text-xl font-semibold text-gray-900 mb-4">Amenities</h2>
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {% for amenity in property.amenities.all %}
-                    <div class="flex items-center p-2 bg-gray-50 rounded-lg">
-                        <i class="fas fa-check text-primary-600 mr-2"></i>
-                        <span>{{ amenity.name }}</span>
+                    <div class="flex items-center p-3 bg-primary-50 rounded-lg">
+                        <i class="{{ amenity.icon|default:'fas fa-check' }} text-primary-600 mr-3 w-4 text-center"></i>
+                        <span class="text-sm text-gray-700">{{ amenity.name }}</span>
                     </div>
                     {% endfor %}
                 </div>
             </div>
+            {% endif %}
+
+            <!-- Similar Properties -->
+            {% if similar_properties %}
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Similar Properties</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {% for similar in similar_properties %}
+                    <a href="{% url 'seekers:property_detail_pk' similar.pk %}"
+                       class="flex items-start p-3 rounded-lg border border-gray-100 hover:border-primary-300 hover:bg-primary-50 transition">
+                        <div class="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
+                            {% if similar.primary_image %}
+                                <img src="{{ similar.primary_image.image.url }}"
+                                     alt="{{ similar.name }}"
+                                     class="w-full h-full object-cover">
+                            {% else %}
+                                <div class="w-full h-full flex items-center justify-center bg-primary-50">
+                                    <i class="fas fa-home text-primary-400"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="ml-3 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 truncate">{{ similar.name }}</p>
+                            <p class="text-xs text-gray-500">{{ similar.city }}, {{ similar.state }}</p>
+                            <p class="text-sm font-semibold text-primary-600 mt-1">{{ similar.display_price }}</p>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
         </div>
 
         <!-- Sidebar -->
         <div class="lg:w-1/3">
+
             <!-- Contact Card -->
             <div class="bg-white rounded-xl shadow-sm p-6 sticky top-6 mb-6">
-                <h2 class="text-xl font-semibold text-gray-900 mb-4">Contact</h2>
-                <div class="space-y-4">
-                    <a href="{% url 'seekers:property_message' property.id %}" 
-                       class="block w-full px-4 py-3 bg-primary-600 hover:bg-primary-700 text-white text-center rounded-lg font-medium transition">
-                        <i class="fas fa-envelope mr-2"></i> Message Landlord
-                    </a>
-                    <button class="w-full px-4 py-3 border border-primary-600 text-primary-600 hover:bg-primary-50 rounded-lg font-medium transition">
-                        <i class="fas fa-phone-alt mr-2"></i> Show Phone Number
-                    </button>
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Contact Landlord</h2>
+
+                {% if landlord %}
+                <div class="flex items-center mb-4 p-3 bg-gray-50 rounded-lg">
+                    <div class="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                        {% if landlord.landlord_profile.profile_picture %}
+                            <img src="{{ landlord.landlord_profile.profile_picture.url }}"
+                                 alt="{{ landlord.get_full_name }}"
+                                 class="w-full h-full object-cover">
+                        {% else %}
+                            <div class="w-full h-full bg-primary-100 flex items-center justify-center">
+                                <i class="fas fa-user text-primary-400 text-lg"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="ml-3">
+                        <p class="font-medium text-gray-900">{{ landlord.get_full_name }}</p>
+                        <p class="text-xs text-gray-500">Property Owner</p>
+                        {% if landlord.landlord_profile.is_verified %}
+                        <span class="text-xs text-primary-600">
+                            <i class="fas fa-check-circle mr-1"></i>Verified Landlord
+                        </span>
+                        {% endif %}
+                    </div>
                 </div>
-                
+                {% endif %}
+
+                <div class="space-y-3">
+                    <a href="{% url 'seekers:property_message' property.id %}"
+                       class="block w-full px-4 py-3 bg-primary-600 hover:bg-primary-700 text-white text-center rounded-lg font-medium transition">
+                        <i class="fas fa-comment-dots mr-2"></i> Message Landlord
+                    </a>
+                </div>
+
                 <div class="mt-6 pt-6 border-t border-gray-200">
-                    <h3 class="font-medium text-gray-900 mb-2">Property Facts</h3>
+                    <h3 class="font-medium text-gray-900 mb-3">Property Facts</h3>
                     <div class="space-y-3 text-sm">
                         <div class="flex justify-between">
                             <span class="text-gray-500">Property ID</span>
-                            <span class="text-gray-900">#{{ property.id|intcomma }}</span>
+                            <span class="text-gray-900 font-medium">#{{ property.id }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-500">Posted</span>
+                            <span class="text-gray-500">Type</span>
+                            <span class="text-gray-900">{{ property.get_property_type_display }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Price Period</span>
+                            <!-- FIX: get_price_period_display not get_rental_period_display -->
+                            <span class="text-gray-900">{{ property.get_price_period_display }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Listed</span>
                             <span class="text-gray-900">{{ property.created_at|date:"M d, Y" }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-500">Last Updated</span>
+                            <span class="text-gray-500">Updated</span>
                             <span class="text-gray-900">{{ property.updated_at|date:"M d, Y" }}</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Location Map -->
+            <!-- Location Card -->
             <div class="bg-white rounded-xl shadow-sm p-6">
                 <h2 class="text-xl font-semibold text-gray-900 mb-4">Location</h2>
-                <div class="h-64 bg-gray-200 rounded-lg overflow-hidden relative">
-                    <!-- Map placeholder -->
-                    <div class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100">
-                        <div class="text-center text-primary-600">
-                            <i class="fas fa-map-marked-alt text-4xl mb-2"></i>
-                            <p class="font-medium">{{ property.location }}</p>
-                        </div>
+                <div class="h-48 bg-gradient-to-br from-primary-50 to-primary-100 rounded-lg flex items-center justify-center mb-3">
+                    <div class="text-center text-primary-600">
+                        <i class="fas fa-map-marked-alt text-4xl mb-2 block"></i>
+                        <!-- FIX: city + state, no location field -->
+                        <p class="font-medium">{{ property.city }}, {{ property.state }}</p>
+                        <p class="text-sm text-gray-500 mt-1">{{ property.address|truncatechars:40 }}</p>
                     </div>
                 </div>
-                <div class="mt-4 text-sm text-gray-600">
+                <p class="text-xs text-gray-500 flex items-center">
                     <i class="fas fa-info-circle mr-1 text-primary-600"></i>
-                    Exact location provided after booking
-                </div>
+                    Exact address provided after contacting landlord
+                </p>
             </div>
+
         </div>
     </div>
 </div>
 
 <script>
-function changeImage(imageUrl) {
-    document.querySelector('.absolute.inset-0 img').src = imageUrl;
-}
+// Thumbnail click is handled inline via onclick attributes above
 </script>
 {% endblock %}

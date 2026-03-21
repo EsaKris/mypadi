@@ -1,5 +1,3 @@
-
-
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm, UserChangeForm
@@ -23,27 +21,18 @@ from .models import (
 
 User = get_user_model()
 
-# Default password used when staff accounts are auto-created.
-# Change this via environment variable / settings in production!
 ADMIN_DEFAULT_PASSWORD = 'Padiassist123'
 
 
 # ---------------------------------------------------------------------------
-# Shared base mixin  (must be defined BEFORE it is subclassed)
+# Shared base mixin
 # ---------------------------------------------------------------------------
 
 class BaseFormStyle:
-    """
-    Mixin that auto-applies Tailwind/Bootstrap classes to all form fields.
-    Place this as the FIRST base class so MRO resolves it correctly, e.g.:
-        class MyForm(BaseFormStyle, forms.ModelForm): ...
-    """
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             widget = field.widget
-            # Don't override fields that already have an explicit class
             if 'class' not in widget.attrs:
                 if isinstance(widget, forms.CheckboxInput):
                     widget.attrs['class'] = (
@@ -70,7 +59,7 @@ class BaseFormStyle:
 # ---------------------------------------------------------------------------
 
 class MultipleFileInput(forms.ClearableFileInput):
-    """File input that accepts multiple files."""
+    """File input that correctly handles multiple file selection."""
     allow_multiple_selected = True
 
     def __init__(self, attrs=None):
@@ -79,14 +68,26 @@ class MultipleFileInput(forms.ClearableFileInput):
             defaults.update(attrs)
         super().__init__(defaults)
 
+    def value_from_datadict(self, data, files, name):
+        """
+        ROOT CAUSE FIX for images not saving on create.
+
+        Django's default ClearableFileInput.value_from_datadict() calls
+        files.get(name) which returns only ONE file — the last one —
+        even when the HTML input has multiple=True and the user selected
+        many files.
+
+        Overriding to use files.getlist(name) returns ALL uploaded files
+        for this input name, so MultipleFileField.clean() receives the
+        full list and PropertyForm.save() creates a PropertyImage for each.
+        """
+        return files.getlist(name)
+
 
 class MultipleFileField(forms.FileField):
     """
     FileField that handles <input type="file" multiple>.
     Always returns a list of file objects (even for a single file).
-
-    IMPORTANT: The form template MUST include enctype="multipart/form-data"
-    and the view MUST pass request.FILES to the form constructor.
     """
 
     def __init__(self, *args, **kwargs):
@@ -94,11 +95,11 @@ class MultipleFileField(forms.FileField):
         super().__init__(*args, **kwargs)
 
     def clean(self, data, initial=None):
-        # Nothing submitted – keep existing files if any
+        # Nothing submitted — keep existing files if any
         if not data:
             return initial or []
 
-        # Django wraps multiple files in a list; normalise to always be a list
+        # Normalise to always be a list
         if not isinstance(data, (list, tuple)):
             data = [data]
 
@@ -107,11 +108,9 @@ class MultipleFileField(forms.FileField):
 
 # ---------------------------------------------------------------------------
 # LandlordProfileForm
-# NOTE: template must use enctype="multipart/form-data"
 # ---------------------------------------------------------------------------
 
 class LandlordProfileForm(forms.ModelForm):
-    # User fields (not on the model – saved manually in the view)
     first_name = forms.CharField(
         max_length=30,
         required=True,
@@ -202,10 +201,6 @@ class LandlordProfileForm(forms.ModelForm):
             self.fields['last_name'].initial = user.last_name
             self.fields['email'].initial = user.email
 
-    # ------------------------------------------------------------------
-    # Social URL validators
-    # ------------------------------------------------------------------
-
     def _clean_social_url(self, field_name, primary_domain, alternative_domains=None):
         url = self.cleaned_data.get(field_name)
         if not url:
@@ -215,13 +210,11 @@ class LandlordProfileForm(forms.ModelForm):
             return None
         if not url.startswith(('http://', 'https://')):
             url = 'https://' + url
-
         validate = URLValidator()
         try:
             validate(url)
         except forms.ValidationError:
             raise forms.ValidationError(f"Please enter a valid URL for {primary_domain}")
-
         domain = urlparse(url).netloc.lower()
         allowed = [primary_domain] + (alternative_domains or [])
         if not any(d in domain for d in allowed):
@@ -249,18 +242,9 @@ class LandlordProfileForm(forms.ModelForm):
 
 # ---------------------------------------------------------------------------
 # PropertyForm
-# NOTE: template must use enctype="multipart/form-data"
-# NOTE: view must pass request.FILES to the form:
-#       form = PropertyForm(request.POST, request.FILES, instance=property)
 # ---------------------------------------------------------------------------
 
 class PropertyForm(forms.ModelForm):
-    """
-    Form for creating / editing a property including multiple image upload.
-
-    Critical: the HTML form tag MUST have enctype="multipart/form-data" or
-    file uploads will silently never arrive at the server.
-    """
 
     images = MultipleFileField(
         required=False,
@@ -356,15 +340,11 @@ class PropertyForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        kwargs.pop('user', None)  # accept but ignore – kept for API compat
+        kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
             self.fields['amenities'].initial = self.instance.amenities.all()
             self.fields['delete_images'].queryset = self.instance.images.all()
-
-    # ------------------------------------------------------------------
-    # Validation
-    # ------------------------------------------------------------------
 
     def clean_price(self):
         price = self.cleaned_data.get('price')
@@ -382,28 +362,15 @@ class PropertyForm(forms.ModelForm):
         images = self.cleaned_data.get('images') or []
         if not images:
             return images
-
         if len(images) > 12:
             raise forms.ValidationError("You can upload a maximum of 12 images.")
-
         for image in images:
             if hasattr(image, 'size') and image.size > 5 * 1024 * 1024:
-                raise forms.ValidationError(
-                    f"'{image.name}' is too large (max 5 MB each)."
-                )
-            # content_type is only available on InMemoryUploadedFile /
-            # TemporaryUploadedFile (i.e. from request.FILES), not on
-            # already-saved file objects during tests.
+                raise forms.ValidationError(f"'{image.name}' is too large (max 5 MB each).")
             content_type = getattr(image, 'content_type', None)
             if content_type and not content_type.startswith('image/'):
-                raise forms.ValidationError(
-                    f"'{image.name}' is not a valid image file."
-                )
+                raise forms.ValidationError(f"'{image.name}' is not a valid image file.")
         return images
-
-    # ------------------------------------------------------------------
-    # Save
-    # ------------------------------------------------------------------
 
     def save(self, commit=True):
         prop = super().save(commit=False)
@@ -412,16 +379,16 @@ class PropertyForm(forms.ModelForm):
             prop.save()
             self.save_m2m()
 
-            # --- Delete selected images (also remove files from storage) ---
+            # Delete images marked for removal
             images_to_delete = self.cleaned_data.get('delete_images')
             if images_to_delete:
                 for img in images_to_delete:
-                    # Remove the actual file from storage
                     if img.image:
                         img.image.delete(save=False)
                     img.delete()
 
-            # --- Save new uploaded images ---
+            # Save new uploaded images
+            # Now that value_from_datadict uses getlist(), this receives ALL files
             new_images = self.cleaned_data.get('images') or []
             existing_count = prop.images.count()
             for i, img_file in enumerate(new_images):
@@ -460,7 +427,6 @@ class TenantForm(forms.ModelForm):
             del self.fields['landlord']
         if user:
             self.fields['property'].queryset = Property.objects.filter(landlord=user)
-
         for field_name, field in self.fields.items():
             if field_name == 'property':
                 continue
@@ -526,7 +492,6 @@ class LeaseAgreementForm(forms.ModelForm):
 
 # ---------------------------------------------------------------------------
 # MaintenanceRequestForm
-# NOTE: template must use enctype="multipart/form-data"
 # ---------------------------------------------------------------------------
 
 class MaintenanceRequestForm(forms.ModelForm):
@@ -573,7 +538,6 @@ class PaymentForm(forms.ModelForm):
 
 # ---------------------------------------------------------------------------
 # ExpenseForm
-# NOTE: template must use enctype="multipart/form-data" (receipt upload)
 # ---------------------------------------------------------------------------
 
 class ExpenseForm(forms.ModelForm):
@@ -658,11 +622,6 @@ class LandlordVerificationForm(BaseFormStyle, forms.ModelForm):
 
 
 class AdminCreationForm(BaseFormStyle, forms.ModelForm):
-    """
-    Creates a staff user with a default password.
-    The created user MUST change this password on first login.
-    """
-
     email = forms.EmailField(
         widget=forms.EmailInput(attrs={'placeholder': 'admin@example.com'}),
     )
@@ -700,12 +659,6 @@ class AdminAuthenticationForm(BaseFormStyle, AuthenticationForm):
 
 
 class AdminProfileForm(BaseFormStyle, forms.ModelForm):
-    """
-    Updates the User record. Profile picture is stored on LandlordProfile,
-    not directly on User – the view is responsible for saving it there.
-    NOTE: template must use enctype="multipart/form-data"
-    """
-
     profile_picture = forms.ImageField(
         required=False,
         widget=forms.FileInput(attrs={
@@ -725,13 +678,10 @@ class AdminProfileForm(BaseFormStyle, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # UserChangeForm injects a password field – remove it
         self.fields.pop('password', None)
 
     def save(self, commit=True):
         user = super().save(commit=commit)
-        # Profile picture must be saved by the view onto the correct model
-        # (LandlordProfile or admin profile), not on the User model.
         return user
 
 
